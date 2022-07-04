@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_breaking_logo"
+            android:layout_width="183dp"
+            android:layout_height="153dp"
+            android:layout_marginTop="160dp"
+            android:src="@drawable/sign_in_logo_breaking"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></ImageView>
+
+        <TextView
+            android:id="@+id/tv_sign_in_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="56dp"
+            android:text="@string/sign_in_text_title"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/btn_sign_in_kakao"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.495"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_breaking_logo"></TextView>
+
+        <Button
+            android:id="@+id/btn_sign_in_kakao"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginTop="88dp"
+            android:background="@drawable/btn_sign_in_round"
+            android:backgroundTint="@color/kakao_container"
+            android:drawableLeft="@drawable/btn_kakao_logo_resize"
+            android:paddingLeft="20dp"
+            android:text="@string/sign_in_btn_kakao"
+            app:layout_constraintEnd_toEndOf="@+id/btn_sign_in_google"
+            app:layout_constraintStart_toStartOf="@+id/btn_sign_in_google"
+            app:layout_constraintTop_toBottomOf="@+id/tv_sign_in_text"></Button>
+
+        <Button
+            android:id="@+id/btn_sign_in_google"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/btn_sign_in_round"
+            android:backgroundTint="@color/google_container"
+            android:drawableLeft="@drawable/btn_google_logo_resize"
+            android:paddingLeft="10dp"
+            android:paddingRight="20dp"
+            android:text="@string/sign_in_btn_google"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_sign_in_kakao"
+            app:layout_constraintVertical_bias="0.008"></Button>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
