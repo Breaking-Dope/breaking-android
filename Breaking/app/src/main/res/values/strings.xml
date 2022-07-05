@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Breaking</string>
     <string name="server_client_id">495554113249-qkdtgd68lie3j2l461kscmi07jcn7af3.apps.googleusercontent.com</string>
-    <string name="server_client_id2">495554113249-naoqn1asgitctbahosbka1eje9hmkdfu.apps.googleusercontent.com</string>
     <string name="sign_up_add_profile_text">프로필 추가</string>
     <string name="sign_up_nickname_text">닉네임</string>
     <string name="sign_up_phone_number_text">전화번호</string>
@@ -13,4 +12,8 @@
     <string name="sign_up_email_title">이메일</string>
     <string name="sign_up">회원가입</string>
     <string name="sign_up_name">이름</string>
+    <string name="splash_text">모두가 기자가 된다</string>
+    <string name="sign_in_text_title">Breaking을 통해 지금 바로 제보하세요.</string>
+    <string name="sign_in_btn_kakao">카카오톡으로 로그인하기</string>
+    <string name="sign_in_btn_google">구글로 로그인하기</string>
 </resources>
