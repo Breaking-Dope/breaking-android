@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Breaking</string>
+    <string name="splash_text">모두가 기자가 된다</string>
+    <string name="sign_in_text_title">Breaking을 통해 지금 바로 제보하세요.</string>
+    <string name="sign_in_btn_kakao">카카오톡으로 로그인하기</string>
+    <string name="sign_in_btn_google">구글로 로그인하기</string>
 </resources>
