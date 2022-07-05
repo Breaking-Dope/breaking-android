@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="sign_up_input_background_color">#EEEEEE</color>
+    <color name="sign_up_input_hint_text_color">#8E8E8E</color>
+    <color name="sign_up_button_background_color">#93C7F6</color>
+    <color name="sign_up_user_type_selected_color">#CDDDEA</color>
+    <color name="sign_up_user_type_unselected_color">#B0DDFF</color>
+    <color name="sign_up_user_type_text_color">#014D91</color>
+
 </resources>

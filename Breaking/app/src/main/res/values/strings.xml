@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Breaking</string>
+    <string name="server_client_id">495554113249-qkdtgd68lie3j2l461kscmi07jcn7af3.apps.googleusercontent.com</string>
+    <string name="server_client_id2">495554113249-naoqn1asgitctbahosbka1eje9hmkdfu.apps.googleusercontent.com</string>
+    <string name="sign_up_add_profile_text">프로필 추가</string>
+    <string name="sign_up_nickname_text">닉네임</string>
+    <string name="sign_up_phone_number_text">전화번호</string>
+    <string name="sign_up_state_message_title">상태 메시지(선택)</string>
+    <string name="sign_up_state_message_hint">상태 메시지(최대 200자)</string>
+    <string name="sign_up_user_type_title">회원 유형</string>
+    <string name="sign_up_user_type_default_btn">일반인</string>
+    <string name="sign_up_user_type_other_btn">언론인</string>
+    <string name="sign_up_email_title">이메일</string>
+    <string name="sign_up">회원가입</string>
+    <string name="sign_up_name">이름</string>
 </resources>
