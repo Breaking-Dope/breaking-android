@@ -1,7 +1,6 @@
 package com.dope.breaking.retrofit
 
-import com.dope.breaking.model.RequestKakaoToken
-import com.dope.breaking.model.KakaoLogin
+import com.dope.breaking.model.*
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -14,7 +13,23 @@ interface RetrofitService {
     @since - 2022-07-05 | 2022-07-06
      **/
     @POST("oauth/sign-in/kakao")
-    fun getKakaoUserInfo(
-        @Body token : RequestKakaoToken
-    ) : Call<KakaoLogin>
+    fun requestKakaoLogin(@Body token: RequestKakaoToken): Call<ResponseLogin>
+
+    /**
+     * 구글 로그인 토큰 검증 요청 메소드
+     * @request - RequestGoogleToken
+     * @response - ResponseLogin
+     * @author - Seunggun Sin
+     */
+    @POST("oauth/sign-in/google")
+    fun requestGoogleLogin(@Body tokens: RequestGoogleToken): Call<ResponseLogin>
+
+    /**
+     * OAuth2 구글 API 서버로부터 엑세스 토큰 요청 메소드
+     * @request - RequestGoogleAccessToken
+     * @response - ResponseGoogleAccessToken
+     * @author - Seunggun Sin
+     */
+    @POST("token")
+    fun requestGoogleAccessToken(@Body googleRequest: RequestGoogleAccessToken): Call<ResponseGoogleAccessToken>
 }
