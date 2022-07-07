@@ -13,6 +13,7 @@
     <color name="sign_up_user_type_selected_color">#CDDDEA</color>
     <color name="sign_up_user_type_unselected_color">#B0DDFF</color>
     <color name="sign_up_user_type_text_color">#014D91</color>
+    <color name="sign_up_input_error_text_color">#FF0000</color>
     <color name="kakao_container">#FEE500</color>
     <color name="google_container">#FFFFFF</color>
 </resources>

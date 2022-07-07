@@ -49,7 +49,7 @@
         android:background="@drawable/sign_up_button_background"
         android:text="@string/sign_up"
         android:textColor="@color/white"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -69,6 +69,8 @@
         android:padding="8dp"
         android:textColorHint="@color/sign_up_input_hint_text_color"
         android:textSize="17dp"
+        android:inputType="text"
+        android:maxLength="10"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -83,6 +85,8 @@
         android:layout_marginTop="5dp"
         android:background="@drawable/sign_up_input_background"
         android:hint="@string/sign_up_name"
+        android:inputType="textPersonName"
+        android:maxLength="30"
         android:padding="8dp"
         android:textColorHint="@color/sign_up_input_hint_text_color"
         android:textSize="17dp"
@@ -92,6 +96,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_name"
         app:layout_constraintWidth_percent="0.8" />
+
     <EditText
         android:id="@+id/et_phone_number"
         android:layout_width="0dp"
@@ -102,6 +107,8 @@
         android:padding="8dp"
         android:textColorHint="@color/sign_up_input_hint_text_color"
         android:textSize="17dp"
+        android:inputType="phone"
+        android:maxLength="11"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_phone_number"
@@ -117,6 +124,8 @@
         android:padding="8dp"
         android:textColorHint="@color/sign_up_input_hint_text_color"
         android:textSize="17dp"
+        android:inputType="text"
+        android:maxLength="60"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_state_message"
@@ -132,6 +141,8 @@
         android:padding="8dp"
         android:textColorHint="@color/sign_up_input_hint_text_color"
         android:textSize="17dp"
+        android:inputType="textEmailAddress"
+        android:maxLength="30"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_email"
@@ -197,7 +208,7 @@
         app:layout_constraintBottom_toTopOf="@id/et_phone_number"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="@id/et_phone_number"
-        app:layout_constraintTop_toBottomOf="@id/et_nickname" />
+        app:layout_constraintTop_toBottomOf="@id/tv_nickname_error" />
 
     <TextView
         android:id="@+id/tv_state_message"
@@ -209,7 +220,7 @@
         android:textSize="19dp"
         app:layout_constraintBottom_toTopOf="@id/et_state_message"
         app:layout_constraintStart_toStartOf="@id/et_state_message"
-        app:layout_constraintTop_toBottomOf="@id/et_email" />
+        app:layout_constraintTop_toBottomOf="@id/tv_email_error" />
 
     <TextView
         android:id="@+id/tv_user_type"
@@ -232,6 +243,37 @@
         android:textSize="19dp"
         app:layout_constraintBottom_toTopOf="@id/et_email"
         app:layout_constraintStart_toStartOf="@id/et_email"
-        app:layout_constraintTop_toBottomOf="@id/et_phone_number" />
+        app:layout_constraintTop_toBottomOf="@id/tv_phone_number_error" />
+
+    <TextView
+        android:id="@+id/tv_nickname_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up_error_used_nickname_text"
+        android:textColor="@color/sign_up_input_error_text_color"
+        app:layout_constraintStart_toStartOf="@id/et_nickname"
+        app:layout_constraintTop_toBottomOf="@id/et_nickname"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/tv_phone_number_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up_error_invalid_phone_number_text"
+        android:textColor="@color/sign_up_input_error_text_color"
+        app:layout_constraintStart_toStartOf="@id/et_phone_number"
+        app:layout_constraintTop_toBottomOf="@id/et_phone_number"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/tv_email_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up_error_invalid_email_text"
+        android:textColor="@color/sign_up_input_error_text_color"
+        app:layout_constraintStart_toStartOf="@id/et_email"
+        app:layout_constraintTop_toBottomOf="@id/et_email"
+        android:visibility="visible"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
