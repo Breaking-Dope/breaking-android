@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Breaking</string>
-    <string name="server_client_id">495554113249-qkdtgd68lie3j2l461kscmi07jcn7af3.apps.googleusercontent.com</string>
     <string name="sign_up_add_profile_text">프로필 추가</string>
     <string name="sign_up_nickname_text">닉네임</string>
     <string name="sign_up_phone_number_text">전화번호</string>
