@@ -10,5 +10,11 @@ class RetrofitManager {
             .baseUrl("https://team-dope.link:8443") // 서버 주소
             .addConverterFactory(GsonConverterFactory.create()) // gson 컨버터
             .build()
+
+        // 구글 api 서버에 대한 retrofit 객체 선언
+        val retrofitGoogle = Retrofit.Builder()
+            .baseUrl("https://oauth2.googleapis.com")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
 }
