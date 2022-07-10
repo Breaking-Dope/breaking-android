@@ -67,8 +67,15 @@ class SignInActivity : AppCompatActivity() {
                             메소드의 결과로 회원가입이 필요한지 필요하지 않은지 boolean 값을 리턴(jwt 토큰의 유무)
                             true 면 회원가입 필요, false 면 회원가입 필요 x
                             */
-                            val isNecessary = googleLogin.requestGoogleLogin(account)
-                            println("JWT 토큰 유무 결과: $isNecessary")
+                            val isExisting = googleLogin.requestGoogleLogin(account)
+
+                            // Jwt 토큰이 없고, response body 가 정상적인 값이 있다면
+                            if (!isExisting && googleLogin.responseBody != null) {
+                                // 회원가입 페이지로 이동
+                                moveToSignUpPage(googleLogin.responseBody!!)
+                            } else {
+                                // 로그인 처리와 메인 피드로 이동 + 에러 처리 필요
+                            }
                         }
                     } catch (e: ApiException) { // ApiException: 구글 로그인 시 발생하는 에러
                         e.printStackTrace()
@@ -186,6 +193,19 @@ class SignInActivity : AppCompatActivity() {
                 Log.d("onFailure", "실패$t")
             }
         })
+    }
+
+    /**
+     * 회원가입 페이지(Activity) 로 이동하는 함수 with 데이터
+     * @param response(ResponseLogin): 계정 유무 검증에 대한 응답 값
+     * @return - None
+     * @author - Seunggun Sin
+     * @since - 2022-07-09
+     */
+    private fun moveToSignUpPage(response: ResponseLogin) {
+        val intent = Intent(this, SignUpActivity::class.java)
+        intent.putExtra("responseBody", response) // Serializable class 데이터를 집어 넣음
+        startActivity(intent)
     }
 
     override fun onStart() {
