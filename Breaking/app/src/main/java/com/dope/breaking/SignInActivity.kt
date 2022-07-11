@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.dope.breaking.databinding.ActivitySignInBinding
+import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.*
 import com.dope.breaking.oauth.GoogleLogin
 import com.dope.breaking.retrofit.RetrofitManager
@@ -68,8 +69,8 @@ class SignInActivity : AppCompatActivity() {
                             true 면 회원가입 필요, false 면 회원가입 필요 x
                             */
                             val isExisting = googleLogin.requestGoogleLogin(account)
-
                             // Jwt 토큰이 없고, response body 가 정상적인 값이 있다면
+
                             if (!isExisting && googleLogin.responseBody != null) {
                                 // 회원가입 페이지로 이동
                                 moveToSignUpPage(googleLogin.responseBody!!)
@@ -79,6 +80,9 @@ class SignInActivity : AppCompatActivity() {
                         }
                     } catch (e: ApiException) { // ApiException: 구글 로그인 시 발생하는 에러
                         e.printStackTrace()
+                    } catch (e: ResponseErrorException) {
+                        e.printStackTrace()
+                        // 응답 에러에 대한 예외 처리하기
                     }
                 }
             }
