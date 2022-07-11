@@ -22,15 +22,16 @@ class Register {
      * @param imageName(String): 프로필 이미지의 파일 이름
      * @throws ResponseErrorException: 정상 응답 (2xx) 이외의 응답이 왔을 때 exception 발생
      * @return Headers: 응답에 대한 헤더 전체 데이터
-     * @author - Seunggun Sin
-     * @since - 2022-07-08 | 2022-07-09
+     * @author Seunggun Sin
+     * @since 2022-07-08 | 2022-07-09
      */
     @Throws(ResponseErrorException::class) // @Throws 어노테이션 사용 (Java 에서의 throws 키워드)
-    fun startRequestSignUp(
+    suspend fun startRequestSignUp(
         inputData: RequestSignUp,
         imageData: Bitmap,
         imageName: String
     ): Headers {
+
         // Retrofit 서비스 객체 생성
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
         // 이미지에 대한 RequestBody 생성 (image/*)
@@ -50,7 +51,7 @@ class Register {
             return response.headers() // 응답의 헤더 객체 리턴
         } else { // 실패했다면
             // 예외 던지기
-            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody().toString()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
         }
     }
 
@@ -58,13 +59,17 @@ class Register {
      * Bitmap 데이터를 Byte Array 형태로 변환 (이미지 compression 포함)
      * @param bitmap(Bitmap): Bitmap 타입의 이미지 데이터
      * @param quality(Int): 이미지의 품질 (%) - default=100
-     * @return - ByteArray: 변환된 byte array
-     * @author - Seunggun Sin
-     * @since - 2022-07-09
+     * @return ByteArray: 변환된 byte array
+     * @author Seunggun Sin
+     * @since 2022-07-09
      */
     private fun convertBitmapToByte(bitmap: Bitmap, quality: Int = 100): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream) // compression 및 변환
+        bitmap.compress(
+            Bitmap.CompressFormat.JPEG,
+            quality,
+            byteArrayOutputStream
+        ) // compression 및 변환
         return byteArrayOutputStream.toByteArray()
     }
 
