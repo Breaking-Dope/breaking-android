@@ -18,9 +18,9 @@ import androidx.core.graphics.drawable.toBitmap
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.exception.MissingJwtTokenException
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.RequestSignUp
-import com.dope.breaking.model.ResponseJwtUserInfo
-import com.dope.breaking.model.ResponseLogin
+import com.dope.breaking.model.request.RequestSignUp
+import com.dope.breaking.model.response.ResponseJwtUserInfo
+import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.signup.Register
 import com.dope.breaking.signup.Validation
 import com.dope.breaking.util.JwtTokenUtil

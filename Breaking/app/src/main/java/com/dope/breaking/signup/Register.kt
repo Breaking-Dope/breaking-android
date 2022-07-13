@@ -2,7 +2,7 @@ package com.dope.breaking.signup
 
 import android.graphics.Bitmap
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.RequestSignUp
+import com.dope.breaking.model.request.RequestSignUp
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import okhttp3.Headers

@@ -2,12 +2,11 @@ package com.dope.breaking.oauth
 
 import android.content.Context
 import com.dope.breaking.BuildConfig
-import com.dope.breaking.SignInActivity
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.RequestGoogleAccessToken
-import com.dope.breaking.model.RequestGoogleToken
-import com.dope.breaking.model.ResponseGoogleAccessToken
-import com.dope.breaking.model.ResponseLogin
+import com.dope.breaking.model.request.RequestGoogleAccessToken
+import com.dope.breaking.model.request.RequestGoogleToken
+import com.dope.breaking.model.response.ResponseGoogleAccessToken
+import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import com.dope.breaking.util.JwtTokenUtil
@@ -18,7 +17,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import okhttp3.Headers
 import retrofit2.Response
 
 class GoogleLogin(private val context: Context) {

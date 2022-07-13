@@ -1,6 +1,11 @@
 package com.dope.breaking.retrofit
 
-import com.dope.breaking.model.*
+import com.dope.breaking.model.request.RequestGoogleAccessToken
+import com.dope.breaking.model.request.RequestGoogleToken
+import com.dope.breaking.model.request.RequestKakaoToken
+import com.dope.breaking.model.response.ResponseGoogleAccessToken
+import com.dope.breaking.model.response.ResponseJwtUserInfo
+import com.dope.breaking.model.response.ResponseLogin
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call

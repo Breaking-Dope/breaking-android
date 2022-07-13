@@ -10,7 +10,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.dope.breaking.databinding.ActivitySignInBinding
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.*
+import com.dope.breaking.model.request.RequestKakaoToken
+import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.oauth.GoogleLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
