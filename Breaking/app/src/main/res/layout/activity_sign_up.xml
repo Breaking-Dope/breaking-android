@@ -44,6 +44,7 @@
         app:layout_constraintWidth_percent="0.17" />
 
     <Button
+        android:id="@+id/btn_user_register"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/sign_up_button_background"
@@ -155,6 +156,7 @@
         android:layout_margin="15dp"
         android:cropToPadding="true"
         android:scaleType="fitXY"
+        android:adjustViewBounds="true"
         android:background="@drawable/ic_default_profile_image"
         app:layout_constraintBottom_toTopOf="@id/et_nickname"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -184,7 +186,9 @@
         android:textSize="19dp"
         app:layout_constraintBottom_toTopOf="@id/et_nickname"
         app:layout_constraintStart_toStartOf="@id/et_nickname"
-        app:layout_constraintTop_toBottomOf="@id/et_name" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_name_error"
+        />
 
     <TextView
         android:id="@+id/tv_name"
@@ -246,6 +250,16 @@
         app:layout_constraintTop_toBottomOf="@id/tv_phone_number_error" />
 
     <TextView
+        android:id="@+id/tv_name_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up_error_used_nickname_text"
+        android:textColor="@color/sign_up_input_error_text_color"
+        app:layout_constraintStart_toStartOf="@id/et_name"
+        app:layout_constraintTop_toBottomOf="@id/et_name"
+        android:visibility="gone"/>
+
+    <TextView
         android:id="@+id/tv_nickname_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -253,7 +267,7 @@
         android:textColor="@color/sign_up_input_error_text_color"
         app:layout_constraintStart_toStartOf="@id/et_nickname"
         app:layout_constraintTop_toBottomOf="@id/et_nickname"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tv_phone_number_error"
@@ -263,7 +277,7 @@
         android:textColor="@color/sign_up_input_error_text_color"
         app:layout_constraintStart_toStartOf="@id/et_phone_number"
         app:layout_constraintTop_toBottomOf="@id/et_phone_number"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tv_email_error"
@@ -273,7 +287,7 @@
         android:textColor="@color/sign_up_input_error_text_color"
         app:layout_constraintStart_toStartOf="@id/et_email"
         app:layout_constraintTop_toBottomOf="@id/et_email"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
