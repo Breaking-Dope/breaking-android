@@ -1,8 +1,9 @@
-package com.dope.breaking
+package com.dope.breaking.signup
 
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.View
+import com.dope.breaking.R
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
@@ -62,7 +63,8 @@ class Validation() {
             var errorString = resNickname.errorBody()?.string()!!
             Log.d(TAG, "닉네임 검증 실패 : "+errorString)
             if(binding.etNickname.text.toString().isNotBlank()){ // 닉네임을 입력했는데
-                if(errorString == "{\"message\":\"이미 사용 중인 닉네임입니다.\"}"){
+                if(errorString == "{\"message\":\"이미 사용중인NICKNAME입니다.\"}"){
+                    Log.d(TAG, "중복 에러 테스트")
                     binding.tvNicknameError.setText(R.string.sign_up_error_used_nickname_text) // 중복 에러인 경우
                     binding.tvNicknameError.visibility = View.VISIBLE
                 }else if(errorString == "{\"message\":\"2~10자의 영문, 한글, 숫자만 입력해주시기 바랍니다.\"}"){
