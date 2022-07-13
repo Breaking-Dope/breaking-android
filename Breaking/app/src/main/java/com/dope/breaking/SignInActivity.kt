@@ -176,6 +176,12 @@ class SignInActivity : AppCompatActivity() {
                 if (response.isSuccessful) { // response의 body가 정상적인지
                     var data = response.body()    // GsonConverter를 사용해 데이터매핑하여 자동 변환
                     Log.d(TAG, "successful response body : " + data)
+                    // hasJwtToken() 함수 모듈화 필요해보임.. 임시 방편
+                    if((response.headers()["authorization"] == null || response.headers()["authorization"]!!.isEmpty())){
+                        Toast.makeText(applicationContext, "jwt 토큰이 없습니다!", Toast.LENGTH_SHORT).show()
+                        var intent = Intent(applicationContext, SignUpActivity::class.java)
+                        startActivity(intent)
+                    }
                 } else {
                     Log.d(TAG, "response error: " + response.errorBody()?.string()!!)
                 }
