@@ -1,4 +1,4 @@
-package com.dope.breaking.utils
+package com.dope.breaking.util
 
 import android.content.ContentResolver
 import android.content.Context
@@ -9,16 +9,18 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.text.InputFilter
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dope.breaking.databinding.ActivitySignUpBinding
+import java.net.URI
 import java.util.regex.Pattern
 
 
-object Util { // 컴패니언 객체 (Static)
+object Utils { // 컴패니언 객체 (Static)
     /**
     @description - 닉네임 입력 시 원하는 정규식에 맞게 입력 가능하도록 하는 함수
     @param - 정규식 form, 입력 문자열 길이, 컨텍스트
@@ -26,7 +28,7 @@ object Util { // 컴패니언 객체 (Static)
     @author - Tae hyun Park
     @since - 2022-07-08
      **/
-    internal fun RegularExpressionNickname(form : String, length : Int, context : Context) : Array<InputFilter>{
+    internal fun regularExpressionNickname(form : String, length : Int, context : Context) : Array<InputFilter>{
         return arrayOf(InputFilter { source, _, _, _, _, _ ->
             val ps: Pattern =
                 Pattern.compile(form) // 한글, 숫자, 영문만 가능하도록 설정
@@ -86,23 +88,20 @@ object Util { // 컴패니언 객체 (Static)
     }
 
     /**
-    @description - 이미지 실제 경로 반환
+    @description - uri로 선택한 이미지 파일에 대한 파일명을 가져오는 함수
     @param - Uri
     @return - String?
     @author - Tae hyun Park
-    @since - 2022-07-09 | 2022-07-12
+    @since - 2022-07-09 | 2022-07-13
      */
-    internal fun getRealPathFromURI(uri: Uri, contentResolver: ContentResolver): String? { // 추가적인 모듈화 가능할듯?
+    internal fun getFileNameFromURI(uri: Uri, contentResolver: ContentResolver): String? { // 추가적인 모듈화 가능할듯?
         var buildName = Build.MANUFACTURER
         if (buildName.equals("Xiaomi")) {
             return uri.path
         }
-        var columnIndex = 0
-        var proj = arrayOf(MediaStore.Images.Media.DATA)
-        var cursor = contentResolver.query(uri, proj, null, null, null)
-        if (cursor!!.moveToFirst()) {
-            columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        }
-        return cursor.getString(columnIndex)
+        var cursor = contentResolver.query(uri, null, null, null, null)
+        var nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME) // 파일명 반환
+        cursor!!.moveToFirst() // 커서 위치 이동
+        return cursor.getString(nameIndex!!)
     }
 }
