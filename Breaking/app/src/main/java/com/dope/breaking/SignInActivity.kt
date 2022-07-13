@@ -9,10 +9,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.dope.breaking.databinding.ActivitySignInBinding
+import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.*
 import com.dope.breaking.oauth.GoogleLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.util.JwtTokenUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.kakao.sdk.auth.model.OAuthToken
@@ -28,11 +30,11 @@ class SignInActivity : AppCompatActivity() {
     // Log Tag
     private val TAG = "SignInActivity.kt"
 
-    // 전역 변수로 바인딩 객체 선언
-    private var mbinding: ActivitySignInBinding? = null
+    private var mbinding: ActivitySignInBinding? = null  // 전역 변수로 바인딩 객체 선언
 
-    // 매번 null 체크할 필요 없이 바인딩 변수 재 선언
-    private val binding get() = mbinding!!
+    private val binding get() = mbinding!!     // 매번 null 체크할 필요 없이 바인딩 변수 재 선언
+
+    private val jwtHeaderKey = "authorization" // JWT 토큰 검증을 위한 헤더 키 값
 
     //구글 로그인 intent 호출 후, 로그인 intent 의 결과를 받기 위해 ActivityResult 객체 선언
     private lateinit var googleLoginActivityResult: ActivityResultLauncher<Intent>
@@ -67,11 +69,21 @@ class SignInActivity : AppCompatActivity() {
                             메소드의 결과로 회원가입이 필요한지 필요하지 않은지 boolean 값을 리턴(jwt 토큰의 유무)
                             true 면 회원가입 필요, false 면 회원가입 필요 x
                             */
-                            val isNecessary = googleLogin.requestGoogleLogin(account)
-                            println("JWT 토큰 유무 결과: $isNecessary")
+                            val isExisting = googleLogin.requestGoogleLogin(account)
+                            // Jwt 토큰이 없고, response body 가 정상적인 값이 있다면
+
+                            if (!isExisting && googleLogin.responseBody != null) {
+                                // 회원가입 페이지로 이동
+                                moveToSignUpPage(googleLogin.responseBody!!)
+                            } else {
+                                // 로그인 처리와 메인 피드로 이동 + 에러 처리 필요
+                            }
                         }
                     } catch (e: ApiException) { // ApiException: 구글 로그인 시 발생하는 에러
                         e.printStackTrace()
+                    } catch (e: ResponseErrorException) {
+                        e.printStackTrace()
+                        // 응답 에러에 대한 예외 처리하기
                     }
                 }
             }
@@ -120,7 +132,7 @@ class SignInActivity : AppCompatActivity() {
                     Toast.makeText(this, nickname + "님, 로그인을 환영합니다", Toast.LENGTH_LONG).show()
                 }
                 // 토큰 검증을 위해 retrofit을 이용하여 back-end 서버에 request
-                ValidationLoginKakao(token.accessToken)
+                validationLoginKakao(token.accessToken)
 
                 // 로그인 성공 시 넘어가는 로직 작성 필요
             }
@@ -162,7 +174,7 @@ class SignInActivity : AppCompatActivity() {
     @author - Tae hyun Park
     @since - 2022-07-05 | 2022-07-06
      **/
-    fun ValidationLoginKakao(token: String) {
+    fun validationLoginKakao(token: String) {
         // 요청 인터페이스 구현을 위한 service 객체 create
         var service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
@@ -176,11 +188,11 @@ class SignInActivity : AppCompatActivity() {
                 if (response.isSuccessful) { // response의 body가 정상적인지
                     var data = response.body()    // GsonConverter를 사용해 데이터매핑하여 자동 변환
                     Log.d(TAG, "successful response body : " + data)
-                    // hasJwtToken() 함수 모듈화 필요해보임.. 임시 방편
-                    if((response.headers()["authorization"] == null || response.headers()["authorization"]!!.isEmpty())){
-                        Toast.makeText(applicationContext, "jwt 토큰이 없습니다!", Toast.LENGTH_SHORT).show()
-                        var intent = Intent(applicationContext, SignUpActivity::class.java)
-                        startActivity(intent)
+
+                    var jwtTokenUtil = JwtTokenUtil(applicationContext)
+                    if(!jwtTokenUtil.hasJwtToken(jwtHeaderKey, response.headers())){
+                        if (data != null)
+                            moveToSignUpPage(data)
                     }
                 } else {
                     Log.d(TAG, "response error: " + response.errorBody()?.string()!!)
@@ -192,6 +204,19 @@ class SignInActivity : AppCompatActivity() {
                 Log.d("onFailure", "실패$t")
             }
         })
+    }
+
+    /**
+     * 회원가입 페이지(Activity) 로 이동하는 함수 with 데이터
+     * @param response(ResponseLogin): 계정 유무 검증에 대한 응답 값
+     * @return - None
+     * @author - Seunggun Sin
+     * @since - 2022-07-09
+     */
+    private fun moveToSignUpPage(response: ResponseLogin) {
+        val intent = Intent(this, SignUpActivity::class.java)
+        intent.putExtra("responseBody", response) // Serializable class 데이터를 집어 넣음
+        startActivity(intent)
     }
 
     override fun onStart() {
