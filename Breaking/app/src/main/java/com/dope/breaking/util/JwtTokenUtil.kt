@@ -2,7 +2,7 @@ package com.dope.breaking.util
 
 import android.content.Context
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.ResponseJwtUserInfo
+import com.dope.breaking.model.response.ResponseJwtUserInfo
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import okhttp3.Headers

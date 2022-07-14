@@ -3,12 +3,13 @@ package com.dope.breaking.oauth
 import android.content.Context
 import com.dope.breaking.BuildConfig
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.RequestGoogleAccessToken
-import com.dope.breaking.model.RequestGoogleToken
-import com.dope.breaking.model.ResponseGoogleAccessToken
-import com.dope.breaking.model.ResponseLogin
+import com.dope.breaking.model.request.RequestGoogleAccessToken
+import com.dope.breaking.model.request.RequestGoogleToken
+import com.dope.breaking.model.response.ResponseGoogleAccessToken
+import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.util.JwtTokenUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -16,7 +17,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import okhttp3.Headers
 import retrofit2.Response
 
 class GoogleLogin(private val context: Context) {
@@ -67,7 +67,8 @@ class GoogleLogin(private val context: Context) {
         }
         if (validationResponse.code() in 200..299) {
             // 토큰이 있으면 true, 없으면 false 리턴
-            return hasJwtToken(jwtHeaderKey, validationResponse.headers())
+            var jwtTokenUtil = JwtTokenUtil(context)
+            return jwtTokenUtil.hasJwtToken(jwtHeaderKey, validationResponse.headers())
         } else {
             throw ResponseErrorException(
                 "요청에 실패하였습니다. code: ${validationResponse.code()}\nerror: ${
@@ -140,17 +141,4 @@ class GoogleLogin(private val context: Context) {
             ).execute() // 응답 결과 자체를 리턴
         }.await() // async 블럭의 코드가 실행될 때까지 기다리고 끝나면 결과 값 리턴
     }
-
-    /**
-     * JWT 토큰이 있는지 없는지 판단. 헤더의 값이 null 이거나 빈 문자열이면 false 리턴, 값이 존재하면 true 리턴.
-     * @param headerName(String): jwt 토큰을 위한 헤더 key 값으로, "authorization"로 고정
-     * @param headers(Headers): 백엔드 서버로 요청의 결과로 받은 응답의 헤더 객체인 response.headers().
-     * @return 응답의 결과로 토큰이 있는지 없는지에 대한 bool 값 리턴
-     * @author Seunggun Sin
-     * @since 2022-07-07
-     */
-    private fun hasJwtToken(headerName: String, headers: Headers): Boolean =
-        // Map 데이터로 인덱스 연산자에 문자열을 넣는 key-value 방식을 사용하여 헤더 map 데이터에 headerName 문자열을 넣었을 때
-        // 나오는 value 의 값이 null 이거나 빈 문자열이라면 false 리턴, 그렇지 않고 정상적인 값이 있으면 true 리턴
-        !(headers[headerName] == null || headers[headerName]!!.isEmpty())
 }

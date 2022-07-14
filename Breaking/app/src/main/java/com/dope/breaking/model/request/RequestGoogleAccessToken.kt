@@ -1,4 +1,4 @@
-package com.dope.breaking.model
+package com.dope.breaking.model.request
 
 class RequestGoogleAccessToken(
     val client_id: String,

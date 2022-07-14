@@ -1,4 +1,4 @@
-package com.dope.breaking.model
+package com.dope.breaking.model.response
 
 import com.google.gson.annotations.SerializedName
 

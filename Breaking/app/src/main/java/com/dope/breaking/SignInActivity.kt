@@ -10,10 +10,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.dope.breaking.databinding.ActivitySignInBinding
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.*
+import com.dope.breaking.model.request.RequestKakaoToken
+import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.oauth.GoogleLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.util.JwtTokenUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.kakao.sdk.auth.model.OAuthToken
@@ -29,11 +31,11 @@ class SignInActivity : AppCompatActivity() {
     // Log Tag
     private val TAG = "SignInActivity.kt"
 
-    // 전역 변수로 바인딩 객체 선언
-    private var mbinding: ActivitySignInBinding? = null
+    private var mbinding: ActivitySignInBinding? = null  // 전역 변수로 바인딩 객체 선언
 
-    // 매번 null 체크할 필요 없이 바인딩 변수 재 선언
-    private val binding get() = mbinding!!
+    private val binding get() = mbinding!!     // 매번 null 체크할 필요 없이 바인딩 변수 재 선언
+
+    private val jwtHeaderKey = "authorization" // JWT 토큰 검증을 위한 헤더 키 값
 
     //구글 로그인 intent 호출 후, 로그인 intent 의 결과를 받기 위해 ActivityResult 객체 선언
     private lateinit var googleLoginActivityResult: ActivityResultLauncher<Intent>
@@ -131,7 +133,7 @@ class SignInActivity : AppCompatActivity() {
                     Toast.makeText(this, nickname + "님, 로그인을 환영합니다", Toast.LENGTH_LONG).show()
                 }
                 // 토큰 검증을 위해 retrofit을 이용하여 back-end 서버에 request
-                ValidationLoginKakao(token.accessToken)
+                validationLoginKakao(token.accessToken)
 
                 // 로그인 성공 시 넘어가는 로직 작성 필요
             }
@@ -173,7 +175,7 @@ class SignInActivity : AppCompatActivity() {
     @author - Tae hyun Park
     @since - 2022-07-05 | 2022-07-06
      **/
-    fun ValidationLoginKakao(token: String) {
+    fun validationLoginKakao(token: String) {
         // 요청 인터페이스 구현을 위한 service 객체 create
         var service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
@@ -187,6 +189,12 @@ class SignInActivity : AppCompatActivity() {
                 if (response.isSuccessful) { // response의 body가 정상적인지
                     var data = response.body()    // GsonConverter를 사용해 데이터매핑하여 자동 변환
                     Log.d(TAG, "successful response body : " + data)
+
+                    var jwtTokenUtil = JwtTokenUtil(applicationContext)
+                    if(!jwtTokenUtil.hasJwtToken(jwtHeaderKey, response.headers())){
+                        if (data != null)
+                            moveToSignUpPage(data)
+                    }
                 } else {
                     Log.d(TAG, "response error: " + response.errorBody()?.string()!!)
                 }
