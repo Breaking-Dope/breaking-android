@@ -1,6 +1,6 @@
 package com.dope.breaking
 
-import com.dope.breaking.model.RequestSignUp
+import com.dope.breaking.model.request.RequestSignUp
 import org.junit.Test
 
 class RequestSignUpTest {

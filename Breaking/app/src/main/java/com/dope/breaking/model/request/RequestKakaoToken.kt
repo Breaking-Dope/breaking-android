@@ -1,4 +1,4 @@
-package com.dope.breaking.model
+package com.dope.breaking.model.request
 
 class RequestKakaoToken {
     // 카카오 로그인 성공 시 받는 액세스 토큰
