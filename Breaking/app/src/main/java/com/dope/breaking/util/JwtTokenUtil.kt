@@ -2,7 +2,7 @@ package com.dope.breaking.util
 
 import android.content.Context
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.model.response.ResponseJwtUserInfo
+import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import okhttp3.Headers
@@ -20,7 +20,7 @@ class JwtTokenUtil(context: Context) {
 
     /**
      * 로컬 파일, 즉, SharedPreferences 로부터 토큰 값을 가져오는 메소드
-     * @param - None
+     * @param None
      * @return String?: 로컬에 저장된 jwt 토큰 값 리턴, 없다면 null 리턴
      * @author Seunggun Sin
      * @since 2022-07-09
@@ -33,13 +33,13 @@ class JwtTokenUtil(context: Context) {
     /**
      * 백엔드 서버에 Jwt 토큰 만료 확인 등, 재 로그인 및 자동 로그인에 사용되는 토큰 검증 메소드
      * @param token(String): Jwt 토큰 문자열 값
-     * @return ResponseJwtUserInfo: 응답으로 받은 유저의 기본 정보 DTO 객체
+     * @return ResponseExistLogin: 응답으로 받은 유저의 기본 정보 DTO 객체
      * @throws ResponseErrorException: 정상 응답 (2xx) 이외의 응답이 왔을 때 exception 발생
      * @author Seunggun Sin
-     * @since 2022-07-11
+     * @since 2022-07-11 | 2022-07-16
      */
     @Throws(ResponseErrorException::class)
-    suspend fun validateJwtToken(token: String): ResponseJwtUserInfo {
+    suspend fun validateJwtToken(token: String): ResponseExistLogin {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
         val response = service.requestValidationJwt(token)
 
@@ -72,7 +72,7 @@ class JwtTokenUtil(context: Context) {
     /**
      * 로컬에 토큰 값을 저장하는 메소드 (key=token)
      * @param token(String): 저장하고자 하는 jwt 토큰 문자열
-     * @return - None
+     * @return None
      * @author Seunggun Sin
      * @since 2022-07-09
      */

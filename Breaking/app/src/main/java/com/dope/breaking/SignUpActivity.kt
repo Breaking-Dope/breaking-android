@@ -19,7 +19,6 @@ import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.exception.MissingJwtTokenException
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.request.RequestSignUp
-import com.dope.breaking.model.response.ResponseJwtUserInfo
 import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.signup.Register
 import com.dope.breaking.signup.Validation
@@ -31,6 +30,8 @@ import com.dope.breaking.util.Utils.setImageWithGlide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.regex.Pattern
+import com.dope.breaking.model.response.ResponseExistLogin
 
 
 class SignUpActivity : AppCompatActivity() {
@@ -253,7 +254,8 @@ class SignUpActivity : AppCompatActivity() {
                 Log.d(TAG, "3가지 검증 요청 결과 : " + validationResult.toString())
 
                 // 유효성 검증에 성공했다면 최종 회원가입 요청을 보냄.
-                if(validationResult){
+
+                if (validationResult) {
                     val inputData = RequestSignUp(
                         responseBody.userName,
                         nickName,
@@ -266,10 +268,10 @@ class SignUpActivity : AppCompatActivity() {
                     // 회원가입 요청 시작, 회원가입 버튼 클릭하고 검증 완료 후 input 데이터와 함께 호출
                     processSignUp(
                         inputData = inputData,
-                        imageData = profileImgBitmap?:defaultProfile,
-                        imageName = filename?:"default.png"
+                        imageData = profileImgBitmap ?: defaultProfile,
+                        imageName = filename ?: "default.png"
                     )
-                    Log.d(TAG, "filename test : "+filename)
+                    Log.d(TAG, "filename test : " + filename)
                 }
             }
         })
@@ -282,11 +284,12 @@ class SignUpActivity : AppCompatActivity() {
      * @author Seunggun Sin
      * @since 2022-07-11
      */
-    private fun moveToMainPage(userInfo: ResponseJwtUserInfo) {
+    private fun moveToMainPage(userInfo: ResponseExistLogin) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("userInfo", userInfo)
         intent.flags =
             Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
     }
+
 }
