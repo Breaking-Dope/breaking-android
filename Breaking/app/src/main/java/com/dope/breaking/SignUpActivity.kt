@@ -1,40 +1,38 @@
 package com.dope.breaking
 
-import android.content.Intent
-import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.text.InputFilter
-import android.widget.Toast
-import androidx.appcompat.content.res.AppCompatResources
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.*
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.exception.MissingJwtTokenException
 import com.dope.breaking.exception.ResponseErrorException
-import com.dope.breaking.signup.Register
-import com.dope.breaking.util.JwtTokenUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.regex.Pattern
 import com.dope.breaking.model.request.RequestSignUp
-import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.model.response.ResponseLogin
+import com.dope.breaking.signup.Register
 import com.dope.breaking.signup.Validation
+import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils.regularExpressionNickname
 import com.dope.breaking.util.Utils.getBitmapWithGlide
 import com.dope.breaking.util.Utils.getFileNameFromURI
 import com.dope.breaking.util.Utils.setImageWithGlide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.regex.Pattern
+import com.dope.breaking.model.response.ResponseExistLogin
+
 
 class SignUpActivity : AppCompatActivity() {
     private val TAG = "SignUpActivity.kt" // Log Tag
@@ -69,17 +67,6 @@ class SignUpActivity : AppCompatActivity() {
             if (data is ResponseLogin)
                 responseBody = data
         }
-
-        // 닉네임 정규표현식 설정
-        binding.etNickname.filters = arrayOf(InputFilter { source, _, _, _, _, _ ->
-            val ps: Pattern =
-                Pattern.compile("^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\\\\u318D\\\\u119E\\\\u11A2\\\\u2022\\\\u2025a\\\\u00B7\\\\uFE55]+\$") // 한글, 숫자, 영문만 가능하도록 설정
-            if (source == "" || ps.matcher(source).matches()) {
-                return@InputFilter source
-            }
-            Toast.makeText(this, "한글, 영문, 숫자만 입력 가능합니다.", Toast.LENGTH_SHORT).show()
-            ""
-        }, InputFilter.LengthFilter(10))
 
         // drawable 에 저장된 기본 xml 을 기본 프로필 이미지 bitmap 으로 생성
         defaultProfile =
@@ -267,6 +254,7 @@ class SignUpActivity : AppCompatActivity() {
                 Log.d(TAG, "3가지 검증 요청 결과 : " + validationResult.toString())
 
                 // 유효성 검증에 성공했다면 최종 회원가입 요청을 보냄.
+
                 if (validationResult) {
                     val inputData = RequestSignUp(
                         responseBody.userName,
