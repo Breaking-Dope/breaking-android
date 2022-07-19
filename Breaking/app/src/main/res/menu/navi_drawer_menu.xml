@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_drawer_point"
+            android:icon="@drawable/ic_navi_drawer_menu_point"
+            android:title="@string/drawer_menu_breaking_point"
+            />
+        <item
+            android:id="@+id/menu_drawer_bookmark"
+            android:icon="@drawable/ic_navi_drawer_menu_bookmark"
+            android:title="@string/drawer_menu_breaking_bookmark"
+            />
+        <item
+            android:id="@+id/menu_drawer_cart"
+            android:icon="@drawable/ic_navi_drawer_menu_cart"
+            android:title="@string/drawer_menu_breaking_cart"
+            />
+        <item
+            android:id="@+id/menu_drawer_pencil"
+            android:icon="@drawable/ic_navi_drawer_menu_pencil"
+            android:title="@string/drawer_menu_breaking_profile"
+            />
+        <item
+            android:id="@+id/menu_drawer_setting"
+            android:icon="@drawable/ic_navi_drawer_menu_setting"
+            android:title="@string/drawer_menu_breaking_setting"
+            />
+    </group>
+</menu>
