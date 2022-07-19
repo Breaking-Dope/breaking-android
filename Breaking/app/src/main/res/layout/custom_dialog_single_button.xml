@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="25dp"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="13sp"
         android:textStyle="bold" />
     <Button
