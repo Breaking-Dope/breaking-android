@@ -17,6 +17,7 @@ import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.oauth.GoogleLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
@@ -54,6 +55,8 @@ class SignInActivity : AppCompatActivity() {
 
         googleLogin = GoogleLogin(this) // 구글 로그인 커스텀 클래스 객체 초기화
 
+        val customProgressDialog = DialogUtil().ProgressDialog(this) // 로딩창 progress 객체 생성
+
         /*
         ActivityResult 객체 초기화 및 동시에 콜백 정의.
         deprecated 된 onActivityResult 콜백 메소드를 대체함.
@@ -67,33 +70,87 @@ class SignInActivity : AppCompatActivity() {
                             GoogleSignIn.getSignedInAccountFromIntent(it.data) // 구글 로그인 결과 값 가져오기
                         val account = task.result // 계정정보가 담긴 객체 가져오기
 
+                        customProgressDialog.showDialog() // 로딩 progress 시작
+
                         CoroutineScope(Dispatchers.Main).launch {
                             /*
                             받아온 계정 데이터를 구글 로그인 요청 메소드의 인자로 넘겨줌으로써 토큰 검증 프로세스 시작
                             메소드의 결과로 회원가입이 필요한지 필요하지 않은지 boolean 값을 리턴(jwt 토큰의 유무)
                             true 면 회원가입 필요, false 면 회원가입 필요 x
                             */
-                            val isExisting = googleLogin.requestGoogleLogin(account)
+                            try {
+                                val isExisting = googleLogin.requestGoogleLogin(account)
+                                customProgressDialog.dismissDialog() // 네트워크 작업이 끝난 후 로딩창 종료
 
-                            // Jwt 토큰이 없고, response body 가 정상적인 값이 있다면
-                            if (!isExisting) {
-                                if (googleLogin.responseBody is ResponseLogin) { // 응답이 신규 유저에 대한 값일 때
-                                    // 회원가입 페이지로 이동
-                                    moveToSignUpPage(googleLogin.responseBody as ResponseLogin)
+                                // Jwt 토큰이 없고, response body 가 정상적인 값이 있다면
+                                if (!isExisting) {
+                                    if (googleLogin.responseBody is ResponseLogin) { // 응답이 신규 유저에 대한 값일 때
+                                        // 회원가입 페이지로 이동
+                                        moveToSignUpPage(googleLogin.responseBody as ResponseLogin)
+                                    } else {
+                                        showToast("정보를 불러오는데 실패하였습니다.")
+                                    }
+                                } else {
+                                    if (googleLogin.responseBody is ResponseExistLogin) { // 응답이 기존 유저에 대한 값일 때
+                                        // 로그인 처리 및 메인 페이지로 이동
+                                        moveToMainPage(googleLogin.responseBody as ResponseExistLogin)
+                                    } else {
+                                        showToast("정보를 불러오는데 실패하였습니다.")
+                                    }
                                 }
-                            } else {
-                                if (googleLogin.responseBody is ResponseExistLogin) { // 응답이 기존 유저에 대한 값일 때
-                                    // 로그인 처리 및 메인 페이지로 이동
-                                    moveToMainPage(googleLogin.responseBody as ResponseExistLogin)
+                            } catch (e: ResponseErrorException) {
+                                e.printStackTrace()
+                                if (customProgressDialog.isShowing()) { // 로딩 progress 가 실행 중이라면
+                                    customProgressDialog.dismissDialog() // 종료
                                 }
+                                DialogUtil().SingleDialog(
+                                    this@SignInActivity,
+                                    "요청에 문제가 발생하였습니다.",
+                                    "확인"
+                                ) {
+
+                                }.show()
+                            } catch (e: InvalidAccessTokenException) { // 엑세스 토큰을 인증할 수 없는 예외 처리
+                                e.printStackTrace()
+                                if (customProgressDialog.isShowing()) {
+                                    customProgressDialog.dismissDialog()
+                                }
+                                DialogUtil().SingleDialog(
+                                    this@SignInActivity,
+                                    "구글 인증에 문제가 발생하였습니다.",
+                                    "확인"
+                                ) {
+
+                                }.show()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                if (customProgressDialog.isShowing()) {
+                                    customProgressDialog.dismissDialog()
+                                }
+                                DialogUtil().SingleDialog(
+                                    this@SignInActivity,
+                                    "예기치 못한 문제가 발생하였습니다.",
+                                    "확인"
+                                ) {
+
+                                }.show()
                             }
+
                         }
                     } catch (e: ApiException) { // ApiException: 구글 로그인 시 발생하는 에러
                         e.printStackTrace()
-                    } catch (e: ResponseErrorException) { // 응답 에러에 대한 예외 처리하기
+                        if (customProgressDialog.isShowing()) {
+                            customProgressDialog.dismissDialog()
+                        }
+                        DialogUtil().SingleDialog(this, "구글 로그인 시도에 실패하였습니다.", "확인") {
+                        }.show()
+                    } catch (e: Exception) {
                         e.printStackTrace()
-                    } catch (e: InvalidAccessTokenException) { // 엑세스 토큰을 인증할 수 없는 예외 처리
-                        e.printStackTrace()
+                        if (customProgressDialog.isShowing()) {
+                            customProgressDialog.dismissDialog()
+                        }
+                        DialogUtil().SingleDialog(this, "예기치 못한 문제가 발생하였습니다. ", "확인") {
+                        }.show()
                     }
                 }
             }
@@ -239,6 +296,16 @@ class SignInActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("userInfo", userInfo)
         startActivity(intent)
+    }
+
+    /**
+     * 토스트 메세지를 보여주는 함수
+     * @param message(String): 보여주고자 하는 메세지 문자열
+     * @author Seunggun Sin
+     * @since 2022-07-18
+     */
+    private fun showToast(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onStart() {
