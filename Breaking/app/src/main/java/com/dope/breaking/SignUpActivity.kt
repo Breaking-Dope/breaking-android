@@ -262,7 +262,7 @@ class SignUpActivity : AppCompatActivity() {
 
             // 닉네임, 전화번호, 이메일의 유효성 검증 요청
             val progressDialog = DialogUtil().ProgressDialog(this)
-            progressDialog.showDialog() // 로딩 progress 시작
+            progressDialog.showDialog()
 
             CoroutineScope(Dispatchers.Main).launch {
                 val validation = Validation()
@@ -290,6 +290,10 @@ class SignUpActivity : AppCompatActivity() {
                     )
                     Log.d(TAG, "filename test : " + filename)
 
+                    if (progressDialog.isShowing()) { // 로딩 progress 종료
+                        progressDialog.dismissDialog()
+                    }
+                } else {
                     if (progressDialog.isShowing()) { // 로딩 progress 종료
                         progressDialog.dismissDialog()
                     }
