@@ -30,8 +30,8 @@ import com.dope.breaking.util.Utils.setImageWithGlide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.regex.Pattern
 import com.dope.breaking.model.response.ResponseExistLogin
+import com.dope.breaking.util.DialogUtil
 
 
 class SignUpActivity : AppCompatActivity() {
@@ -189,9 +189,23 @@ class SignUpActivity : AppCompatActivity() {
             }
         } catch (e: ResponseErrorException) {
             e.printStackTrace()
+            DialogUtil().SingleDialog(
+                this,
+                "회원가입 요청에 문제가 발생하였습니다.",
+                "확인"
+            ) {
+
+            }.show()
             // 응답 에러에 대한 예외 처리하기
         } catch (e: MissingJwtTokenException) {
             // 토큰 값이 존재하지 않을 때에 대한 예외 처리하기
+            DialogUtil().SingleDialog(
+                this,
+                "회원가입 정보를 불러오는데 실패하였습니다.",
+                "확인"
+            ) {
+
+            }.show()
         }
     }
 
@@ -247,6 +261,9 @@ class SignUpActivity : AppCompatActivity() {
             )
 
             // 닉네임, 전화번호, 이메일의 유효성 검증 요청
+            val progressDialog = DialogUtil().ProgressDialog(this)
+            progressDialog.showDialog()
+
             CoroutineScope(Dispatchers.Main).launch {
                 val validation = Validation()
                 validationResult =
@@ -272,6 +289,14 @@ class SignUpActivity : AppCompatActivity() {
                         imageName = filename ?: "default.png"
                     )
                     Log.d(TAG, "filename test : " + filename)
+
+                    if (progressDialog.isShowing()) { // 로딩 progress 종료
+                        progressDialog.dismissDialog()
+                    }
+                } else {
+                    if (progressDialog.isShowing()) { // 로딩 progress 종료
+                        progressDialog.dismissDialog()
+                    }
                 }
             }
         })
