@@ -1,5 +1,6 @@
 package com.dope.breaking
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -21,18 +22,19 @@ import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
+import com.google.gson.JsonElement
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.*
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class SignInActivity : AppCompatActivity() {
-    // Log Tag
-    private val TAG = "SignInActivity.kt"
+    private val TAG = "SignInActivity.kt"     // Log Tag
 
     private var mbinding: ActivitySignInBinding? = null  // 전역 변수로 바인딩 객체 선언
 
@@ -44,6 +46,8 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var googleLoginActivityResult: ActivityResultLauncher<Intent>
 
     private lateinit var googleLogin: GoogleLogin // 구글 로그인에 필요한 기능들이 담겨있는 커스텀 클래스 선언
+
+    private var responseBody: Any? = null // 카카오 로그인 토큰 검증 요청에 대한 응답을 처리하기 위한 객체
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,9 +163,9 @@ class SignInActivity : AppCompatActivity() {
             startGoogleLoginIntent()
         }
 
-        // 카카오 로그인 버튼 클릭 이벤트 메소드
+        // 카카오 로그인 버튼 클릭 이벤트
         binding.btnSignInKakao.setOnClickListener(View.OnClickListener {
-            loginKakao()
+            startKakaoLogin()
         })
     }
 
@@ -183,9 +187,9 @@ class SignInActivity : AppCompatActivity() {
     @param - None
     @return - Unit
     @author - Tae hyun Park
-    @since - 2022-07-05
+    @since - 2022-07-05 | 2022-07-21
      **/
-    fun loginKakao(): Unit {
+    fun startKakaoLogin(): Unit {
         // 카카오계정 로그인 공통 callback
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
@@ -197,13 +201,9 @@ class SignInActivity : AppCompatActivity() {
                     var nickname = user?.kakaoAccount?.profile?.nickname.toString()
                     Toast.makeText(this, nickname + "님, 로그인을 환영합니다", Toast.LENGTH_LONG).show()
                 }
-                // 토큰 검증을 위해 retrofit을 이용하여 back-end 서버에 request
-                validationLoginKakao(token.accessToken)
-
-                // 로그인 성공 시 넘어가는 로직 작성 필요
+                requestTokenValidation(token.accessToken, this) // 토큰 검증을 위해 백앤드 서버에 request
             }
         }
-
         // 카카오톡이 설치되어 있으면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
         if (UserApiClient.instance.isKakaoTalkLoginAvailable(applicationContext)) {
             UserApiClient.instance.loginWithKakaoTalk(applicationContext) { token, error ->
@@ -231,42 +231,120 @@ class SignInActivity : AppCompatActivity() {
     }
 
     /**
-    @description - 토큰 검증 함수로, 로그인 했을 때 받은 accessToken 을 매개변수로 받아온다.
+    @description - 토큰 검증 함수로, 로그인 했을 때 받은 액세스 토큰과 현재 액티비티 객체를 받아온다.
     함수 내부에서 builder, baseurl 등 요청을 위한 정보를 담은 retrofit 객체를 정의하고, 서버에게 요청을 하기 위한 인터페이스 service 객체를 받아온다.
-    service 객체를 통해 요청을 위한 메소드를 구현하고, 반환 값으로는 만들어둔 response body 타입의 call-back 을 구현한다.
-    그 과정에서 응답이 성공적인지, 실패인지를 판단한다.
-    @param - token: String
+    service 객체를 통해 요청을 위한 메소드를 구현하고, 반환 값으로는 만들어둔 JsonElement 타입의 응답을 콜백으로 받아온다.
+    신규 유저인지, 기존 유저인지 판단하여 DTO 객체를 맵핑하고 그 과정에서의 예외와 에러 메시지 처리 등을 포함하고 있다.
+    @param - String(액세스 토큰), Activity(현재 액태비티를 받아온다)
     @return - Unit
     @author - Tae hyun Park
-    @since - 2022-07-05 | 2022-07-06
+    @since - 2022-07-05 | 2022-07-21
      **/
-    fun validationLoginKakao(token: String) {
-        // 요청 인터페이스 구현을 위한 service 객체 create
+    private fun requestTokenValidation(token: String, activity: Activity) {
+        // 요청 인터페이스 구현을 위한 service 객체 생성
         var service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+        val customProgressDialog = DialogUtil().ProgressDialog(activity) // 로딩창 progress 객체 생성
+        customProgressDialog.showDialog() // 로딩 progress 시작
 
-        // 요청 토큰 인스턴스 생성
-        var requestTest = RequestKakaoToken(token)
-
-        // 토큰 요청과 응답이 이루어지는 call-back 함수
-        service.requestKakaoLogin(requestTest).enqueue(object : Callback<ResponseLogin> {
+        // 토큰 요청과 응답이 이루어지는 콜백 함수
+        service.requestKakaoLogin(RequestKakaoToken(token)).enqueue(object : Callback<JsonElement> {
             // 응답이 왔으면
-            override fun onResponse(call: Call<ResponseLogin>, response: Response<ResponseLogin>) {
-                if (response.isSuccessful) { // response의 body가 정상적인지
-                    var data = response.body()    // GsonConverter를 사용해 데이터매핑하여 자동 변환
-                    Log.d(TAG, "successful response body : " + data)
+            override fun onResponse(call: Call<JsonElement>, response: Response<JsonElement>) {
+                if (response.isSuccessful) {      // 토큰 검증에 대한 응답이 왔다면
+                    try {
+                        // 받아온 응답이 클라이언트의 요청 오류였다면
+                        if(response.code() != 406 && response.code() >= 400){
+                            throw ResponseErrorException("\"요청에 실패하였습니다. code: ${response.code()}\\nerror: ${response.errorBody()}\"")
+                        }
+                        // 받아오는 응답 객체를 JSONObject 로 변환
+                        var responseJson = JSONObject(response.body().toString())
 
-                    var jwtTokenUtil = JwtTokenUtil(applicationContext)
-                    if (!jwtTokenUtil.hasJwtToken(jwtHeaderKey, response.headers())) {
-                        if (data != null)
-                            moveToSignUpPage(data)
+                        // 받아온 응답이 에러에 대한 응답이라면
+                        if (responseJson.has("errorMessage")) {
+                            throw InvalidAccessTokenException("카카오 엑세스 토큰으로 인증할 수 없습니다. error:${responseJson["errorMessage"]}")
+                        }
+
+                        // 받아온 응답이 아래와 같이 정상적인 응답이라면 두 가지 경우로 DTO 할당
+                        responseBody = if (responseJson.has("username")) {
+                            ResponseLogin.convertJsonToObject(responseJson) // 신규 유저일 경우
+                        } else {
+                            ResponseExistLogin.convertJsonToObject(responseJson) // 기존 유저일 경우
+                        }
+
+                        // 정상적인 응답이었다면, JWT 토큰이 있는지 없는지를 검사하여 어떤 페이지로 넘겨줄 것인지 결정
+                        if (response.code() in 200..299){
+                            var isJwtToken = JwtTokenUtil(applicationContext)
+
+                            if (isJwtToken.hasJwtToken(jwtHeaderKey, response.headers())){  // 우선 응답으로 받아온 헤더에 JWT 토큰이 있을 경우
+                                if (customProgressDialog.isShowing()) // 로딩 progress 가 실행 중이라면
+                                    customProgressDialog.dismissDialog() // 종료
+
+                                // 로컬에 JWT 토큰이 없다면 새로 저장, 있었다면 Pass
+                                if (isJwtToken.getTokenFromLocal() == null)
+                                    isJwtToken.setToken(isJwtToken.getTokenFromResponse(response.headers())!!)
+                                // 기존 유저이므로 메인 페이지로 이동
+                                if (responseBody is ResponseExistLogin)
+                                    moveToMainPage(responseBody as ResponseExistLogin)
+                                else
+                                    showToast("정보를 불러오는데 실패하였습니다.")
+                            }else{ // 없다면 신규 유저이므로 회원 가입 페이지로 이동
+                                if (responseBody is ResponseLogin)
+                                    moveToSignUpPage(responseBody as ResponseLogin)
+                                else
+                                    showToast("정보를 불러오는데 실패하였습니다.")
+                            }
+                        }else {
+                            // 응답 에러에 대한 예외 발생
+                            throw ResponseErrorException(
+                                "요청에 실패하였습니다. code: ${response!!.code()}\nerror: ${
+                                    response.errorBody()?.string()
+                                }"
+                            )
+                        }
+                    }catch (e: ResponseErrorException) {
+                        e.printStackTrace()
+                        if (customProgressDialog.isShowing()) { // 로딩 progress 가 실행 중이라면
+                            customProgressDialog.dismissDialog() // 종료
+                        }
+                        DialogUtil().SingleDialog(
+                            this@SignInActivity,
+                            "요청에 문제가 발생하였습니다.",
+                            "확인"
+                        ) {
+
+                        }.show()
+                    } catch (e: InvalidAccessTokenException) { // 엑세스 토큰을 인증할 수 없는 예외 처리
+                        e.printStackTrace()
+                        if (customProgressDialog.isShowing()) {
+                            customProgressDialog.dismissDialog()
+                        }
+                        DialogUtil().SingleDialog(
+                            this@SignInActivity,
+                            "구글 인증에 문제가 발생하였습니다.",
+                            "확인"
+                        ) {
+
+                        }.show()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        if (customProgressDialog.isShowing()) {
+                            customProgressDialog.dismissDialog()
+                        }
+                        DialogUtil().SingleDialog(
+                            this@SignInActivity,
+                            "예기치 못한 문제가 발생하였습니다.",
+                            "확인"
+                        ) {
+
+                        }.show()
                     }
                 } else {
                     Log.d(TAG, "response error: " + response.errorBody()?.string()!!)
                 }
             }
 
-            // 응답이 안 오는 경우
-            override fun onFailure(call: Call<ResponseLogin>, t: Throwable) {
+            // 응답 받기를 실패했다면
+            override fun onFailure(call: Call<JsonElement>, t: Throwable) {
                 Log.d("onFailure", "실패$t")
             }
         })
