@@ -17,12 +17,12 @@ interface RetrofitService {
     /**
     @description - 카카오 로그인 토큰 검증 요청 메소드
     @param - RequestKakaoToken
-    @return - Call<KakaoLogin>
+    @return - Call<JsonElement>
     @author - Tae hyun Park
-    @since - 2022-07-05 | 2022-07-06
+    @since - 2022-07-05 | 2022-07-20
      **/
     @POST("oauth2/sign-in/kakao")
-    fun requestKakaoLogin(@Body token: RequestKakaoToken): Call<ResponseLogin>
+    fun requestKakaoLogin(@Body tokens: RequestKakaoToken): Call<JsonElement>
 
     /**
      * 회원가입 시 전화번호 검증 요청 메소드
