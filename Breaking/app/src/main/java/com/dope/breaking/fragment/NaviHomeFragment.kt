@@ -1,10 +1,8 @@
 package com.dope.breaking.fragment
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.dope.breaking.R
 
 class NaviHomeFragment : Fragment() {
@@ -13,5 +11,8 @@ class NaviHomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_navi_home, container, false)
+    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        activity?.menuInflater?.inflate(R.menu.general_title_menu, menu)
     }
 }
