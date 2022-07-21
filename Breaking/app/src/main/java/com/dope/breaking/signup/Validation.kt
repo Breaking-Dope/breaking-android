@@ -7,10 +7,13 @@ import com.dope.breaking.R
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import retrofit2.Response
 
 class Validation() {
     private val TAG = "Validation.kt" // Log Tag
+    private var jsonObject = JsonObject() // JSONObject
 
     /**
     @description - 회원가입 요청 전에 닉네임, 전화번호, 이메일의 유효성의 검증을 요청하는 동기적 함수이다. 추가적으로 이름 필드가 빈 문자열인지도 검사한다.
@@ -53,7 +56,7 @@ class Validation() {
     @param - Response<Unit>, ActivitySignUpBinding
     @return - None
     @author - Tae hyun Park
-    @since - 2022-07-13
+    @since - 2022-07-13 | 2022-07-21
      **/
     private fun nickNameValidation(resNickname: Response<Unit>, binding: ActivitySignUpBinding){
         if (resNickname.code() == 200){
@@ -61,14 +64,14 @@ class Validation() {
             binding.tvNicknameError.visibility = View.GONE
         }else{ // 올바르지 않은 응답 코드가 온 경우
             var errorString = resNickname.errorBody()?.string()!!
+            jsonObject = JsonParser.parseString(errorString).asJsonObject
             Log.d(TAG, "닉네임 검증 실패 : "+errorString)
             if(binding.etNickname.text.toString().isNotBlank()){ // 닉네임을 입력했는데
-                if(errorString == "{\"message\":\"이미 사용중인NICKNAME입니다.\"}"){
-                    Log.d(TAG, "중복 에러 테스트")
-                    binding.tvNicknameError.setText(R.string.sign_up_error_used_nickname_text) // 중복 에러인 경우
+                if(jsonObject.get("code").toString().replace("\"","") == "BSE410"){
+                    binding.tvNicknameError.setText(jsonObject.get("message").toString().replace("\"","")) // 형식 에러인 경우
                     binding.tvNicknameError.visibility = View.VISIBLE
-                }else if(errorString == "{\"message\":\"2~10자의 영문, 한글, 숫자만 입력해주시기 바랍니다.\"}"){
-                    binding.tvNicknameError.setText(R.string.sign_up_error_invalid_nickname_text) // 형식 에러인 경우
+                }else if(jsonObject.get("code").toString().replace("\"","") == "BSE413"){
+                    binding.tvNicknameError.setText(jsonObject.get("message").toString().replace("\"","")) // 중복 에러인 경우
                     binding.tvNicknameError.visibility = View.VISIBLE
                 }
                 // 이외의 케이스에 대해 예외를 만들거나, 추가적인 처리 필요
@@ -84,7 +87,7 @@ class Validation() {
     @param - Response<Unit>, ActivitySignUpBinding
     @return - None
     @author - Tae hyun Park
-    @since - 2022-07-13
+    @since - 2022-07-13 | 2022-07-21
      **/
     private fun phoneNumberValidation(resPhoneNum: Response<Unit>, binding: ActivitySignUpBinding){
         if (resPhoneNum.code() == 200){
@@ -93,12 +96,13 @@ class Validation() {
         }else{ // 올바르지 않은 응답 코드가 온 경우
             if (binding.etPhoneNumber.text.toString().isNotBlank()){ // 전화번호를 입력했는데
                 var errorString = resPhoneNum.errorBody()?.string()!!
+                jsonObject = JsonParser.parseString(errorString).asJsonObject
                 Log.d(TAG, "전화번호 검증 실패 : "+errorString)
-                if(errorString == "{\"message\":\"올바른 전화번호 형식이 아닙니다.\"}"){
-                    binding.tvPhoneNumberError.setText(R.string.sign_up_error_invalid_phone_number_text)    // 형식 에러인 경우
+                if(jsonObject.get("code").toString().replace("\"","") == "BSE411"){
+                    binding.tvPhoneNumberError.setText(jsonObject.get("message").toString().replace("\"",""))    // 형식 에러인 경우
                     binding.tvPhoneNumberError.visibility = View.VISIBLE
                 }else{
-                    binding.tvPhoneNumberError.setText(R.string.sign_up_error_used_phone_number_text)       // 중복 에러인 경우
+                    binding.tvPhoneNumberError.setText(jsonObject.get("message").toString().replace("\"",""))       // 중복 에러인 경우 (BSE414)
                     binding.tvPhoneNumberError.visibility = View.VISIBLE
                 }
                 // 이외의 케이스에 대해 예외를 만들거나, 추가적인 처리 필요
@@ -114,7 +118,7 @@ class Validation() {
     @param - Response<Unit>, ActivitySignUpBinding
     @return - None
     @author - Tae hyun Park
-    @since - 2022-07-13
+    @since - 2022-07-13 | 2022-07-21
      **/
     private fun emailValidation(resEmail: Response<Unit>, binding: ActivitySignUpBinding){
         if (resEmail.code() == 200){
@@ -122,13 +126,14 @@ class Validation() {
             binding.tvEmailError.visibility = View.GONE
         }else{
             if (binding.etEmail.text.toString().isNotBlank()){ // 이메일을 입력했는데
-                var errorString = resEmail.errorBody()?.string()!!
+                var errorString = resEmail.errorBody()?.string()
+                jsonObject = JsonParser.parseString(errorString).asJsonObject
                 Log.d(TAG, "이메일 검증 실패 : "+errorString)     // 중복과 형식 2가지 케이스
-                if(errorString == "{\"message\":\"올바른 이메일 형식이 아닙니다.\"}"){
-                    binding.tvEmailError.setText(R.string.sign_up_error_invalid_email_text)    // 형식 에러인 경우
+                if(jsonObject.get("code").toString().replace("\"","") == "BSE412"){
+                    binding.tvEmailError.setText(jsonObject.get("message").toString().replace("\"",""))    // 형식 에러인 경우
                     binding.tvEmailError.visibility = View.VISIBLE
                 }else{
-                    binding.tvEmailError.setText(R.string.sign_up_error_used_email_text)       // 중복 에러인 경우
+                    binding.tvEmailError.setText(jsonObject.get("message").toString().replace("\"",""))       // 중복 에러인 경우 (BSE415)
                     binding.tvEmailError.visibility = View.VISIBLE
                 }
                 // 이외의 케이스에 대해 예외를 만들거나, 추가적인 처리 필요
