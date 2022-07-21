@@ -35,6 +35,11 @@
     <string name="drawer_menu_breaking_cart">구매한 제보</string>
     <string name="drawer_menu_breaking_profile">프로필 편집</string>
     <string name="drawer_menu_breaking_setting">설정</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="edit_profile">프로필 편집하기</string>
+    <string name="nickname">닉네임</string>
+    <string name="status_msg">상태 메세지</string>
+    <string name="follow">팔로우</string>
+    <string name="follower">팔로워</string>
+    <string name="written_post">작성 제보</string>
+    <string name="setting_menu">설정</string>
 </resources>
