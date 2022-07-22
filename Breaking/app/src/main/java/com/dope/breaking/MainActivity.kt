@@ -10,6 +10,7 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.dope.breaking.databinding.ActivityMainBinding
 import com.dope.breaking.fragment.*
+import com.dope.breaking.model.response.ResponseExistLogin
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,17 +24,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mbinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        setSupportActionBar(binding.toolBar) // 툴 바 설정
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true) // 왼쪽 상단 버튼 만들기
-        supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_navi_menu_bar) // 왼쪽 상단 아이콘
-        supportActionBar!!.setDisplayShowTitleEnabled(true) // 툴 바에 타이틀 보이게
+        val intent = intent
+        if(intent != null){
+            ResponseExistLogin.baseUserInfo = intent.getSerializableExtra("userInfo") as ResponseExistLogin
+        }
+//        setSupportActionBar(binding.toolBar) // 툴 바 설정
+//        supportActionBar!!.setDisplayHomeAsUpEnabled(true) // 왼쪽 상단 버튼 만들기
+//        supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_navi_menu_bar) // 왼쪽 상단 아이콘
+//        supportActionBar!!.setDisplayShowTitleEnabled(true) // 툴 바에 타이틀 보이게
 
         binding.bnvMain.selectedItemId = R.id.menu_breaking_home // 기본 네비게이션 화면을 메인 화면으로 설정..
         if (binding.bnvMain.selectedItemId == R.id.menu_breaking_home) // 기본 화면이 메인이라면 프레그먼트 띄워주기
             changeFragment(NaviHomeFragment())
         bottomNavigationClicked() // 바텀 네비게이션 뷰 내 아이템 클릭 이벤트
-        NavigationDrawerClicked() // 네비게이션 드로어 내 아이템 클릭 이벤트 메소드
+//        NavigationDrawerClicked() // 네비게이션 드로어 내 아이템 클릭 이벤트 메소드
     }
 
     /**
@@ -53,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
 
     /**
     @description - 사용자가 뒤로가기 버튼을 눌렀을 때 발생되는 리스너
@@ -76,7 +81,7 @@ class MainActivity : AppCompatActivity() {
     @author - Tae hyun Park
     @since - 2022-07-19
      */
-    private fun changeFragment(fragment: Fragment) {
+    fun changeFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fl_board, fragment)
@@ -107,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                         NaviChatFragment()
                     }
                     else -> { // 그 외는 유저 버튼을 누른 것으로 간주
-                        NaviUserFragment()
+                        LoadingFragment()
                     }
                 }
             )

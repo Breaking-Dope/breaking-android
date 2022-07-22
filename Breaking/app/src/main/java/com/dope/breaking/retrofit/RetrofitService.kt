@@ -1,5 +1,6 @@
 package com.dope.breaking.retrofit
 
+import com.dope.breaking.model.response.User
 import com.dope.breaking.model.request.RequestGoogleAccessToken
 import com.dope.breaking.model.request.RequestGoogleToken
 import com.dope.breaking.model.request.RequestKakaoToken
@@ -82,6 +83,19 @@ interface RetrofitService {
      */
     @POST("oauth2/validate-jwt")
     suspend fun requestValidationJwt(@Header("Authorization") token: String): Response<ResponseExistLogin>
+
+    /**
+     * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)
+     * @path userId: 유저 고유 id 값
+     * @header authorization: 요청하는 유저의 Jwt 토큰 값
+     * @response User 객체로 요청하고자하는 해당 유저의 프로필 정보
+     * @author Seunggun sin
+     */
+    @GET("profile/{userId}")
+    fun requestUserProfileInfo(
+        @Path("userId") userId: Long,
+        @Header("authorization") token: String
+    ): Call<User>
 
     /**
      * OAuth2 구글 API 서버로부터 엑세스 토큰 요청 메소드
