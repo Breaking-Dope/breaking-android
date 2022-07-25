@@ -81,7 +81,7 @@ interface RetrofitService {
      * @response ResponseJwtUserInfo (기본 유저 정보에 대한 DTO 클래스)
      * @author Seunggun Sin
      */
-    @POST("oauth2/validate-jwt")
+    @GET("oauth2/validate-jwt")
     suspend fun requestValidationJwt(@Header("Authorization") token: String): Response<ResponseExistLogin>
 
     /**
