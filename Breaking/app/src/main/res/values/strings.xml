@@ -36,4 +36,23 @@
     <string name="follower">팔로워</string>
     <string name="written_post">작성 제보</string>
     <string name="setting_menu">설정</string>
+    <string name="post_home_btn">+ 제보하기</string>
+    <string name="post_register_image_video">사진/동영상 업로드</string>
+    <string name="post_register_event_time">제보 발생 시간</string>
+    <string name="post_register_location">위치</string>
+    <string name="post_register_click_location">현재 위치 찾기</string>
+    <string name="post_register_type">제보방식</string>
+    <string name="post_register_type_exclusive">단독제보</string>
+    <string name="post_register_type_charged">유료제보</string>
+    <string name="post_register_type_free">무료제보</string>
+    <string name="post_register_price">제보가격</string>
+    <string name="post_register_title">제보 내용</string>
+    <string name="post_register_content_title">제목을 입력해주세요.</string>
+    <string name="post_register_content_description">상황을 최대한 상세하게 기록해주세요.\n\n(상황, 시간, 사건 전개 과정, 경과상태 등)\n\n최대 2000자</string>
+    <string name="post_register_content_hashtag"># 해시태그를 입력하세요. (최대 8개)</string>
+    <string name="post_register_price_input">가격을 입력해주세요. (원)</string>
+    <string name="post_register_profile_type">프로필 공개 여부</string>
+    <string name="post_register_profile_type_public">공개</string>
+    <string name="post_register_profile_type_secret">비공개</string>
+    <string name="post_register_btn">제보하기</string>
 </resources>

@@ -15,4 +15,16 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <!-- Floating Action Theme -->
+    <style name="FormButton" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorOnPrimary">@android:color/holo_red_light</item>
+        <item name="colorPrimary">@android:color/holo_orange_dark</item>
+        <item name="colorOnSurface">@android:color/holo_orange_light</item>
+    </style>
+
+    <!--To fix rendering in preview -->
+    <style name="AppTextAppearance.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textAllCaps">true</item>
+    </style>
 </resources>
