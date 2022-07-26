@@ -20,6 +20,7 @@ import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
+import com.dope.breaking.util.ValueUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.gson.JsonElement
@@ -39,8 +40,6 @@ class SignInActivity : AppCompatActivity() {
     private var mbinding: ActivitySignInBinding? = null  // 전역 변수로 바인딩 객체 선언
 
     private val binding get() = mbinding!!     // 매번 null 체크할 필요 없이 바인딩 변수 재 선언
-
-    private val jwtHeaderKey = "authorization" // JWT 토큰 검증을 위한 헤더 키 값
 
     //구글 로그인 intent 호출 후, 로그인 intent 의 결과를 받기 위해 ActivityResult 객체 선언
     private lateinit var googleLoginActivityResult: ActivityResultLauncher<Intent>
@@ -111,9 +110,7 @@ class SignInActivity : AppCompatActivity() {
                                     this@SignInActivity,
                                     "요청에 문제가 발생하였습니다.",
                                     "확인"
-                                ) {
-
-                                }.show()
+                                ).show()
                             } catch (e: InvalidAccessTokenException) { // 엑세스 토큰을 인증할 수 없는 예외 처리
                                 e.printStackTrace()
                                 if (customProgressDialog.isShowing()) {
@@ -123,9 +120,7 @@ class SignInActivity : AppCompatActivity() {
                                     this@SignInActivity,
                                     "구글 인증에 문제가 발생하였습니다.",
                                     "확인"
-                                ) {
-
-                                }.show()
+                                ).show()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 if (customProgressDialog.isShowing()) {
@@ -135,9 +130,7 @@ class SignInActivity : AppCompatActivity() {
                                     this@SignInActivity,
                                     "예기치 못한 문제가 발생하였습니다.",
                                     "확인"
-                                ) {
-
-                                }.show()
+                                ).show()
                             }
 
                         }
@@ -146,15 +139,13 @@ class SignInActivity : AppCompatActivity() {
                         if (customProgressDialog.isShowing()) {
                             customProgressDialog.dismissDialog()
                         }
-                        DialogUtil().SingleDialog(this, "구글 로그인 시도에 실패하였습니다.", "확인") {
-                        }.show()
+                        DialogUtil().SingleDialog(this, "구글 로그인 시도에 실패하였습니다.", "확인").show()
                     } catch (e: Exception) {
                         e.printStackTrace()
                         if (customProgressDialog.isShowing()) {
                             customProgressDialog.dismissDialog()
                         }
-                        DialogUtil().SingleDialog(this, "예기치 못한 문제가 발생하였습니다. ", "확인") {
-                        }.show()
+                        DialogUtil().SingleDialog(this, "예기치 못한 문제가 발생하였습니다. ", "확인").show()
                     }
                 }
             }
@@ -197,8 +188,8 @@ class SignInActivity : AppCompatActivity() {
                 Log.d(TAG, "카카오계정으로 로그인 실패", error)
             } else if (token != null) {
                 Log.d(TAG, "카카오계정으로 로그인 성공 ${token.accessToken}")
-                UserApiClient.instance.me { user, error ->
-                    var nickname = user?.kakaoAccount?.profile?.nickname.toString()
+                UserApiClient.instance.me { user, _ ->
+                    val nickname = user?.kakaoAccount?.profile?.nickname.toString()
                     Toast.makeText(this, nickname + "님, 로그인을 환영합니다", Toast.LENGTH_LONG).show()
                 }
                 requestTokenValidation(token.accessToken, this) // 토큰 검증을 위해 백앤드 서버에 request
@@ -242,7 +233,7 @@ class SignInActivity : AppCompatActivity() {
      **/
     private fun requestTokenValidation(token: String, activity: Activity) {
         // 요청 인터페이스 구현을 위한 service 객체 생성
-        var service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
         val customProgressDialog = DialogUtil().ProgressDialog(activity) // 로딩창 progress 객체 생성
         customProgressDialog.showDialog() // 로딩 progress 시작
 
@@ -253,11 +244,11 @@ class SignInActivity : AppCompatActivity() {
                 if (response.isSuccessful) {      // 토큰 검증에 대한 응답이 왔다면
                     try {
                         // 받아온 응답이 클라이언트의 요청 오류였다면
-                        if(response.code() != 406 && response.code() >= 400){
+                        if (response.code() != 406 && response.code() >= 400) {
                             throw ResponseErrorException("\"요청에 실패하였습니다. code: ${response.code()}\\nerror: ${response.errorBody()}\"")
                         }
                         // 받아오는 응답 객체를 JSONObject 로 변환
-                        var responseJson = JSONObject(response.body().toString())
+                        val responseJson = JSONObject(response.body().toString())
 
                         // 받아온 응답이 에러에 대한 응답이라면
                         if (responseJson.has("errorMessage")) {
@@ -272,10 +263,14 @@ class SignInActivity : AppCompatActivity() {
                         }
 
                         // 정상적인 응답이었다면, JWT 토큰이 있는지 없는지를 검사하여 어떤 페이지로 넘겨줄 것인지 결정
-                        if (response.code() in 200..299){
-                            var isJwtToken = JwtTokenUtil(applicationContext)
+                        if (response.code() in 200..299) {
+                            val isJwtToken = JwtTokenUtil(applicationContext)
 
-                            if (isJwtToken.hasJwtToken(jwtHeaderKey, response.headers())){  // 우선 응답으로 받아온 헤더에 JWT 토큰이 있을 경우
+                            if (isJwtToken.hasJwtToken(
+                                    ValueUtil.JWT_HEADER_KEY,
+                                    response.headers()
+                                )
+                            ) {  // 우선 응답으로 받아온 헤더에 JWT 토큰이 있을 경우
                                 if (customProgressDialog.isShowing()) // 로딩 progress 가 실행 중이라면
                                     customProgressDialog.dismissDialog() // 종료
 
@@ -287,21 +282,21 @@ class SignInActivity : AppCompatActivity() {
                                     moveToMainPage(responseBody as ResponseExistLogin)
                                 else
                                     showToast("정보를 불러오는데 실패하였습니다.")
-                            }else{ // 없다면 신규 유저이므로 회원 가입 페이지로 이동
+                            } else { // 없다면 신규 유저이므로 회원 가입 페이지로 이동
                                 if (responseBody is ResponseLogin)
                                     moveToSignUpPage(responseBody as ResponseLogin)
                                 else
                                     showToast("정보를 불러오는데 실패하였습니다.")
                             }
-                        }else {
+                        } else {
                             // 응답 에러에 대한 예외 발생
                             throw ResponseErrorException(
-                                "요청에 실패하였습니다. code: ${response!!.code()}\nerror: ${
+                                "요청에 실패하였습니다. code: ${response.code()}\nerror: ${
                                     response.errorBody()?.string()
                                 }"
                             )
                         }
-                    }catch (e: ResponseErrorException) {
+                    } catch (e: ResponseErrorException) {
                         e.printStackTrace()
                         if (customProgressDialog.isShowing()) { // 로딩 progress 가 실행 중이라면
                             customProgressDialog.dismissDialog() // 종료

@@ -11,16 +11,14 @@ import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.exception.MissingJwtTokenException
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.request.RequestSignUp
 import com.dope.breaking.model.response.ResponseLogin
-import com.dope.breaking.signup.Register
+import com.dope.breaking.signup.Account
 import com.dope.breaking.signup.Validation
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils.regularExpressionNickname
@@ -32,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.util.DialogUtil
+import com.dope.breaking.util.ValueUtil
 
 
 class SignUpActivity : AppCompatActivity() {
@@ -48,8 +47,6 @@ class SignUpActivity : AppCompatActivity() {
     private var filename: String? = null // 프로필 이미지 파일명
 
     private var validationResult: Boolean = false // 회원가입 검증 결과값
-
-    private lateinit var defaultProfile: Bitmap // bitmap 형태의 기본 프로필 이미지
 
     private lateinit var galleryActivityResult: ActivityResultLauncher<Intent> // 갤러리에서 이미지를 가져왔을 때의 처리를 위한 activityResult
 
@@ -68,10 +65,6 @@ class SignUpActivity : AppCompatActivity() {
                 responseBody = data
         }
 
-        // drawable 에 저장된 기본 xml 을 기본 프로필 이미지 bitmap 으로 생성
-        defaultProfile =
-            AppCompatResources.getDrawable(this, R.drawable.ic_default_profile_image)?.toBitmap()!!
-
         val handler = object : Handler(Looper.getMainLooper()) { // 메인 스레드에서 비트맵 변수 받아와서 할당
             override fun handleMessage(msg: Message) {
                 super.handleMessage(msg)
@@ -85,7 +78,7 @@ class SignUpActivity : AppCompatActivity() {
          */
         galleryActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                var uri = it?.data?.data // 이미지 URI
+                val uri = it.data?.data // 이미지 URI
 
                 if (it.resultCode == RESULT_OK) { // 갤러리에서 이미지를 정상적으로 선택했다면
                     filename = getFileNameFromURI(uri!!, contentResolver)
@@ -93,8 +86,8 @@ class SignUpActivity : AppCompatActivity() {
                         applicationContext,
                         uri,
                         binding,
-                        700,
-                        700
+                        0,
+                        0
                     ) // Glide 라이브러리를 사용하여 회원가입 프로필 이미지 뷰에 보여주기
                     getBitmapWithGlide(
                         applicationContext,
@@ -125,9 +118,9 @@ class SignUpActivity : AppCompatActivity() {
      **/
     private fun selectGalleryIntent() {
         // 읽기, 쓰기 권한
-        var writePermission =
+        val writePermission =
             ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        var readPermission =
+        val readPermission =
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
         if (writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED) {
@@ -142,9 +135,8 @@ class SignUpActivity : AppCompatActivity() {
             )
         } else {
             // 권한 있으면 Intent 를 통해 갤러리 Open 요청
-            var intent = Intent(Intent.ACTION_PICK)
-            intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            intent.type = "image/*"
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
 
             galleryActivityResult.launch(intent)
         }
@@ -165,10 +157,10 @@ class SignUpActivity : AppCompatActivity() {
         imageName: String
     ) {
         try {
-            val register = Register() // 커스텀 회원가입 객체 생성
+            val account = Account() // 커스텀 회원가입 객체 생성
             // 회원가입 요청 함수 signature. 아래 형식대로 회원가입 요청 함수 호출.
             // 현재 input 은 테스트용이므로 실제 input 값으로 대체 바람
-            val responseHeaders = register.startRequestSignUp(
+            val responseHeaders = account.startRequestSignUp(
                 inputData = inputData,
                 imageData = imageData,
                 imageName = imageName
@@ -244,12 +236,12 @@ class SignUpActivity : AppCompatActivity() {
         // 최종적으로 회원가입 버튼을 클릭한다면
         binding.btnUserRegister.setOnClickListener(View.OnClickListener {
             // 회원가입의 입력 필드 값 모두 가져오기
-            var realName = binding.etName.text.toString()     // 이름
-            var nickName = binding.etNickname.text.toString() // 닉네임
-            var phoneNumber = binding.etPhoneNumber.text.toString() // 전화번호
-            var email = binding.etEmail.text.toString()             // 이메일
-            var stateMessage = binding.etStateMessage.text.toString() // 상태 메시지
-            var role = isRoleButtonSelected              // 회원 유형 (Default 값은 true)
+            val realName = binding.etName.text.toString()     // 이름
+            val nickName = binding.etNickname.text.toString() // 닉네임
+            val phoneNumber = binding.etPhoneNumber.text.toString() // 전화번호
+            val email = binding.etEmail.text.toString()             // 이메일
+            val stateMessage = binding.etStateMessage.text.toString() // 상태 메시지
+            val role = isRoleButtonSelected              // 회원 유형 (Default 값은 true)
 
             Log.d(
                 TAG, "\n이름 : " + realName
@@ -267,7 +259,13 @@ class SignUpActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.Main).launch {
                 val validation = Validation()
                 validationResult =
-                    validation.startRequestSignUpValidation(nickName, phoneNumber, email, binding)
+                    validation.startRequestSignUpValidation(
+                        nickName,
+                        phoneNumber,
+                        email,
+                        binding,
+                        ""
+                    )
                 Log.d(TAG, "3가지 검증 요청 결과 : " + validationResult.toString())
 
                 // 유효성 검증에 성공했다면 최종 회원가입 요청을 보냄.
@@ -285,7 +283,8 @@ class SignUpActivity : AppCompatActivity() {
                     // 회원가입 요청 시작, 회원가입 버튼 클릭하고 검증 완료 후 input 데이터와 함께 호출
                     processSignUp(
                         inputData = inputData,
-                        imageData = profileImgBitmap ?: defaultProfile,
+                        imageData = profileImgBitmap
+                            ?: ValueUtil.getDefaultProfile(this@SignUpActivity),
                         imageName = filename ?: "default.png"
                     )
                     Log.d(TAG, "filename test : " + filename)

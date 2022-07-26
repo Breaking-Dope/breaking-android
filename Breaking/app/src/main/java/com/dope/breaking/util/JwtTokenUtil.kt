@@ -15,7 +15,6 @@ import kotlin.jvm.Throws
  */
 class JwtTokenUtil(context: Context) {
     private val fileName = "jwt" // SharedPreferences 의 파일 이름
-    private val keyName = "authorization" // 헤더 키 값
     private val prefUtil = PreferenceUtil(context, fileName) // SharedPreferences Util 객체
 
     /**
@@ -66,7 +65,7 @@ class JwtTokenUtil(context: Context) {
      * @since 2022-07-09
      */
     fun getTokenFromResponse(headers: Headers): String? {
-        return headers[keyName]
+        return headers[ValueUtil.JWT_HEADER_KEY]
     }
 
     /**

@@ -3,7 +3,6 @@ package com.dope.breaking
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.view.GravityCompat
@@ -25,13 +24,10 @@ class MainActivity : AppCompatActivity() {
         mbinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val intent = intent
-        if(intent != null){
-            ResponseExistLogin.baseUserInfo = intent.getSerializableExtra("userInfo") as ResponseExistLogin
+        if (intent != null) {
+            ResponseExistLogin.baseUserInfo =
+                intent.getSerializableExtra("userInfo") as ResponseExistLogin
         }
-//        setSupportActionBar(binding.toolBar) // 툴 바 설정
-//        supportActionBar!!.setDisplayHomeAsUpEnabled(true) // 왼쪽 상단 버튼 만들기
-//        supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_navi_menu_bar) // 왼쪽 상단 아이콘
-//        supportActionBar!!.setDisplayShowTitleEnabled(true) // 툴 바에 타이틀 보이게
 
         binding.bnvMain.selectedItemId = R.id.menu_breaking_home // 기본 네비게이션 화면을 메인 화면으로 설정..
         if (binding.bnvMain.selectedItemId == R.id.menu_breaking_home) // 기본 화면이 메인이라면 프레그먼트 띄워주기
@@ -49,8 +45,8 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // 클릭된 메뉴 아이템의 아이디마다 when 구절로 클릭시 동작을 설정
-        when(item!!.itemId){
-            android.R.id.home ->{ // 툴 바 메뉴가 클릭된다면
+        when (item.itemId) {
+            android.R.id.home -> { // 툴 바 메뉴가 클릭된다면
                 binding.layoutDrawer.openDrawer(GravityCompat.START)    // 네비게이션 드로어 열기
                 return true
             }
@@ -67,9 +63,9 @@ class MainActivity : AppCompatActivity() {
     @since - 2022-07-19
      */
     override fun onBackPressed() {
-        if(binding.layoutDrawer.isDrawerOpen(GravityCompat.START)){ // 드로어가 열려있다면 닫는다.
+        if (binding.layoutDrawer.isDrawerOpen(GravityCompat.START)) { // 드로어가 열려있다면 닫는다.
             binding.layoutDrawer.closeDrawers()
-        }else{
+        } else {
             super.onBackPressed()
         }
     }
@@ -95,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     @author - Tae hyun Park
     @since - 2022-07-19
      */
-    private fun bottomNavigationClicked(){
+    private fun bottomNavigationClicked() {
         binding.bnvMain.setOnItemSelectedListener { item ->
             changeFragment(
                 when (item.itemId) {
@@ -127,33 +123,33 @@ class MainActivity : AppCompatActivity() {
     @author - Tae hyun Park
     @since - 2022-07-19
      */
-    private fun NavigationDrawerClicked(){
+    private fun NavigationDrawerClicked() {
         binding.viewNavigationDrawer.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_drawer_point -> { // 브레이킹 포인트 버튼을 누르면
                     val intent = Intent(this, NaviPointActivity::class.java)
                     startActivity(intent)
-                    Toast.makeText(this,"Pressed Point Screen",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Pressed Point Screen", Toast.LENGTH_SHORT).show()
                 }
                 R.id.menu_drawer_bookmark -> { // 브레이킹 북마크 버튼을 누르면
                     val intent = Intent(this, NaviBookActivity::class.java)
                     startActivity(intent)
-                    Toast.makeText(this,"Pressed Bookmark Screen",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Pressed Bookmark Screen", Toast.LENGTH_SHORT).show()
                 }
                 R.id.menu_drawer_cart -> { // 브레이킹 구매한 제보 버튼을 누르면
                     val intent = Intent(this, NaviPurchaseActivity::class.java)
                     startActivity(intent)
-                    Toast.makeText(this,"Pressed Cart Screen",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Pressed Cart Screen", Toast.LENGTH_SHORT).show()
                 }
                 R.id.menu_drawer_pencil -> { // 브레이킹 프로필 편집 버튼을 누르면
                     val intent = Intent(this, NaviProfileActivity::class.java)
                     startActivity(intent)
-                    Toast.makeText(this,"Pressed Profile Screen",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Pressed Profile Screen", Toast.LENGTH_SHORT).show()
                 }
                 else -> { // 그 외는 설정 버튼을 누른 것으로 간주
                     val intent = Intent(this, NaviSettingActivity::class.java)
                     startActivity(intent)
-                    Toast.makeText(this,"Pressed Setting Screen",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Pressed Setting Screen", Toast.LENGTH_SHORT).show()
                 }
             }
             true
