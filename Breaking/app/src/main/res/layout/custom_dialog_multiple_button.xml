@@ -21,7 +21,7 @@
         android:orientation="horizontal">
         <Button
             android:id="@+id/btn_dialog_multi_left"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_dialog_multi_left_background"
@@ -29,7 +29,7 @@
             android:textSize="11sp"/>
         <Button
             android:id="@+id/btn_dialog_multi_right"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_dialog_multi_right_background"
