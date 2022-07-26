@@ -12,6 +12,7 @@ import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import com.dope.breaking.util.JwtTokenUtil
+import com.dope.breaking.util.ValueUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -24,7 +25,6 @@ import org.json.JSONObject
 import retrofit2.Response
 
 class GoogleLogin(private val context: Context) {
-    private val jwtHeaderKey = "authorization" // JWT 토큰 검증을 위한 헤더 키 값
     var responseBody: Any? = null // 구글 로그인 프로세스 가운데 얻는 response body 값
 
     // 구글 로그인 시 여러가지 옵션에 대한 객체
@@ -71,7 +71,11 @@ class GoogleLogin(private val context: Context) {
             if (validationResponse?.code() in 200..299) {
                 // 토큰이 있으면 true, 없으면 false 리턴
                 val jwtTokenUtil = JwtTokenUtil(context)
-                return if (jwtTokenUtil.hasJwtToken(jwtHeaderKey, validationResponse!!.headers())) {
+                return if (jwtTokenUtil.hasJwtToken(
+                        ValueUtil.JWT_HEADER_KEY,
+                        validationResponse!!.headers()
+                    )
+                ) {
                     // 로컬에 저장된 토큰이 없다면 저장하기
                     if (jwtTokenUtil.getTokenFromLocal() == null) {
                         jwtTokenUtil.setToken(jwtTokenUtil.getTokenFromResponse(validationResponse.headers())!!)

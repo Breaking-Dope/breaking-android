@@ -1,289 +1,301 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    >
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".SignUpActivity">
+    android:fillViewport="true">
 
-    <Button
-        android:id="@+id/btn_user_type_default"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/sign_up_user_type_selected"
-        android:padding="5dp"
-        android:text="@string/sign_up_user_type_default_btn"
-        android:textColor="@color/sign_up_user_type_text_color"
-        android:textSize="16dp"
-        app:layout_constraintHeight_percent="0.045"
-        app:layout_constraintLeft_toLeftOf="@id/tv_user_type"
-        app:layout_constraintTop_toBottomOf="@id/tv_user_type"
-        app:layout_constraintWidth_percent="0.17" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".SignUpActivity">
 
-    <Button
-        android:id="@+id/btn_user_type_other"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="19dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/sign_up_user_type_unselected"
-        android:padding="5dp"
-        android:text="@string/sign_up_user_type_other_btn"
-        android:textColor="@color/sign_up_user_type_text_color"
-        android:textSize="16dp"
-        app:layout_constraintHeight_percent="0.045"
-        app:layout_constraintLeft_toRightOf="@id/btn_user_type_default"
-        app:layout_constraintTop_toBottomOf="@id/tv_user_type"
-        app:layout_constraintWidth_percent="0.17" />
+        <Button
+            android:id="@+id/btn_user_type_default"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/sign_up_user_type_selected"
+            android:padding="5dp"
+            android:text="@string/sign_up_user_type_default_btn"
+            android:textColor="@color/sign_up_user_type_text_color"
+            android:textSize="16dp"
+            app:layout_constraintHeight_percent="0.045"
+            app:layout_constraintLeft_toLeftOf="@id/tv_user_type"
+            app:layout_constraintTop_toBottomOf="@id/tv_user_type"
+            app:layout_constraintWidth_percent="0.17" />
 
-    <Button
-        android:id="@+id/btn_user_register"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/sign_up_button_background"
-        android:text="@string/sign_up"
-        android:textColor="@color/white"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.045"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_user_type_default"
-        app:layout_constraintVertical_bias="0.8"
-        app:layout_constraintWidth_percent="0.3" />
+        <Button
+            android:id="@+id/btn_user_type_other"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/sign_up_user_type_unselected"
+            android:padding="5dp"
+            android:text="@string/sign_up_user_type_other_btn"
+            android:textColor="@color/sign_up_user_type_text_color"
+            android:textSize="16dp"
+            app:layout_constraintHeight_percent="0.045"
+            app:layout_constraintLeft_toRightOf="@id/btn_user_type_default"
+            app:layout_constraintTop_toBottomOf="@id/tv_user_type"
+            app:layout_constraintWidth_percent="0.17" />
 
-    <EditText
-        android:id="@+id/et_nickname"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/sign_up_input_background"
-        android:hint="@string/sign_up_nickname_text"
-        android:padding="8dp"
-        android:textColorHint="@color/sign_up_input_hint_text_color"
-        android:textSize="17dp"
-        android:inputType="text"
-        android:maxLength="10"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_nickname"
-        app:layout_constraintWidth_percent="0.8" />
+        <Button
+            android:id="@+id/btn_user_register"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/sign_up_button_background"
+            android:text="@string/sign_up"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.045"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_user_type_default"
+            app:layout_constraintVertical_bias="0.8"
+            app:layout_constraintWidth_percent="0.3" />
 
-    <EditText
-        android:id="@+id/et_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/sign_up_input_background"
-        android:hint="@string/sign_up_name"
-        android:inputType="textPersonName"
-        android:maxLength="30"
-        android:padding="8dp"
-        android:textColorHint="@color/sign_up_input_hint_text_color"
-        android:textSize="17dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_name"
-        app:layout_constraintWidth_percent="0.8" />
+        <EditText
+            android:id="@+id/et_nickname"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/sign_up_input_background"
+            android:hint="@string/sign_up_nickname_text"
+            android:inputType="text"
+            android:maxLength="10"
+            android:padding="8dp"
+            android:textColorHint="@color/sign_up_input_hint_text_color"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_nickname"
+            app:layout_constraintWidth_percent="0.8" />
 
-    <EditText
-        android:id="@+id/et_phone_number"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/sign_up_input_background"
-        android:hint="@string/sign_up_phone_number_text"
-        android:padding="8dp"
-        android:textColorHint="@color/sign_up_input_hint_text_color"
-        android:textSize="17dp"
-        android:inputType="phone"
-        android:maxLength="11"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_phone_number"
-        app:layout_constraintWidth_percent="0.8" />
+        <EditText
+            android:id="@+id/et_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/sign_up_input_background"
+            android:hint="@string/sign_up_name"
+            android:inputType="textPersonName"
+            android:maxLength="30"
+            android:padding="8dp"
+            android:textColorHint="@color/sign_up_input_hint_text_color"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_name"
+            app:layout_constraintWidth_percent="0.8" />
 
-    <EditText
-        android:id="@+id/et_state_message"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/sign_up_input_background"
-        android:hint="@string/sign_up_state_message_hint"
-        android:padding="8dp"
-        android:textColorHint="@color/sign_up_input_hint_text_color"
-        android:textSize="17dp"
-        android:inputType="text"
-        android:maxLength="60"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_state_message"
-        app:layout_constraintWidth_percent="0.8" />
+        <EditText
+            android:id="@+id/et_phone_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/sign_up_input_background"
+            android:hint="@string/sign_up_phone_number_text"
+            android:inputType="phone"
+            android:maxLength="11"
+            android:padding="8dp"
+            android:textColorHint="@color/sign_up_input_hint_text_color"
+            android:textSize="16dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_phone_number"
+            app:layout_constraintWidth_percent="0.8" />
 
-    <EditText
-        android:id="@+id/et_email"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/sign_up_input_background"
-        android:hint="@string/sign_up_email_title"
-        android:padding="8dp"
-        android:textColorHint="@color/sign_up_input_hint_text_color"
-        android:textSize="17dp"
-        android:inputType="textEmailAddress"
-        android:maxLength="30"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_email"
-        app:layout_constraintWidth_percent="0.8" />
+        <EditText
+            android:id="@+id/et_state_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/sign_up_input_background"
+            android:hint="@string/sign_up_state_message_hint"
+            android:inputType="text"
+            android:maxLength="60"
+            android:padding="8dp"
+            android:textColorHint="@color/sign_up_input_hint_text_color"
+            android:textSize="16dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_state_message"
+            app:layout_constraintWidth_percent="0.8" />
 
-    <ImageButton
-        android:id="@+id/img_btn_profile_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:cropToPadding="true"
-        android:scaleType="fitXY"
-        android:adjustViewBounds="true"
-        android:background="@drawable/ic_default_profile_image"
-        app:layout_constraintBottom_toTopOf="@id/et_nickname"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.1" />
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/sign_up_input_background"
+            android:hint="@string/sign_up_email_title"
+            android:inputType="textEmailAddress"
+            android:maxLength="30"
+            android:padding="8dp"
+            android:textColorHint="@color/sign_up_input_hint_text_color"
+            android:textSize="16dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_email"
+            app:layout_constraintWidth_percent="0.8" />
 
-    <TextView
-        android:id="@+id/tv_add_profile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="@string/sign_up_add_profile_text"
-        android:textColor="@color/black"
-        android:textSize="18dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/img_btn_profile_image" />
+        <ImageButton
+            android:id="@+id/img_btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:background="@drawable/ic_baseline_arrow_back_black_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_nickname"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/sign_up_nickname_text"
-        android:textColor="@color/black"
-        android:textSize="19dp"
-        app:layout_constraintBottom_toTopOf="@id/et_nickname"
-        app:layout_constraintStart_toStartOf="@id/et_nickname"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_name_error"
-        />
+        <ImageButton
+            android:id="@+id/img_btn_profile_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="25dp"
+            android:adjustViewBounds="true"
+            android:background="@drawable/ic_default_profile_image"
+            android:cropToPadding="true"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toTopOf="@id/et_nickname"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.1" />
 
-    <TextView
-        android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
-        android:text="@string/sign_up_name"
-        android:textColor="@color/black"
-        android:textSize="19dp"
-        app:layout_constraintBottom_toTopOf="@id/et_name"
-        app:layout_constraintStart_toStartOf="@id/et_name"
-        app:layout_constraintTop_toBottomOf="@id/tv_add_profile" />
-    <TextView
-        android:id="@+id/tv_phone_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/sign_up_phone_number_text"
-        android:textColor="@color/black"
-        android:textSize="19dp"
-        app:layout_constraintBottom_toTopOf="@id/et_phone_number"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="@id/et_phone_number"
-        app:layout_constraintTop_toBottomOf="@id/tv_nickname_error" />
+        <TextView
+            android:id="@+id/tv_add_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/sign_up_add_profile_text"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/img_btn_profile_image" />
 
-    <TextView
-        android:id="@+id/tv_state_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/sign_up_state_message_title"
-        android:textColor="@color/black"
-        android:textSize="19dp"
-        app:layout_constraintBottom_toTopOf="@id/et_state_message"
-        app:layout_constraintStart_toStartOf="@id/et_state_message"
-        app:layout_constraintTop_toBottomOf="@id/tv_email_error" />
+        <TextView
+            android:id="@+id/tv_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/sign_up_nickname_text"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintBottom_toTopOf="@id/et_nickname"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="@id/et_nickname"
+            app:layout_constraintTop_toBottomOf="@id/tv_name_error" />
 
-    <TextView
-        android:id="@+id/tv_user_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/sign_up_user_type_title"
-        android:textColor="@color/black"
-        android:textSize="19dp"
-        app:layout_constraintStart_toStartOf="@id/tv_email"
-        app:layout_constraintTop_toBottomOf="@id/et_state_message" />
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="@string/sign_up_name"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintBottom_toTopOf="@id/et_name"
+            app:layout_constraintStart_toStartOf="@id/et_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_add_profile" />
 
-    <TextView
-        android:id="@+id/tv_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/sign_up_email_title"
-        android:textColor="@color/black"
-        android:textSize="19dp"
-        app:layout_constraintBottom_toTopOf="@id/et_email"
-        app:layout_constraintStart_toStartOf="@id/et_email"
-        app:layout_constraintTop_toBottomOf="@id/tv_phone_number_error" />
+        <TextView
+            android:id="@+id/tv_phone_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/sign_up_phone_number_text"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintBottom_toTopOf="@id/et_phone_number"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="@id/et_phone_number"
+            app:layout_constraintTop_toBottomOf="@id/tv_nickname_error" />
 
-    <TextView
-        android:id="@+id/tv_name_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/sign_up_input_error_text_color"
-        app:layout_constraintStart_toStartOf="@id/et_name"
-        app:layout_constraintTop_toBottomOf="@id/et_name"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_state_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/sign_up_state_message_title"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintBottom_toTopOf="@id/et_state_message"
+            app:layout_constraintStart_toStartOf="@id/et_state_message"
+            app:layout_constraintTop_toBottomOf="@id/tv_email_error" />
 
-    <TextView
-        android:id="@+id/tv_nickname_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/sign_up_input_error_text_color"
-        app:layout_constraintStart_toStartOf="@id/et_nickname"
-        app:layout_constraintTop_toBottomOf="@id/et_nickname"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_user_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/sign_up_user_type_title"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintStart_toStartOf="@id/tv_email"
+            app:layout_constraintTop_toBottomOf="@id/et_state_message" />
 
-    <TextView
-        android:id="@+id/tv_phone_number_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/sign_up_input_error_text_color"
-        app:layout_constraintStart_toStartOf="@id/et_phone_number"
-        app:layout_constraintTop_toBottomOf="@id/et_phone_number"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/sign_up_email_title"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintBottom_toTopOf="@id/et_email"
+            app:layout_constraintStart_toStartOf="@id/et_email"
+            app:layout_constraintTop_toBottomOf="@id/tv_phone_number_error" />
 
-    <TextView
-        android:id="@+id/tv_email_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/sign_up_input_error_text_color"
-        app:layout_constraintStart_toStartOf="@id/et_email"
-        app:layout_constraintTop_toBottomOf="@id/et_email"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_name_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sign_up_input_error_text_color"
+            android:visibility="gone"
+            android:textSize="15dp"
+            app:layout_constraintStart_toStartOf="@id/et_name"
+            app:layout_constraintTop_toBottomOf="@id/et_name" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tv_nickname_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sign_up_input_error_text_color"
+            android:visibility="gone"
+            android:textSize="15dp"
+            app:layout_constraintStart_toStartOf="@id/et_nickname"
+            app:layout_constraintTop_toBottomOf="@id/et_nickname" />
+
+        <TextView
+            android:id="@+id/tv_phone_number_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sign_up_input_error_text_color"
+            android:visibility="gone"
+            android:textSize="15dp"
+            app:layout_constraintStart_toStartOf="@id/et_phone_number"
+            app:layout_constraintTop_toBottomOf="@id/et_phone_number" />
+
+        <TextView
+            android:id="@+id/tv_email_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sign_up_input_error_text_color"
+            android:visibility="gone"
+            android:textSize="15dp"
+            app:layout_constraintStart_toStartOf="@id/et_email"
+            app:layout_constraintTop_toBottomOf="@id/et_email" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

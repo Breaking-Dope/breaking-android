@@ -28,7 +28,7 @@ class DialogUtil {
         context: Context,
         private val content: String,
         private val buttonText: String,
-        private val event: () -> Unit
+        private val event: () -> Unit = { }
     ) : Dialog(context) {
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,14 +52,45 @@ class DialogUtil {
 
     /**
      * 텍스트 컨텐츠 하나와 두개의 버튼으로 이루어진 Dialog
+     * @param context(Context): 이 Dialog 가 보여지고자 하는 컨텍스트
+     * @param leftText(String): 왼쪽 버튼 텍스트
+     * @param rightText(String): 오른쪽 버튼 텍스트
+     * @param leftEvent(()-> Unit)): 왼쪽 버튼 클릭 시 실행할 함수
+     * @param rightEvent(()-> Unit)): 오른쪽 버튼 클릭 시 실행할 함수
+     * @param allowCancel(Boolean): 외부 영역 클릭 시 종료 허용 여부
      */
-    inner class MultipleDialog(context: Context) : Dialog(context) {
+    inner class MultipleDialog(
+        context: Context,
+        private val content: String,
+        private val leftText: String,
+        private val rightText: String,
+        private val leftEvent: () -> Unit = {},
+        private val rightEvent: () -> Unit = {},
+        private val allowCancel: Boolean = false
+    ) : Dialog(context) {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.custom_dialog_multiple_button)
             window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setCanceledOnTouchOutside(false)
+            setCanceledOnTouchOutside(allowCancel)
+
+            val textView = findViewById<TextView>(R.id.tv_dialog_content)
+            textView.text = content
+
+            val leftButton = findViewById<Button>(R.id.btn_dialog_multi_left)
+            leftButton.text = leftText
+            leftButton.setOnClickListener {
+                leftEvent()
+                dismiss()
+            }
+
+            val rightButton = findViewById<Button>(R.id.btn_dialog_multi_right)
+            rightButton.text = rightText
+            rightButton.setOnClickListener {
+                rightEvent()
+                dismiss()
+            }
         }
     }
 

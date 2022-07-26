@@ -28,71 +28,16 @@
             android:background="@drawable/my_profile_edit_profile_btn_background"
             android:text="@string/edit_profile"
             android:textSize="10sp"
-            app:layout_constraintBottom_toBottomOf="@id/imgv_my_page_profile"
+            app:layout_constraintBottom_toBottomOf="@id/img_view_my_page_profile"
             app:layout_constraintHeight_percent="0.03"
-            app:layout_constraintLeft_toRightOf="@id/imgv_my_page_profile"
+            app:layout_constraintLeft_toRightOf="@id/img_view_my_page_profile"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_my_page_status"
             app:layout_constraintVertical_bias="1.0"
             app:layout_constraintWidth_percent="0.6" />
 
-        <!--        <GridView-->
-        <!--            android:id="@+id/gv_feed_list"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:numColumns="2"-->
-        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toBottomOf="@id/img_btn_written" />-->
-
-<!--        <ImageButton-->
-<!--            android:id="@+id/img_btn_written"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:background="@drawable/feed_category_button_background"-->
-<!--            android:src="@drawable/ic_baseline_create_24"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintHeight_percent="0.05"-->
-<!--            app:layout_constraintHorizontal_bias="0.3"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/divider"-->
-<!--            app:layout_constraintVertical_bias="0.02"-->
-<!--            app:layout_constraintWidth_percent="0.15" />-->
-<!---->
-<!--        <ImageButton-->
-<!--            android:id="@+id/img_btn_bought"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:background="@drawable/feed_category_button_background"-->
-<!--            android:src="@drawable/ic_baseline_add_shopping_cart_24"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintHeight_percent="0.05"-->
-<!--            app:layout_constraintHorizontal_bias="0.5"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/divider"-->
-<!--            app:layout_constraintVertical_bias="0.02"-->
-<!--            app:layout_constraintWidth_percent="0.15" />-->
-<!---->
-<!--        <ImageButton-->
-<!--            android:id="@+id/img_btn_bookmark"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:background="@drawable/feed_category_button_background"-->
-<!--            android:src="@drawable/ic_baseline_bookmark_border_24"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintHeight_percent="0.05"-->
-<!--            app:layout_constraintHorizontal_bias="0.7"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/divider"-->
-<!--            app:layout_constraintVertical_bias="0.02"-->
-<!--            app:layout_constraintWidth_percent="0.15" />-->
-<!---->
         <ImageView
-            android:id="@+id/imgv_my_page_profile"
+            android:id="@+id/img_view_my_page_profile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -115,8 +60,8 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/imgv_my_page_profile"
-            app:layout_constraintLeft_toRightOf="@id/imgv_my_page_profile"
+            app:layout_constraintBottom_toBottomOf="@id/img_view_my_page_profile"
+            app:layout_constraintLeft_toRightOf="@id/img_view_my_page_profile"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.2"
@@ -130,8 +75,8 @@
             android:padding="5dp"
             android:text="@string/status_msg"
             android:textSize="13sp"
-            app:layout_constraintBottom_toBottomOf="@id/imgv_my_page_profile"
-            app:layout_constraintLeft_toRightOf="@id/imgv_my_page_profile"
+            app:layout_constraintBottom_toBottomOf="@id/img_view_my_page_profile"
+            app:layout_constraintLeft_toRightOf="@id/img_view_my_page_profile"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_my_page_nickname"
             app:layout_constraintVertical_bias="0.2"
@@ -147,9 +92,9 @@
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintLeft_toLeftOf="@id/imgv_my_page_profile"
+            app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imgv_my_page_profile" />
+            app:layout_constraintTop_toBottomOf="@id/img_view_my_page_profile" />
 
         <TextView
             android:id="@+id/tv_follow_value"
@@ -171,9 +116,9 @@
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.85"
-            app:layout_constraintLeft_toLeftOf="@id/imgv_my_page_profile"
+            app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imgv_my_page_profile" />
+            app:layout_constraintTop_toBottomOf="@id/img_view_my_page_profile" />
 
         <TextView
             android:id="@+id/tv_follower_value"
@@ -195,9 +140,9 @@
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.15"
-            app:layout_constraintLeft_toLeftOf="@id/imgv_my_page_profile"
+            app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imgv_my_page_profile" />
+            app:layout_constraintTop_toBottomOf="@id/img_view_my_page_profile" />
 
         <TextView
             android:id="@+id/tv_post_value"
@@ -219,7 +164,7 @@
             app:layout_constraintHorizontal_bias="0.36"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imgv_my_page_profile"
+            app:layout_constraintTop_toBottomOf="@id/img_view_my_page_profile"
             app:layout_constraintVertical_bias="0.35" />
 
         <View
@@ -231,7 +176,7 @@
             app:layout_constraintHeight_percent="0.04"
             app:layout_constraintLeft_toLeftOf="@id/tv_follow_title"
             app:layout_constraintRight_toRightOf="@id/tv_follower_title"
-            app:layout_constraintTop_toBottomOf="@id/imgv_my_page_profile"
+            app:layout_constraintTop_toBottomOf="@id/img_view_my_page_profile"
             app:layout_constraintVertical_bias="0.35" />
 
         <View
@@ -251,14 +196,14 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
-            app:tabIndicatorHeight="5dp"
             android:layout_width="0dp"
-            app:layout_constraintWidth_percent="0.7"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintWidth_percent="0.7"
             app:tabIndicatorColor="@color/breaking_color"
-            app:layout_constraintTop_toBottomOf="@id/divider" />
+            app:tabIndicatorHeight="5dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

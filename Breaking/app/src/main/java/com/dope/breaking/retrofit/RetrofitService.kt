@@ -1,12 +1,9 @@
 package com.dope.breaking.retrofit
 
-import com.dope.breaking.model.response.User
 import com.dope.breaking.model.request.RequestGoogleAccessToken
 import com.dope.breaking.model.request.RequestGoogleToken
 import com.dope.breaking.model.request.RequestKakaoToken
-import com.dope.breaking.model.response.ResponseExistLogin
-import com.dope.breaking.model.response.ResponseGoogleAccessToken
-import com.dope.breaking.model.response.ResponseLogin
+import com.dope.breaking.model.response.*
 import com.google.gson.JsonElement
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -32,7 +29,10 @@ interface RetrofitService {
      * @author - Tae hyun Park
      */
     @GET("/oauth2/sign-up/validate-phone-number/{phoneNumber}")
-    suspend fun requestValidationPhoneNum(@Path("phoneNumber") phoneNumber: String): Response<Unit>
+    suspend fun requestValidationPhoneNum(
+        @Header("authorization") token: String,
+        @Path("phoneNumber") phoneNumber: String
+    ): Response<Unit>
 
     /**
      * 회원가입 시 닉네임 검증 요청 메소드
@@ -41,7 +41,10 @@ interface RetrofitService {
      * @author - Tae hyun Park
      */
     @GET("/oauth2/sign-up/validate-nickname/{nickName}")
-    suspend fun requestValidationNickName(@Path("nickName") nickName: String): Response<Unit>
+    suspend fun requestValidationNickName(
+        @Header("authorization") token: String,
+        @Path("nickName") nickName: String
+    ): Response<Unit>
 
     /**
      * 회원가입 시 이메일 검증 요청 메소드
@@ -50,7 +53,10 @@ interface RetrofitService {
      * @author - Tae hyun Park
      */
     @GET("/oauth2/sign-up/validate-email/{email}")
-    suspend fun requestValidationEmail(@Path("email") email: String): Response<Unit>
+    suspend fun requestValidationEmail(
+        @Header("authorization") token: String,
+        @Path("email") email: String
+    ): Response<Unit>
 
     /**
      * 구글 로그인 토큰 검증 요청 메소드
@@ -96,6 +102,30 @@ interface RetrofitService {
         @Path("userId") userId: Long,
         @Header("authorization") token: String
     ): Call<User>
+
+    /**
+     * 유저 정보 변경을 위한 본인의 유저 데이터를 가져오는 요청
+     * @header authorization: 요청하는 유저의 Jwt 토큰 값
+     * @response DetailUser: 기존 유저의 정보 DTO 객체
+     * @author Seunggun Sin
+     */
+    @GET("profile/detail")
+    fun requestDetailUserInfo(@Header("authorization") token: String): Call<DetailUser>
+
+    /**
+     * Multipart 유저 프로필 변경 요청
+     * @header authorization: 요청하는 유저의 Jwt 토큰 값
+     * @param image(MultipartBody.Part?): 이미지 데이터 (null 값 보낼 시 기본 이미지로 변경)
+     * @param data(RequestBody): 요청 데이터 필드 값
+     * @response x
+     */
+    @Multipart
+    @PUT("profile")
+    suspend fun requestUpdateUserInfo(
+        @Header("authorization") token: String,
+        @Part image: MultipartBody.Part?,
+        @Part("updateRequest") data: RequestBody
+    ): Response<Unit>
 
     /**
      * OAuth2 구글 API 서버로부터 엑세스 토큰 요청 메소드
