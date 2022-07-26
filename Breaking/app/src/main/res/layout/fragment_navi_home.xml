@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <include layout="@layout/general_toolbar_layout" />
 
@@ -13,6 +14,7 @@
         tools:context=".fragment.NaviChartFragment">
 
         <TextView
+            android:id="@+id/tv_main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="브레이킹 메인 화면입니다."
@@ -20,6 +22,24 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fab_posting"
+            android:layout_width="130dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:theme="@style/FormButton"
+            android:text="@string/post_home_btn"
+            android:textColor="@color/breaking_color"
+            android:textStyle="bold"
+            android:textAppearance="@style/AppTextAppearance.Button"
+            android:backgroundTint="@color/main_post_button_color"
+            android:layout_marginBottom="80dp"
+            app:strokeColor="@color/breaking_drawer_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+           />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

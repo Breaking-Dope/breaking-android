@@ -7,7 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="gray">#cccccc</color>
+    <color name="gray">#EBE4E4</color>
     <color name="light_gray">#dddddd</color>
     <color name="breaking_color">#014D91</color>
     <color name="breaking_drawer_color">#2D375B</color>
@@ -19,6 +19,7 @@
     <color name="sign_up_user_type_unselected_color">#B0DDFF</color>
     <color name="sign_up_user_type_text_color">#014D91</color>
     <color name="sign_up_input_error_text_color">#FF0000</color>
+    <color name="main_post_button_color">#EFF9FF</color>
     <color name="kakao_container">#FEE500</color>
     <color name="google_container">#FFFFFF</color>
 </resources>
