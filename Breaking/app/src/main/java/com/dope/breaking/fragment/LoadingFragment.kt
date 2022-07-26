@@ -13,6 +13,7 @@ import com.dope.breaking.model.response.User
 import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import retrofit2.Call
 import retrofit2.Callback
@@ -28,6 +29,7 @@ class LoadingFragment : Fragment() {
         override fun handleMessage(msg: Message) {
             val pass = NaviUserFragment() // 유저 Fragment 객체 생성
             pass.arguments = msg.data // Fragment 의 인자 값에 받아온 유저 데이터 저장
+
             parentFragmentManager // 유저 Fragment 로 전환
                 .beginTransaction()
                 .replace(R.id.fl_board, pass)
@@ -58,11 +60,21 @@ class LoadingFragment : Fragment() {
                     val message = handler.obtainMessage()
                     message.data = bundle
                     handler.sendMessage(message)
-
+                } else {
+                    DialogUtil().SingleDialog(
+                        requireContext(),
+                        "정보를 불러오지 못했습니다. 재시도 바랍니다. ",
+                        "확인"
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<User?>, t: Throwable) {
+                DialogUtil().SingleDialog(
+                    requireContext(),
+                    "서버에 문제가 발생하였습니다. 재시도 바랍니다.",
+                    "확인"
+                ).show()
             }
         })
         return inflater.inflate(R.layout.progress_dialog_layout, container, false)
