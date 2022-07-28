@@ -64,14 +64,14 @@ class NaviUserFragment : Fragment() {
         binding.tvFollowerValue.setOnClickListener {
             Follow.moveToFollowInfo(
                 requireActivity(),
-                true,
+                false,
                 ResponseExistLogin.baseUserInfo?.userId!!
             )
         }
         binding.tvFollowerTitle.setOnClickListener {
             Follow.moveToFollowInfo(
                 requireActivity(),
-                true,
+                false,
                 ResponseExistLogin.baseUserInfo?.userId!!
             )
         }
