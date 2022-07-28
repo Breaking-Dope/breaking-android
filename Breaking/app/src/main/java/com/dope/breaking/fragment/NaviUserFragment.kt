@@ -8,13 +8,12 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.dope.breaking.EditProfileActivity
-import com.dope.breaking.ImageExpansionActivity
-import com.dope.breaking.NaviSettingActivity
-import com.dope.breaking.R
+import com.dope.breaking.*
 import com.dope.breaking.adapter.UserViewPagerAdapter
 import com.dope.breaking.databinding.FragmentNaviUserBinding
+import com.dope.breaking.follow.Follow
 import com.dope.breaking.model.response.DetailUser
+import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.model.response.User
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
@@ -45,6 +44,36 @@ class NaviUserFragment : Fragment() {
         // 프로필 편집 버튼 클릭 시
         binding.btnEditProfile.setOnClickListener {
             getUserDetailInfo()
+        }
+
+        binding.tvFollowValue.setOnClickListener {
+            Follow.moveToFollowInfo(
+                requireActivity(),
+                true,
+                ResponseExistLogin.baseUserInfo?.userId!!
+            )
+        }
+        binding.tvFollowTitle.setOnClickListener {
+            Follow.moveToFollowInfo(
+                requireActivity(),
+                true,
+                ResponseExistLogin.baseUserInfo?.userId!!
+            )
+        }
+
+        binding.tvFollowerValue.setOnClickListener {
+            Follow.moveToFollowInfo(
+                requireActivity(),
+                true,
+                ResponseExistLogin.baseUserInfo?.userId!!
+            )
+        }
+        binding.tvFollowerTitle.setOnClickListener {
+            Follow.moveToFollowInfo(
+                requireActivity(),
+                true,
+                ResponseExistLogin.baseUserInfo?.userId!!
+            )
         }
         return binding.root
     }
@@ -123,6 +152,7 @@ class NaviUserFragment : Fragment() {
         startActivity(intent, opt.toBundle())
     }
 
+
     /**
      * 현재 로그인한 유저의 Jwt 토큰을 이용하여 프로필 편집에 필요한 기존 유저 데이터를 요청하는 함수
      * 동시에 요청 성공 시 프로필 편집 페이지로 이동한다.
@@ -132,31 +162,35 @@ class NaviUserFragment : Fragment() {
     private fun getUserDetailInfo() {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
         val token = JwtTokenUtil(requireActivity()).getTokenFromLocal() // 로컬에 저장된 토큰 가져오기
-        if (token != null)
+        if (token.isNotEmpty())
         // 기존 유저 데이터 요청
-            service.requestDetailUserInfo("Bearer $token").enqueue(object : Callback<DetailUser?> {
-                override fun onResponse(call: Call<DetailUser?>, response: Response<DetailUser?>) {
-                    if (response.isSuccessful) {
-                        val body = response.body()
-                        if (body != null) // 성공하고 정상적인 값이 존재하면
-                            moveToEditProfile(body) // 프로필 편집 페이지로 이동
-                    } else {
+            service.requestDetailUserInfo(ValueUtil.JWT_REQUEST_PREFIX + token)
+                .enqueue(object : Callback<DetailUser?> {
+                    override fun onResponse(
+                        call: Call<DetailUser?>,
+                        response: Response<DetailUser?>
+                    ) {
+                        if (response.isSuccessful) {
+                            val body = response.body()
+                            if (body != null) // 성공하고 정상적인 값이 존재하면
+                                moveToEditProfile(body) // 프로필 편집 페이지로 이동
+                        } else {
+                            DialogUtil().SingleDialog(
+                                requireContext(),
+                                "정보를 불러오지 못했습니다. 재시도 바랍니다. ",
+                                "확인"
+                            ).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<DetailUser?>, t: Throwable) {
                         DialogUtil().SingleDialog(
                             requireContext(),
-                            "정보를 불러오지 못했습니다. 재시도 바랍니다. ",
+                            "서버에 문제가 발생하였습니다. 재시도 바랍니다.",
                             "확인"
                         ).show()
                     }
-                }
-
-                override fun onFailure(call: Call<DetailUser?>, t: Throwable) {
-                    DialogUtil().SingleDialog(
-                        requireContext(),
-                        "서버에 문제가 발생하였습니다. 재시도 바랍니다.",
-                        "확인"
-                    ).show()
-                }
-            })
+                })
         else
             DialogUtil().SingleDialog(requireContext(), "사용자를 식별할 수 없습니다! 앱을 재실행바랍니다.", "확인").show()
     }
