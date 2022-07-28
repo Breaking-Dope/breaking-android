@@ -19,8 +19,6 @@ import com.bumptech.glide.Glide
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.model.request.RequestUpdateUser
 import com.dope.breaking.model.response.DetailUser
-import com.dope.breaking.retrofit.RetrofitManager
-import com.dope.breaking.retrofit.RetrofitService
 import com.dope.breaking.signup.Account
 import com.dope.breaking.signup.Validation
 import com.dope.breaking.util.DialogUtil
@@ -30,14 +28,6 @@ import com.dope.breaking.util.ValueUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.ByteArrayOutputStream
-
 
 class EditProfileActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignUpBinding
@@ -126,7 +116,7 @@ class EditProfileActivity : AppCompatActivity() {
                             phoneNumber,
                             email,
                             binding,
-                            "Bearer $token"
+                            ValueUtil.JWT_REQUEST_PREFIX + token
                         ) // 닉네임, 전화번호, 이메일 검증하기
 
                     if (result) { // 검증에 성공했다면
@@ -144,7 +134,7 @@ class EditProfileActivity : AppCompatActivity() {
                             inputData,
                             profileImgBitmap,
                             filename,
-                            "Bearer ${token!!}"
+                            ValueUtil.JWT_REQUEST_PREFIX + token
                         ) // 프로필 변경 요청
 
                         if (progressDialog.isShowing())

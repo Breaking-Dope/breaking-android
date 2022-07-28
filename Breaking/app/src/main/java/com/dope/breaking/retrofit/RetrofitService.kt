@@ -1,5 +1,6 @@
 package com.dope.breaking.retrofit
 
+import com.dope.breaking.model.FollowData
 import com.dope.breaking.model.request.RequestGoogleAccessToken
 import com.dope.breaking.model.request.RequestGoogleToken
 import com.dope.breaking.model.request.RequestKakaoToken
@@ -118,6 +119,7 @@ interface RetrofitService {
      * @param image(MultipartBody.Part?): 이미지 데이터 (null 값 보낼 시 기본 이미지로 변경)
      * @param data(RequestBody): 요청 데이터 필드 값
      * @response x
+     * @author Seunggun Sin
      */
     @Multipart
     @PUT("profile")
@@ -126,6 +128,32 @@ interface RetrofitService {
         @Part image: MultipartBody.Part?,
         @Part("updateRequest") data: RequestBody
     ): Response<Unit>
+
+    /**
+     * userId 에 해당하는 사람의 팔로잉 리스트를 가져오는 요청
+     * @header authorization: 요청하는 유저의 Jwt 토큰 값
+     * @path userId: 팔로잉 리스트를 얻고자 하는 유저의 고유 아이디
+     * @response userId 에 해당하는 사람이 팔로우한 사람들의 리스트
+     * @author Seunggun Sin
+     */
+    @GET("follow/following/{userId}")
+    suspend fun requestGetFollowingList(
+        @Header("authorization") token: String,
+        @Path("userId") userId: Long
+    ): Response<List<FollowData>>
+
+    /**
+     * userId 에 해당하는 사람의 팔로워 리스트를 가져오는 요청
+     * @header authorization: 요청하는 유저의 Jwt 토큰 값
+     * @path userId: 팔로워 리스트를 얻고자 하는 유저의 고유 아이디
+     * @response userId 에 해당하는 사람을 팔로워한 사람들의 리스트
+     * @author Seunggun Sin
+     */
+    @GET("follow/follower/{userId}")
+    suspend fun requestGetFollowerList(
+        @Header("authorization") token: String,
+        @Path("userId") userId: Long
+    ): Response<List<FollowData>>
 
     /**
      * OAuth2 구글 API 서버로부터 엑세스 토큰 요청 메소드

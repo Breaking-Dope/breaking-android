@@ -173,7 +173,7 @@ class SignUpActivity : AppCompatActivity() {
                 tokenUtil.setToken(token) // SharedPreferences 를 이용하여 Jwt 토큰을 로컬에 저장
 
                 //회원가입 응답으로 받아온 토큰 값을 토대로 유저의 기본 정보 가져오는 요청
-                val userInfo = tokenUtil.validateJwtToken("Bearer $token")
+                val userInfo = tokenUtil.validateJwtToken(ValueUtil.JWT_REQUEST_PREFIX + token)
                 moveToMainPage(userInfo) // 가져온 유저 정보 값을 가지고 메인 페이지로 이동하기
             } else {
                 // 존재하지 않는 Jwt 토큰 케이스에 대한 예외 던지기

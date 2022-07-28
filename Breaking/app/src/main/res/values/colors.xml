@@ -22,4 +22,5 @@
     <color name="main_post_button_color">#EFF9FF</color>
     <color name="kakao_container">#FEE500</color>
     <color name="google_container">#FFFFFF</color>
+    <color name="follow_list_background_color">#F3F7FA</color>
 </resources>

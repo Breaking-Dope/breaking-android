@@ -275,7 +275,7 @@ class SignInActivity : AppCompatActivity() {
                                     customProgressDialog.dismissDialog() // 종료
 
                                 // 로컬에 JWT 토큰이 없다면 새로 저장, 있었다면 Pass
-                                if (isJwtToken.getTokenFromLocal() == null)
+                                if (isJwtToken.getTokenFromLocal() == "")
                                     isJwtToken.setToken(isJwtToken.getTokenFromResponse(response.headers())!!)
                                 // 기존 유저이므로 메인 페이지로 이동
                                 if (responseBody is ResponseExistLogin)

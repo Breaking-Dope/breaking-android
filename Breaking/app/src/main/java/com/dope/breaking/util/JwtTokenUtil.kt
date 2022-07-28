@@ -19,14 +19,12 @@ class JwtTokenUtil(context: Context) {
 
     /**
      * 로컬 파일, 즉, SharedPreferences 로부터 토큰 값을 가져오는 메소드
-     * @param None
-     * @return String?: 로컬에 저장된 jwt 토큰 값 리턴, 없다면 null 리턴
+     * @return String: 로컬에 저장된 jwt 토큰 값 리턴, 없다면 빈 문자열 리턴
      * @author Seunggun Sin
-     * @since 2022-07-09
+     * @since 2022-07-09 | 2022-07-28
      */
-    fun getTokenFromLocal(): String? {
-        val value = prefUtil.getString("token", "none")
-        return if (value == "none") null else value
+    fun getTokenFromLocal(): String {
+        return prefUtil.getString("token", "")
     }
 
     /**
