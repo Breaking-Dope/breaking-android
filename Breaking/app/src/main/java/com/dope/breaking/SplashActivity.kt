@@ -7,6 +7,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.util.JwtTokenUtil
+import com.dope.breaking.util.ValueUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,11 +27,11 @@ class SplashActivity : AppCompatActivity() {
                 val jwtTokenUtil = JwtTokenUtil(applicationContext)
 
                 // 로컬에 Jwt 토큰이 저장되어 있다면
-                if (jwtTokenUtil.getTokenFromLocal() != null) {
+                if (jwtTokenUtil.getTokenFromLocal() != "") {
                     // Jwt 토큰을 이용해 기본 유저 정보 요청
                     try {
                         val userData =
-                            jwtTokenUtil.validateJwtToken("Bearer " + jwtTokenUtil.getTokenFromLocal()!!)
+                            jwtTokenUtil.validateJwtToken(ValueUtil.JWT_REQUEST_PREFIX + jwtTokenUtil.getTokenFromLocal())
 
                         // 메인 페이지로 유저 데이터와 함께 이동
                         val intent = Intent(applicationContext, MainActivity::class.java)

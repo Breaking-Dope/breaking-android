@@ -14,6 +14,7 @@ class ValueUtil {
         const val IMAGE_BASE_URL = "https://team-dope.link:8443" // 이미지 호출을 위한 서버 base url
         const val MULTIPART_PROFILE_KEY = "profileImg" // multi part 요청에 대한 key 이름
         const val JWT_HEADER_KEY = "authorization" // JWT 토큰 검증을 위한 헤더 키 값
+        const val JWT_REQUEST_PREFIX = "Bearer " // Jwt 토큰을 헤더에 넣고 요청할 때 필요한 접두사
 
         val TAB_ICONS = arrayOf(
             R.drawable.ic_baseline_create_24,

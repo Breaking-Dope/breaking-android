@@ -45,7 +45,7 @@ class GoogleLogin(private val context: Context) {
      * @throws ResponseErrorException: 정상 응답 (2xx) 이외의 응답이 왔을 때 exception 발생
      * @throws InvalidAccessTokenException: 에러 응답(406), 즉, 플랫폼에 인증할 수 없을 때 발생하는 응답에 대한 예외
      * @author Seunggun Sin
-     * @since 2022-07-07 | 2022-07-16
+     * @since 2022-07-07 | 2022-07-28
      */
     @Throws(ResponseErrorException::class, InvalidAccessTokenException::class)
     suspend fun requestGoogleLogin(account: GoogleSignInAccount): Boolean {
@@ -77,7 +77,7 @@ class GoogleLogin(private val context: Context) {
                     )
                 ) {
                     // 로컬에 저장된 토큰이 없다면 저장하기
-                    if (jwtTokenUtil.getTokenFromLocal() == null) {
+                    if (jwtTokenUtil.getTokenFromLocal() == "") {
                         jwtTokenUtil.setToken(jwtTokenUtil.getTokenFromResponse(validationResponse.headers())!!)
                     }
                     true
