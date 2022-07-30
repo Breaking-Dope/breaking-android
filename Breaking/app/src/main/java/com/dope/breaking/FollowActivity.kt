@@ -10,6 +10,7 @@ import com.dope.breaking.adapter.FollowAdapter
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.follow.Follow
 import com.dope.breaking.model.FollowData
+import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.ValueUtil
@@ -97,6 +98,15 @@ class FollowActivity : AppCompatActivity() {
         list.forEachIndexed { index, element ->
             if (index == list.size - 1) { // 마지막 아이템인 경우에
                 data.add(element)
+                /*
+                    특정 유저의 팔로우 or 팔로워 리스트에 내가 포함되어 있을 때 첫번째 인덱스로 이동
+                 */
+                for (followData in data) {
+                    if (followData.userId == ResponseExistLogin.baseUserInfo?.userId) {
+                        data.remove(followData) // 현재 데이터 제거
+                        data.add(0, followData) // 첫번째 인덱스에 추가
+                    }
+                }
                 val followAdapter = FollowAdapter(this, data)
                 recyclerView.adapter = followAdapter // recyclerView 에 어댑터 적용
             } else {

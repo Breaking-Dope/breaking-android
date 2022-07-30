@@ -9,16 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.dope.breaking.R
-import com.dope.breaking.model.response.User
+import com.dope.breaking.exception.MissingJwtTokenException
+import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.response.ResponseExistLogin
-import com.dope.breaking.retrofit.RetrofitManager
-import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.user.UserProfile
 import com.dope.breaking.util.DialogUtil
-import com.dope.breaking.util.JwtTokenUtil
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * 요청을 담당하는 Fragment 로 중간다리 역할 (여기서는 로딩 progress dialog 를 보여줌)
@@ -42,42 +40,49 @@ class LoadingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
-        val tokenUtil = JwtTokenUtil(requireContext()) // Jwt 토큰 객체 생성
+        CoroutineScope(Dispatchers.Main).launch {
+            // 본인의 userId 값을 인자로 유저 프로필 정보 요청
+            try {
+                val userProfile = UserProfile(requireActivity())
+                val user = userProfile.getUserProfileInfo(ResponseExistLogin.baseUserInfo!!.userId)
 
-        // 유저 Id와 로컬에 저장된 본인의 Jwt 토큰을 인자로 전달 후 유저 프로필 정보 요청
-        service.requestUserProfileInfo(
-            ResponseExistLogin.baseUserInfo!!.userId, tokenUtil.getTokenFromLocal()!!
-        ).enqueue(object :
-            Callback<User?> {
-            override fun onResponse(call: Call<User?>, response: Response<User?>) {
-                if (response.isSuccessful) {
-                    val user = response.body()!! // 유저 응답 객체 가져오기
-
-                    // 핸들러를 통해 전달
-                    val bundle = Bundle()
-                    bundle.putSerializable("user", user)
-                    val message = handler.obtainMessage()
-                    message.data = bundle
-                    handler.sendMessage(message)
-                } else {
-                    DialogUtil().SingleDialog(
-                        requireContext(),
-                        "정보를 불러오지 못했습니다. 재시도 바랍니다. ",
-                        "확인"
-                    ).show()
-                }
-            }
-
-            override fun onFailure(call: Call<User?>, t: Throwable) {
+                // 핸들러를 통해 전달
+                val bundle = Bundle()
+                bundle.putSerializable("user", user)
+                val message = handler.obtainMessage()
+                message.data = bundle
+                handler.sendMessage(message)
+            } catch (e: ResponseErrorException) {
                 DialogUtil().SingleDialog(
-                    requireContext(),
-                    "서버에 문제가 발생하였습니다. 재시도 바랍니다.",
+                    requireActivity(),
+                    "정보를 불러오지 못했습니다. 재시도 바랍니다. ",
                     "확인"
-                ).show()
+                ) {
+                    moveToHome()
+                }.show()
+            } catch (e: MissingJwtTokenException) {
+                DialogUtil().SingleDialog(requireActivity(), "사용자를 식별할 수 없습니다! 앱을 재실행바랍니다.", "확인") {
+                    moveToHome()
+                }.show()
+            } catch (e: Exception) {
+                DialogUtil().SingleDialog(requireActivity(), "예기치 못한 문제가 발생하였습니다.", "확인") {
+                    moveToHome()
+                }.show()
             }
-        })
+        }
         return inflater.inflate(R.layout.progress_dialog_layout, container, false)
     }
 
+    /**
+     * 마이페이지 이동에 문제 발생 시, Home Fragment 로 이동
+     * @author Seunggun Sin
+     * @since 2022-07-30
+     */
+    private fun moveToHome() {
+        val home = NaviHomeFragment()
+        parentFragmentManager // Home Fragment 로 전환
+            .beginTransaction()
+            .replace(R.id.fl_board, home)
+            .commit()
+    }
 }

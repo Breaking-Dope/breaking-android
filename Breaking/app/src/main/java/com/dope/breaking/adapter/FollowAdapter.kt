@@ -1,7 +1,7 @@
 package com.dope.breaking.adapter
 
+import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +11,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dope.breaking.R
-import com.dope.breaking.UserPageActivity
 import com.dope.breaking.model.FollowData
+import com.dope.breaking.model.response.ResponseExistLogin
+import com.dope.breaking.user.UserProfile
 import com.dope.breaking.util.ValueUtil
 
 class FollowAdapter(private val context: Context, var data: MutableList<FollowData>) :
@@ -24,16 +25,18 @@ class FollowAdapter(private val context: Context, var data: MutableList<FollowDa
     }
 
     override fun onBindViewHolder(holder: FollowAdapter.ViewHolder, position: Int) {
-        holder.bind(data[position])
+        holder.bind(data[position]) // view 바인딩
+
         // 닉네임 클릭 시
         holder.textNickname.setOnClickListener {
-            context.startActivity(Intent(context, UserPageActivity::class.java))
+            UserProfile(context as Activity).moveToUserPage(data[position].userId)
         }
         // 프로필 이미지 클릭 시
         holder.imageProfile.setOnClickListener {
-            context.startActivity(Intent(context, UserPageActivity::class.java))
-
+            UserProfile(context as Activity).moveToUserPage(data[position].userId)
         }
+        holder.removeButton.visibility =
+            if (data[position].userId == ResponseExistLogin.baseUserInfo?.userId) View.GONE else View.VISIBLE
     }
 
     override fun getItemCount(): Int {

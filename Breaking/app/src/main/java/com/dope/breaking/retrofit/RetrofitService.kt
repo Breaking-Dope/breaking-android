@@ -99,10 +99,10 @@ interface RetrofitService {
      * @author Seunggun sin
      */
     @GET("profile/{userId}")
-    fun requestUserProfileInfo(
+    suspend fun requestUserProfileInfo(
         @Path("userId") userId: Long,
         @Header("authorization") token: String
-    ): Call<User>
+    ): Response<User>
 
     /**
      * 유저 정보 변경을 위한 본인의 유저 데이터를 가져오는 요청
