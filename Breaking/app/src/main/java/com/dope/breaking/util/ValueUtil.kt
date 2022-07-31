@@ -12,7 +12,8 @@ import com.dope.breaking.R
 class ValueUtil {
     companion object {
         const val IMAGE_BASE_URL = "https://team-dope.link:8443" // 이미지 호출을 위한 서버 base url
-        const val MULTIPART_PROFILE_KEY = "profileImg" // multi part 요청에 대한 key 이름
+        const val MULTIPART_PROFILE_KEY = "profileImg" // multi part 프로필 요청에 대한 key 이름
+        const val MULTIPART_POST_KEY = "mediaList"  // multi part 게시글 요청에 대한 key 이름
         const val JWT_HEADER_KEY = "authorization" // JWT 토큰 검증을 위한 헤더 키 값
 
         val TAB_ICONS = arrayOf(
@@ -23,6 +24,10 @@ class ValueUtil {
 
         fun getDefaultProfile(context: Context): Bitmap =
             AppCompatResources.getDrawable(context, R.drawable.ic_default_profile_image)
+                ?.toBitmap()!!
+
+        fun getDefaultPost(context: Context): Bitmap =
+            AppCompatResources.getDrawable(context, R.drawable.ic_default_post_image)
                 ?.toBitmap()!!
     }
 }
