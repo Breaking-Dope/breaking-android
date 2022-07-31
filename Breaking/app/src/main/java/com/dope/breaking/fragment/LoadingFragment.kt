@@ -65,6 +65,7 @@ class LoadingFragment : Fragment() {
                     moveToHome()
                 }.show()
             } catch (e: Exception) {
+                e.printStackTrace()
                 DialogUtil().SingleDialog(requireActivity(), "예기치 못한 문제가 발생하였습니다.", "확인") {
                     moveToHome()
                 }.show()
