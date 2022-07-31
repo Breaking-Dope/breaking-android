@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class FollowActivity : AppCompatActivity() {
     private val data = mutableListOf<FollowData>() // 팔로우 목록 저장하는 리스트
-
+    private var userId: Long = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /*
@@ -29,7 +29,7 @@ class FollowActivity : AppCompatActivity() {
             - 팔로워 페이지 = false
          */
         val state = intent.getBooleanExtra("state", true)
-        val userId = intent.getLongExtra("userId", 0) // 리스트를 보여주고자 하는 대상의 고유 id
+        userId = intent.getLongExtra("userId", 0) // 리스트를 보여주고자 하는 대상의 고유 id
         val follow = Follow() // 팔로우 관련 기능 객체 생성
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -53,6 +53,7 @@ class FollowActivity : AppCompatActivity() {
                     "확인"
                 ).show()
             } catch (e: Exception) {
+                e.printStackTrace()
                 DialogUtil().SingleDialog(
                     this@FollowActivity,
                     "예기치 못한 문제가 발생하였습니다.",
@@ -83,36 +84,37 @@ class FollowActivity : AppCompatActivity() {
     private fun setToolbar(state: Boolean) {
         val toolbar = findViewById<Toolbar>(R.id.following_tool_bar)
         toolbar.title = if (state) "팔로잉 페이지" else "팔로워 페이지" // 툴바 타이틀 설정
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true) // 뒤로 가기버튼 설정
+        // 뒤로가기 버튼 설정
+        toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_black_24)
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
     }
 
     /**
      * 가져온 리스트를 RecyclerView 의 어댑터에 적용하기
      * @param recyclerView(RecyclerView): 화면에 보여줄 recyclerView
      * @param list(List<FollowData>): 응답으로 받아온 팔로우(워) 목록 리스트
+     * @param state(Boolean): 팔로잉(true) or 팔로워(false) 구분
      * @author Seunggun Sin
-     * @since 2022-07-28
+     * @since 2022-07-28 | 2022-07-31
      */
-    private fun adaptList(recyclerView: RecyclerView, list: List<FollowData>) {
-        list.forEachIndexed { index, element ->
-            if (index == list.size - 1) { // 마지막 아이템인 경우에
-                data.add(element)
-                /*
-                    특정 유저의 팔로우 or 팔로워 리스트에 내가 포함되어 있을 때 첫번째 인덱스로 이동
-                 */
-                for (followData in data) {
-                    if (followData.userId == ResponseExistLogin.baseUserInfo?.userId) {
-                        data.remove(followData) // 현재 데이터 제거
-                        data.add(0, followData) // 첫번째 인덱스에 추가
-                    }
-                }
-                val followAdapter = FollowAdapter(this, data)
-                recyclerView.adapter = followAdapter // recyclerView 에 어댑터 적용
-            } else {
-                data.add(element) // 아이템 추가
+    private fun adaptList(recyclerView: RecyclerView, list: List<FollowData>, state: Boolean) {
+        list.forEach { element ->
+            data.add(element) // mutable 리스트에 아이템 추가
+        }
+        /*
+           특정 유저의 팔로우 or 팔로워 리스트에 내가 포함되어 있을 때 첫번째 인덱스로 이동
+         */
+        for (followData in data) {
+            if (followData.userId == ResponseExistLogin.baseUserInfo?.userId) {
+                data.remove(followData) // 현재 데이터 제거
+                data.add(0, followData) // 첫번째 인덱스에 추가
+                break
             }
         }
+        val followAdapter = FollowAdapter(this, data, state, userId)
+        recyclerView.adapter = followAdapter // recyclerView 에 어댑터 적용
     }
 
     /**
@@ -130,7 +132,7 @@ class FollowActivity : AppCompatActivity() {
             setContentView(R.layout.activity_follow) // 목록 레이아웃 처리
             setToolbar(state) // 툴바 설정
             val recyclerView = findViewById<RecyclerView>(R.id.rcv_following)
-            adaptList(recyclerView, list) // recyclerView 에 적용하기
+            adaptList(recyclerView, list, state) // recyclerView 에 적용하기
         }
     }
 
