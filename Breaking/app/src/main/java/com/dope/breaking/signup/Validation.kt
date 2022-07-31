@@ -16,12 +16,12 @@ class Validation {
     private var jsonObject = JsonObject() // JSONObject
 
     /**
-    @description - 회원가입 요청 전에 닉네임, 전화번호, 이메일의 유효성의 검증을 요청하는 동기적 함수이다. 추가적으로 이름 필드가 빈 문자열인지도 검사한다.
-    응답 에러 케이스의 경우 에러 코드가 아직 미구현이므로 String 으로 판별하였음.
-    @param - String, String, String, ActivitySignUpBinding
-    @return - Boolean
-    @author - Tae hyun Park
-    @since - 2022-07-12 | 2022-07-13
+     * @description - 회원가입 요청 전에 닉네임, 전화번호, 이메일의 유효성의 검증을 요청하는 동기적 함수이다. 추가적으로 이름 필드가 빈 문자열인지도 검사한다.
+      응답 에러 케이스의 경우 에러 코드가 아직 미구현이므로 String 으로 판별하였음.
+     * @param - String, String, String, ActivitySignUpBinding
+     * @return - Boolean
+     * @author - Tae hyun Park
+     * @since - 2022-07-12 | 2022-07-13
      **/
     @SuppressLint("ResourceAsColor")
     suspend fun startRequestSignUpValidation(
@@ -59,11 +59,11 @@ class Validation {
     }
 
     /**
-    @description - 닉네임 검증 응답 Response 를 통해 값을 구분하고 에러 처리하는 함수
-    @param - Response<Unit>, ActivitySignUpBinding
-    @return - None
-    @author - Tae hyun Park
-    @since - 2022-07-13 | 2022-07-21
+     * @description - 닉네임 검증 응답 Response 를 통해 값을 구분하고 에러 처리하는 함수
+     * @param - Response<Unit>, ActivitySignUpBinding
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-07-13 | 2022-07-21
      **/
     private fun nickNameValidation(resNickname: Response<Unit>, binding: ActivitySignUpBinding) {
         if (resNickname.code() == 200) {
@@ -94,11 +94,11 @@ class Validation {
     }
 
     /**
-    @description - 전화번호 검증 응답 Response 를 통해 값을 구분하고 에러 처리하는 함수
-    @param - Response<Unit>, ActivitySignUpBinding
-    @return - None
-    @author - Tae hyun Park
-    @since - 2022-07-13 | 2022-07-21
+     * @description - 전화번호 검증 응답 Response 를 통해 값을 구분하고 에러 처리하는 함수
+     * @param - Response<Unit>, ActivitySignUpBinding
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-07-13 | 2022-07-21
      **/
     private fun phoneNumberValidation(resPhoneNum: Response<Unit>, binding: ActivitySignUpBinding) {
         if (resPhoneNum.code() == 200) {
@@ -129,11 +129,11 @@ class Validation {
     }
 
     /**
-    @description - 이메일 검증 응답 Response 를 통해 값을 구분하고 에러 처리하는 함수
-    @param - Response<Unit>, ActivitySignUpBinding
-    @return - None
-    @author - Tae hyun Park
-    @since - 2022-07-13 | 2022-07-21
+     * @description - 이메일 검증 응답 Response 를 통해 값을 구분하고 에러 처리하는 함수
+     * @param - Response<Unit>, ActivitySignUpBinding
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-07-13 | 2022-07-21
      **/
     private fun emailValidation(resEmail: Response<Unit>, binding: ActivitySignUpBinding) {
         if (resEmail.code() == 200) {
