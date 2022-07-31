@@ -56,6 +56,7 @@
                 android:layout_marginTop="15dp"
                 android:padding="5dp"
                 app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintVertical_bias="0"
                 app:layout_constraintLeft_toLeftOf="@+id/tv_upload_picture"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_upload_picture"
@@ -76,15 +77,19 @@
                         android:id="@+id/tv_current_count_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/post_upload_count_color"
                         android:text="0"/>
                     <TextView
+                        android:id="@+id/tv_middle_count_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/post_upload_count_color"
                         android:text="/"/>
                     <TextView
                         android:id="@+id/tv_total_count_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/post_upload_count_color"
                         android:text="10"/>
 
                 </LinearLayout>
@@ -95,14 +100,15 @@
                 android:id="@+id/view_recycler_image"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal"
-                app:layout_constraintWidth_percent="0.6"
-                app:layout_constraintHorizontal_bias="0.507"
-                app:layout_constraintVertical_bias="0.0"
-                app:layout_constraintLeft_toRightOf="@+id/layout_image_button"
+                app:layout_constraintWidth_percent="0.87"
+                app:layout_constraintHeight_percent="0.1"
+                app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/layout_image_button"
-                app:layout_constraintBottom_toBottomOf="@+id/layout_image_button">
+                app:layout_constraintLeft_toLeftOf="@+id/layout_image_button"
+                app:layout_constraintTop_toBottomOf="@+id/layout_image_button"
+                app:layout_constraintBottom_toTopOf="@+id/divider1">
             </androidx.recyclerview.widget.RecyclerView>
 
 <!--            <ProgressBar-->
@@ -124,7 +130,7 @@
                 android:layout_height="0.5dp"
                 android:layout_marginTop="25dp"
                 android:background="@color/gray"
-                app:layout_constraintTop_toBottomOf="@id/layout_image_button"
+                app:layout_constraintTop_toBottomOf="@id/view_recycler_image"
                 app:layout_constraintLeft_toLeftOf="@+id/layout_image_button"
                 app:layout_constraintRight_toRightOf="@+id/view_recycler_image"/>
 
@@ -246,6 +252,14 @@
                     android:inputType="text"
                     android:maxLength="30"/>
 
+                <TextView
+                    android:id="@+id/tv_title_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/sign_up_input_error_text_color"
+                    android:visibility="gone"
+                    android:textSize="13dp" />
+
                 <EditText
                     android:id="@+id/et_content"
                     android:layout_width="match_parent"
@@ -259,6 +273,15 @@
                     android:scrollbars="vertical"
                     android:maxLength="2000"/>
 
+                <TextView
+                    android:id="@+id/tv_content_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/sign_up_input_error_text_color"
+                    android:visibility="gone"
+                    android:textSize="13dp" />
+
+                <!--
                 <EditText
                     android:id="@+id/et_hashtag"
                     android:layout_width="match_parent"
@@ -270,7 +293,7 @@
                     android:hint="@string/post_register_content_hashtag"
                     android:lines="1"
                     android:inputType="text"
-                    android:maxLength="30"/>
+                    android:maxLength="30"/>-->
 
             </LinearLayout>
 
@@ -369,7 +392,18 @@
                 android:inputType="number"
                 app:layout_constraintLeft_toLeftOf="@+id/tv_post_price"
                 app:layout_constraintTop_toBottomOf="@+id/tv_post_price"
+                app:layout_constraintBottom_toTopOf="@+id/tv_post_error"
                 android:maxLength="10"/>
+
+            <TextView
+                android:id="@+id/tv_post_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sign_up_input_error_text_color"
+                android:visibility="gone"
+                android:textSize="13dp"
+                app:layout_constraintLeft_toLeftOf="@+id/et_post_price"
+                app:layout_constraintTop_toBottomOf="@+id/et_post_price" />
 
             <TextView
                 android:id="@+id/tv_post_profile_type"
@@ -424,7 +458,7 @@
                 android:textColor="@color/white"
                 android:background="@drawable/btn_post_round"
                 app:layout_constraintWidth_percent="0.25"
-                app:layout_constraintHeight_percent="0.04"
+                app:layout_constraintHeight_percent="0.03"
                 app:layout_constraintTop_toBottomOf="@+id/btn_post_profile_type_public"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
