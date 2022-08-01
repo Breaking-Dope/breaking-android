@@ -35,6 +35,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var galleryActivityResult: ActivityResultLauncher<Intent> // 갤러리에서 이미지를 가져왔을 때의 처리를 위한 activityResult
     private var filename: String = "" // 프로필 이미지 파일명
     private var profileImgBitmap: Bitmap? = null // 프로필 이미지 비트맵 전역변수
+    private var isDefaultImage = false // 기본 이미지를 사용하냐 안하냐 구분
     private val handler = object : Handler(Looper.getMainLooper()) { // 메인 스레드에서 비트맵 변수 받아와서 할당
         override fun handleMessage(msg: Message) {
             profileImgBitmap = msg.data.getParcelable("Bitmap")!! // 번들에서 비트맵 객체를 받아온다.
@@ -127,6 +128,7 @@ class EditProfileActivity : AppCompatActivity() {
                             realName,
                             role,
                             statusMsg,
+                            profileImgBitmap != null || isDefaultImage
                         ) // 필드 객체
 
                         val account = Account()
@@ -229,6 +231,7 @@ class EditProfileActivity : AppCompatActivity() {
                         .into(binding.imgBtnProfileImage) // 기본 이미지로 보여주기
                     profileImgBitmap = null
                     filename = ""
+                    isDefaultImage = true // 기본 이미지 사용
                 },
                 {
                     // 갤러리 intent 호출
