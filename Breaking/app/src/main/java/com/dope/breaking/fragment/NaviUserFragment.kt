@@ -31,7 +31,6 @@ class NaviUserFragment : Fragment() {
 
         // 프로필 이미지 클릭 시
         binding.imgViewMyPageProfile.setOnClickListener {
-            init = false // 다시 이 페이지로 돌아와서 onStart 생명주기를 사용하기 위해 flag 값 전환
             if (user.profileImgURL != null) {
                 UserProfile(requireActivity()).moveToExpandedProfile(
                     user.profileImgURL,
@@ -97,7 +96,7 @@ class NaviUserFragment : Fragment() {
         binding.tvMyPageStatus.text = userData.statusMsg
         binding.tvFollowValue.text = userData.followingCount.toString()
         binding.tvFollowerValue.text = userData.followerCount.toString()
-        binding.tvPostValue.text = userData.postCount.toString()
+//        binding.tvPostValue.text = userData.postCount.toString()
         binding.btnFollow.visibility = View.GONE
 
         val viewPager = binding.viewPager // ViewPager2 객체
@@ -114,6 +113,7 @@ class NaviUserFragment : Fragment() {
         binding.myPageToolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.setting_action -> { // 툴바의 톱니바퀴 아이콘 클릭 시, 환경설정 액티비티로 이동
+                    init = false // 다시 이 페이지로 돌아와서 onStart 생명주기를 사용하기 위해 flag 값 전환
                     startActivity(Intent(requireActivity(), NaviSettingActivity::class.java))
                     true
                 }

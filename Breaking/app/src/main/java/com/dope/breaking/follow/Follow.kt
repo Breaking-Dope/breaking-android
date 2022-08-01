@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.dope.breaking.FollowActivity
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.exception.UnLoginAccessException
 import com.dope.breaking.model.FollowData
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
@@ -68,12 +69,66 @@ class Follow {
         }
     }
 
+    /**
+     * userId 에 해당하는 유저를 팔로우하는 요청 (Jwt 토큰 필수)
+     * @param token(String): 본인 식별을 위한 Jwt 토큰
+     * @param userId(Long): 팔로우 하고자 하는 대상의 id
+     * @return Boolean: 팔로우 성공 시 true, 실패 시 false
+     * @throws ResponseErrorException: 서버 에러 코드(5xx) 응답 시 예외 발생
+     * @throws UnLoginAccessException: 비로그인 상태로 팔로우 시도 시 예외 발생(로그인 필수)
+     * @author Seunggun Sin
+     * @since 2022-07-30 | 2022-07-31
+     */
+    @Throws(ResponseErrorException::class, UnLoginAccessException::class)
+    suspend fun startFollowRequest(token: String, userId: Long): Boolean {
+        if (token.length < 8) { // Bearer 접두사 이후로 값이 없으면 Jwt 토큰 없다고 간주
+            throw UnLoginAccessException("로그인이 필요합니다.")
+        }
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        val response = service.requestFollow(token, userId)
+
+        if (response.isSuccessful) {
+            return response.code() in 200..299
+        } else {
+            throw ResponseErrorException("응답 에러 ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * userId 에 해당하는 유저를 언팔로우하는 요청 (Jwt 토큰 필수)
+     * @param token(String): 본인 식별을 위한 Jwt 토큰
+     * @param userId(Long): 언팔로우 하고자 하는 대상의 id
+     * @return Boolean: 언팔로우 성공 시 true, 실패 시 false
+     * @throws ResponseErrorException: 서버 에러 코드(5xx) 응답 시 예외 발생
+     * @throws UnLoginAccessException: 비로그인 상태로 팔로우 시도 시 예외 발생(로그인 필수)
+     * @author Seunggun Sin
+     * @since 2022-07-30 | 2022-07-31
+     */
+    @Throws(ResponseErrorException::class, UnLoginAccessException::class)
+    suspend fun startUnFollowRequest(token: String, userId: Long): Boolean {
+        if (token.length < 8) { // Bearer 접두사 이후로 값이 없으면 Jwt 토큰 없다고 간주
+            throw UnLoginAccessException("로그인이 필요합니다.")
+        }
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        val response = service.requestUnFollow(token, userId)
+
+        if (response.isSuccessful) {
+            return response.code() in 200..299
+        } else {
+            throw ResponseErrorException("응답 에러 ${response.errorBody()?.string()}")
+        }
+    }
+
     companion object {
         /**
          * 팔로우(워) 페이지로 이동
          * @param context(Context): 페이지 이동에 대한 caller context
          * @param state(Boolean): 팔로우 리스트(true)인지 팔로워 리스트(false)인지 구분
          * @param userId(Long): 팔로우(워) 페이지 대상의 고유 id
+         * @author Seunggun Sin
+         * @since 2022-07-29
          */
         fun moveToFollowInfo(context: Context, state: Boolean, userId: Long) {
             val intent = Intent(context, FollowActivity::class.java)

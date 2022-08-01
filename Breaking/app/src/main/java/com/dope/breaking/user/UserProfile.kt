@@ -16,6 +16,7 @@ import com.dope.breaking.retrofit.RetrofitService
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.ValueUtil
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -109,19 +110,21 @@ class UserProfile(private val activity: Activity) {
      * @param userId(Long): 불러오고자 하는 대상의 고유 id
      * @return User: 응답으로 받아온 해당 유저의 User DTO 객체
      * @throws ResponseErrorException: 정상 응답이 아닌 경우에 대한 예외 처리
+     * @throws MissingJwtTokenException: Jwt 토큰이 없으면 예외 처리
      * @author Seunggun Sin
-     * @since 2022-07-29
+     * @since 2022-07-29 | 2022-07-31
      */
-    @Throws(ResponseErrorException::class)
+    @Throws(ResponseErrorException::class, MissingJwtTokenException::class)
     suspend fun getUserProfileInfo(userId: Long): User {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
-        val token = JwtTokenUtil(activity).getTokenFromLocal() // 로컬에 저장된 토큰 가져오기
-
+        val token =
+            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(activity).getTokenFromLocal() // 로컬에 저장된 토큰 가져오기
         if (token.isNotEmpty()) {
             val response =
-                service.requestUserProfileInfo(userId, JwtTokenUtil(activity).getTokenFromLocal())
+                service.requestUserProfileInfo(userId, token)
             if (response.code() in 200..299) {
-                return response.body()!!
+                val body = response.body()
+                return User.convertJsonToObject(JSONObject(body.toString()))
             } else {
                 throw ResponseErrorException("응답 에러")
             }

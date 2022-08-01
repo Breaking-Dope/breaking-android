@@ -95,14 +95,14 @@ interface RetrofitService {
      * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)
      * @path userId: 유저 고유 id 값
      * @header authorization: 요청하는 유저의 Jwt 토큰 값
-     * @response User 객체로 요청하고자하는 해당 유저의 프로필 정보
+     * @response Json 으로 요청하고자하는 해당 유저의 프로필 정보 값
      * @author Seunggun sin
      */
     @GET("profile/{userId}")
     suspend fun requestUserProfileInfo(
         @Path("userId") userId: Long,
         @Header("authorization") token: String
-    ): Response<User>
+    ): Response<JsonElement>
 
     /**
      * 유저 정보 변경을 위한 본인의 유저 데이터를 가져오는 요청
@@ -154,6 +154,32 @@ interface RetrofitService {
         @Header("authorization") token: String,
         @Path("userId") userId: Long
     ): Response<List<FollowData>>
+
+    /**
+     * userId 에 해당하는 사람에게 팔로우를 요청
+     * @header authorization: 요청하는 본인을 식별하기 위한 Jwt 토큰(필수)
+     * @path userId: 팔로우 요청하고자 하는 대상 Id
+     * @response x
+     * @author Seunggun Sin
+     */
+    @POST("follow/{userId}")
+    suspend fun requestFollow(
+        @Header("authorization") token: String,
+        @Path("userId") userId: Long
+    ): Response<Unit>
+
+    /**
+     * userId 에 해당하는 사람에게 언팔로우를 요청
+     * @header authorization: 요청하는 본인을 식별하기 위한 Jwt 토큰(필수(
+     * @path userId: 언팔로우 요청하고자 하는 대상 Id
+     * @response x
+     * @author Seunggun Sin
+     */
+    @DELETE("follow/{userId}")
+    suspend fun requestUnFollow(
+        @Header("authorization") token: String,
+        @Path("userId") userId: Long
+    ): Response<Unit>
 
     /**
      * OAuth2 구글 API 서버로부터 엑세스 토큰 요청 메소드
