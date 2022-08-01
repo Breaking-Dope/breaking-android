@@ -9,12 +9,13 @@ data class RequestUpdateUser(
     val realName: String,
     val role: String,
     val statusMsg: String,
-){
+    val isProfileImgChanged: Boolean
+) {
     /**
      * 모든 필드 값들을 json 데이터로 변환해주는 메소드
      * @return JSONObject: 모든 필드들을 json 으로 변환한 객체 반환
      * @author Seunggun Sin
-     * @since 2022-07-25
+     * @since 2022-07-25 | 2022-08-01
      */
     fun convertFieldsToJson(): JSONObject {
         val jsonObject = JSONObject()
@@ -24,6 +25,7 @@ data class RequestUpdateUser(
         jsonObject.put("realName", realName)
         jsonObject.put("role", role)
         jsonObject.put("statusMsg", statusMsg)
+        jsonObject.put("isProfileImgChanged", isProfileImgChanged)
         return jsonObject
     }
 
