@@ -20,6 +20,7 @@
     <color name="sign_up_user_type_text_color">#014D91</color>
     <color name="sign_up_input_error_text_color">#FF0000</color>
     <color name="main_post_button_color">#EFF9FF</color>
+    <color name="post_upload_count_color">#7A7777</color>
     <color name="kakao_container">#FEE500</color>
     <color name="google_container">#FFFFFF</color>
     <color name="follow_list_background_color">#F3F7FA</color>
