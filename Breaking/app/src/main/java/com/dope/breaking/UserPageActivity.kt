@@ -42,10 +42,10 @@ class UserPageActivity : AppCompatActivity() {
             try {
                 val user = userProfile.getUserProfileInfo(userId) // 해당 유저 정보 가져오기
                 setContentView(R.layout.fragment_navi_user)
-                initView(userId, user) // 유저 레이아웃 초기 설정
-                setFollowButton(user.following, userId) // 팔로우 버튼 설정
-                setPostLayout() // 게시글 레이아웃 설정
                 fillDataInView(user) // view 에 유저 데이터 뿌려주기
+                initView(userId, user) // 유저 레이아웃 초기 설정
+                setFollowButton(user.isFollowing, userId) // 팔로우 버튼 설정
+                setPostLayout() // 게시글 레이아웃 설정
                 setButtonEvents(user) // 버튼 이벤트 설정
                 init = false
             } catch (e: ResponseErrorException) {
@@ -150,7 +150,7 @@ class UserPageActivity : AppCompatActivity() {
                     if (followResult) { // 팔로우 or 언팔로우 요청 성공 시
                         val newUser =
                             UserProfile(this@UserPageActivity).getUserProfileInfo(userId) // 해당 유저 프로필 정보를 다시 받아옴
-                        setFollowButton(newUser.following, userId) // 팔로우 버튼 재설정
+                        setFollowButton(newUser.isFollowing, userId) // 팔로우 버튼 재설정
                         fillDataInView(newUser) // 유저 프로필 데이터 view 에 다시 뿌려주기
                         progressDialog.dismissDialog() // 로딩 창 종료
                     } else {
@@ -188,6 +188,8 @@ class UserPageActivity : AppCompatActivity() {
         if (init)
             Glide.with(this@UserPageActivity) // 이미지 보여주기
                 .load(ValueUtil.IMAGE_BASE_URL + user.profileImgURL) // url 에 대한 이미지 호출
+                .placeholder(R.drawable.ic_default_profile_image)
+                .fitCenter()
                 .circleCrop() // 이미지 원형으로 만들기
                 .diskCacheStrategy(DiskCacheStrategy.ALL) // 이미지 캐싱
                 .error(R.drawable.ic_default_profile_image) // url 호출 에러 시 기본 이미지
