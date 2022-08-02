@@ -14,9 +14,16 @@ data class User(
     @SerializedName("followerCount") val followerCount: Int,
     @SerializedName("followingCount") val followingCount: Int,
 //    @SerializedName("postCount") val postCount: Long,
-    @SerializedName("following") val following: Boolean,
+    @SerializedName("isFollowing") val isFollowing: Boolean,
 ) : Serializable {
     companion object {
+        /**
+         * 응답으로 받아온 raw json 객체를 파싱하여 User 객체로 생성하는 함수
+         * @param jsonObject(JSONObject): 응답 json 객체
+         * @return User: 변환한 User 객체
+         * @author Seunggun Sin
+         * @since 2022-07-22 | 2022-08-02
+         */
         fun convertJsonToObject(jsonObject: JSONObject): User {
             return User(
                 (jsonObject["userId"] as Int).toLong(),
@@ -28,7 +35,10 @@ data class User(
                 jsonObject["followerCount"] as Int,
                 jsonObject["followingCount"] as Int,
 //                jsonObject["postCount"] as Long,
-                jsonObject["following"] as Boolean
+                if (jsonObject.isNull("isFollowing"))
+                    jsonObject["following"] as Boolean
+                else
+                    jsonObject["isFollowing"] as Boolean
             )
         }
     }
