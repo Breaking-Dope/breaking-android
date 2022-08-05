@@ -56,7 +56,8 @@ class FollowAdapter(
         holder.removeButton.visibility =
             if (data[position].userId == ResponseExistLogin.baseUserInfo?.userId) View.GONE else View.VISIBLE
 
-        val token = ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getTokenFromLocal() // 요청 토큰
+        val token =
+            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getTokenFromLocal() // 요청 토큰
 
         /*
         로그인 & 비로그인 유저 구분 / 내 팔로우(워) 리스트 & 다른 유저 팔로우(워) 리스트 구분 / 팔로우 & 팔로워 상태 구분
@@ -88,7 +89,15 @@ class FollowAdapter(
                             }).show()
                     }
                 } else { // 팔로워 리스트
-                    holder.removeButton.visibility = View.GONE // 버튼 hidden
+                    if (data[position].isFollowing) // 팔로우 중이라면
+                        convertToFollowingState(holder.removeButton) // 팔로잉 버튼 상태로 전환
+                    else // 팔로우 중이 아니라면
+                        convertToFollowState(holder.removeButton) // 팔로우 버튼 상태로 전환
+
+                    // 우측 버튼 클릭 이벤트
+                    holder.removeButton.setOnClickListener {
+                        clickFollowStateButton(position, token, holder)
+                    }
                 }
             } else { // 다른 사람 리스트인 경우
                 if (data[position].isFollowing) // 팔로우 중이라면
@@ -98,41 +107,57 @@ class FollowAdapter(
 
                 // 우측 버튼 클릭 이벤트
                 holder.removeButton.setOnClickListener {
-                    if (data[position].isFollowing) { // 팔로우 중이라면
-                        DialogUtil().MultipleDialog(
-                            context,
-                            "정말 '${data[position].nickname}'님의 팔로우를 취소하시겠습니까?",
-                            "예",
-                            "아니오",
-                            {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    val result =
-                                        Follow().startUnFollowRequest(
-                                            token,
-                                            data[position].userId
-                                        ) // 언팔로우 요청
-                                    if (result) { // 언팔로우 요청 성공 시
-                                        convertToFollowState(holder.removeButton) // 버튼 상태 전환
-                                        data[position].isFollowing = false // 팔로잉 상태로 전환
-                                    } else
-                                        dialogRequestFail()
-                                }
-                            }).show()
-                    } else { // 팔로우 중이 아니라면
-                        CoroutineScope(Dispatchers.Main).launch {
-                            val result =
-                                Follow().startFollowRequest(token, data[position].userId) // 팔로우 요청
-                            if (result) { // 팔로우 요청 성공 시
-                                convertToFollowingState(holder.removeButton) // 버튼 상태 전환
-                                data[position].isFollowing = true // 팔로우 상태로 전환
-                            } else
-                                dialogRequestFail()
-                        }
-                    }
+                    clickFollowStateButton(position, token, holder)
                 }
             }
         } else {
             holder.removeButton.visibility = View.GONE // 비로그인 유저의 경우 버튼 모두 숨김
+        }
+    }
+
+    /**
+     * 리스트에서 각 사람과의 팔로우관계에 따른 클릭 이벤트 (팔로잉 & 팔로우 버튼)
+     * @param position(Int): 현재 리스트에서 클릭한 위치
+     * @param token(String): Jwt 토큰
+     * @param holder(ViewHolder): view holder
+     * @author Seunggun Sin
+     * @since 2022-08-05
+     */
+    private fun clickFollowStateButton(
+        position: Int,
+        token: String,
+        holder: ViewHolder
+    ) {
+        if (data[position].isFollowing) { // 팔로우 중이라면
+            DialogUtil().MultipleDialog(
+                context,
+                "정말 '${data[position].nickname}'님의 팔로우를 취소하시겠습니까?",
+                "예",
+                "아니오",
+                {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val result =
+                            Follow().startUnFollowRequest(
+                                token,
+                                data[position].userId
+                            ) // 언팔로우 요청
+                        if (result) { // 언팔로우 요청 성공 시
+                            convertToFollowState(holder.removeButton) // 버튼 상태 전환
+                            data[position].isFollowing = false // 팔로잉 상태로 전환
+                        } else
+                            dialogRequestFail() // 실패에 대한 다이얼로그
+                    }
+                }).show()
+        } else { // 팔로우 중이 아니라면
+            CoroutineScope(Dispatchers.Main).launch {
+                val result =
+                    Follow().startFollowRequest(token, data[position].userId) // 팔로우 요청
+                if (result) { // 팔로우 요청 성공 시
+                    convertToFollowingState(holder.removeButton) // 버튼 상태 전환
+                    data[position].isFollowing = true // 팔로우 상태로 전환
+                } else
+                    dialogRequestFail() // 실패에 대한 다이얼로그
+            }
         }
     }
 
