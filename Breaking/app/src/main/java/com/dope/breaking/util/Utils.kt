@@ -27,15 +27,27 @@ object Utils { // 컴패니언 객체 (Static)
      * @param - hashTag(String) : 해시태그 입력 필드 문자열 전체
      * @return - ArrayList<String> : #별로 처리된 해시 태그 리스트 반환
      * @author - Tae hyun Park
-     * @since - 2022-07-29 | 2022-07-31
+     * @since - 2022-07-29 | 2022-08-05
      */
     internal fun getArrayHashTag(hashTag: String): ArrayList<String> {
         var hashTagList = ArrayList<String>()
-        var contentString =  hashTag.split(" ") // 1차로 공백을 기준으로 나눔
-        for (i in contentString.indices){
-            if(contentString[i].indexOf("#") == 0){ // #이 있고 인덱스가 0이라면
-                if(contentString[i].length > 1 && contentString[i].count{c -> c == '#'} == 1){ // #을 포함하는 단어가 있어야 하고, #은 처음 한 번만 오도록
-                    hashTagList.add(contentString[i].replace("#","")) // 해당 해시태그 문자열을 추출하여 저장
+        var contentStringEnter = hashTag.split("\n") // 엔터를 기준으로 나눔
+        if(contentStringEnter.isNotEmpty()){ // 엔터를 한 번 이상 눌렀다면
+            for(i in contentStringEnter.indices){
+               var splitString = contentStringEnter[i].split(" ") // 한 줄 한 줄 공백을 기준으로 나눔
+               for (i in splitString.indices){
+                   if(splitString[i].indexOf("#") == 0){ // #이 있고 인덱스가 0이라면
+                       if(splitString[i].length > 1 && splitString[i].count{c -> c == '#'} == 1) // #을 포함하는 단어가 있어야 하고, #은 처음 한 번만 오도록
+                            hashTagList.add(splitString[i].replace("#","")) // 해당 해시태그 문자열을 추출하여 저장
+                   }
+               }
+            }
+        }else{ // 엔터키를 누르지 않았다면
+            var contentString = hashTag.split(" ") // 한 줄을 기준으로 공백을 기준으로 나눔
+            for (i in contentString.indices){
+                if(contentString[i].indexOf("#") == 0){ // #이 있고 인덱스가 0이라면
+                    if(contentString[i].length > 1 && contentString[i].count{c -> c == '#'} == 1) // #을 포함하는 단어가 있어야 하고, #은 처음 한 번만 오도록
+                        hashTagList.add(contentString[i].replace("#","")) // 해당 해시태그 문자열을 추출하여 저장
                 }
             }
         }
