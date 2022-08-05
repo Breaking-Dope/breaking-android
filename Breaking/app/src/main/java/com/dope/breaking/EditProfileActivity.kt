@@ -20,7 +20,7 @@ import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.model.request.RequestUpdateUser
 import com.dope.breaking.model.response.DetailUser
 import com.dope.breaking.signup.Account
-import com.dope.breaking.signup.Validation
+import com.dope.breaking.signup.ValidationSignUp
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils
@@ -110,9 +110,9 @@ class EditProfileActivity : AppCompatActivity() {
                 progressDialog.showDialog() // 로딩 dialog 시작
 
                 CoroutineScope(Dispatchers.Main).launch {
-                    val validation = Validation()
+                    val validationSignUp = ValidationSignUp()
                     val result =
-                        validation.startRequestSignUpValidation(
+                        validationSignUp.startRequestSignUpValidation(
                             nickname,
                             phoneNumber,
                             email,

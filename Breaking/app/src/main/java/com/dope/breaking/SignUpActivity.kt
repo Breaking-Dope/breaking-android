@@ -19,7 +19,7 @@ import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.request.RequestSignUp
 import com.dope.breaking.model.response.ResponseLogin
 import com.dope.breaking.signup.Account
-import com.dope.breaking.signup.Validation
+import com.dope.breaking.signup.ValidationSignUp
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils.regularExpressionNickname
 import com.dope.breaking.util.Utils.getBitmapWithGlide
@@ -257,9 +257,9 @@ class SignUpActivity : AppCompatActivity() {
             progressDialog.showDialog()
 
             CoroutineScope(Dispatchers.Main).launch {
-                val validation = Validation()
+                val validationSignUp = ValidationSignUp()
                 validationResult =
-                    validation.startRequestSignUpValidation(
+                    validationSignUp.startRequestSignUpValidation(
                         nickName,
                         phoneNumber,
                         email,
