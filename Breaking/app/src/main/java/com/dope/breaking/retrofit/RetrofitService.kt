@@ -60,6 +60,20 @@ interface RetrofitService {
     ): Response<Unit>
 
     /**
+     * 제보하기 게시글 업로드 요청 메소드
+     * @Part - mediaList(ArrayList<MultipartBody.Part>) : 제보 미디어 리스트
+     * @Part - data(RequestBody) : 제보 게시글 데이터
+     * @author - Tae hyun Park
+     */
+    @Multipart
+    @POST("/post")
+    suspend fun requestPostUpload(
+        @Header("authorization") token: String,
+        @Part mediaList: ArrayList<MultipartBody.Part>?,
+        @Part("data") data: RequestBody
+    ): Response<ResponsePostUpload>
+
+    /**
      * 구글 로그인 토큰 검증 요청 메소드
      * @request RequestGoogleToken
      * @response ResponseLogin

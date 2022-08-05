@@ -5,7 +5,7 @@ import org.json.JSONObject
 data class PostLocation(
     val region : String,
     val latitude : Double,
-    val longtitude : Double
+    val longitude : Double
 ){
     /**
      * 모든 필드 값들을 json 데이터로 변환해주는 메소드
@@ -17,7 +17,7 @@ data class PostLocation(
         val jsonObject = JSONObject()
         jsonObject.put("region", region)
         jsonObject.put("latitude", latitude)
-        jsonObject.put("longtitude", longtitude)
+        jsonObject.put("longitude", longitude)
         return jsonObject
     }
 

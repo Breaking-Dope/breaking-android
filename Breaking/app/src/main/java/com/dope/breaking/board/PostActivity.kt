@@ -30,18 +30,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.dope.breaking.MainActivity
 import com.dope.breaking.R
 import com.dope.breaking.databinding.ActivityPostBinding
 import com.dope.breaking.exception.ErrorFileSelectedException
-import com.dope.breaking.model.PostData
+import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.model.request.RequestPostData
 import com.dope.breaking.model.PostLocation
-import com.dope.breaking.post.Validation
+import com.dope.breaking.post.ValidationPost
+import com.dope.breaking.post.PostManager
 import com.dope.breaking.util.DialogUtil
+import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils
 import com.dope.breaking.util.ValueUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -68,7 +73,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
 
     private lateinit var hashTagList: ArrayList<String> // 해시 태그 리스트
 
-    private lateinit var eventTime :LocalDateTime // 제보 발생 시간
+    private lateinit var eventTime :String // 제보 발생 시간
 
     private var isPostTypeSelected: String = "charged" // 제보 방식으로, 단독, 유료, 무료 제보로 나뉘고 기본값은 유료 제보로 설정.
 
@@ -122,7 +127,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
         fileNameList = ArrayList<String>()  // 미디어 파일명 리스트 초기화
         hashTagList = ArrayList<String>() // 해시 태그 리스트 초기화
         binding.tvEventTimeClicked.text = Utils.getCurrentTime() // 현재 시간 출력
-        eventTime = LocalDateTime.parse(Utils.getCurrentTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) // 발생 시간 현재 시간으로 기본 할당
+        eventTime = Utils.getCurrentTime() // 발생 시간 현재 시간으로 기본 할당
         binding.tvLocationShow.text = "경기도 성남시" // 현재 위치 임시로 할당
         binding.etPostPrice.addTextChangedListener(textWatcher) // 제보 가격 콜백 함수 등록
 
@@ -131,27 +136,27 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
         pickDate() // 제보 이벤트 발생 시간 선택을 위한 데이트, 타임 피커
 
         /*
-        deprecated된 OnActivityResult를 대신하는 콜백 함수로, 갤러리에서 이미지를 선택하면 호출됨.
+        deprecated된 OnActivityResult를 대신하는 콜백 함수로, 갤러리에서 이미지나 영상을 선택하면 호출됨.
         resultCode와 data를 가지고 있음. requestCode는 쓰이지 않음.
          */
         galleryActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == RESULT_OK) {   // 갤러리에서 이미지를 정상적으로 선택했다면
                     try{
-                        if(it?.data?.clipData == null){ // 여러 장 선택을 지원하지 않는 기기에서 이미지&영상을 하나만 선택한 경우 (연식 오래된 구 휴대폰들)
-                            var uri = it?.data?.data
+                        if(it.data?.clipData == null){ // 여러 장 선택을 지원하지 않는 기기에서 이미지&영상을 하나만 선택한 경우 (연식 오래된 구 휴대폰들)
+                            var uri = it.data?.data
                             if(uriList.size < 10){
                                 uriList.add(uri!!)
-                                adapter = MultiImageAdapter(uriList!!,fileNameList!!,postBitmapList, applicationContext, binding)
+                                adapter = MultiImageAdapter(uriList, fileNameList,postBitmapList, applicationContext, binding)
                                 binding.viewRecyclerImage.adapter = adapter
                                 binding.viewRecyclerImage.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL, true) // 수평 스크롤 적용
                             }else
-                                Toast.makeText(applicationContext,"제보 미디어 파일은 총 10장까지 가능합니다.",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(applicationContext,"제보 미디어 파일은 총 20장까지 가능합니다.",Toast.LENGTH_SHORT).show()
                             // 해당 버전에서 파일명 처리는 추후에 할 예정
 
                         }else{ // 여러 장 선택을 지원하는 기기에서 이미지&영상을 한 장 혹은 여러 장 선택한 경우
-                            var clipData = it?.data?.clipData
-                            if((clipData!!.itemCount + uriList.size) <= 10){ // 내가 올려놓은 사진들의 개수와 갤러리에서 추가적으로 선택한 사진 개수의 합이 10장을 초과하지 않아야 저장 O
+                            var clipData = it.data?.clipData
+                            if((clipData!!.itemCount + uriList.size) <= 20){ // 내가 올려놓은 사진들의 개수와 갤러리에서 추가적으로 선택한 사진 개수의 합이 10장을 초과하지 않아야 저장 O
                                 changeUploadImageColors(clipData!!.itemCount, uriList.size) // 최대 개수면 사진 카운트 텍스트 색상 변경
                                 for(i in 0 until clipData.itemCount){   // 선택한 미디어 파일의 개수만큼 반복문
                                     var uri = clipData.getItemAt(i).uri // 해당 인덱스의 선택한 이미지의 uri를 가져오기
@@ -159,11 +164,11 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
                                     uriList.add(uri)
                                     Utils.getBitmapWithGlide(applicationContext, uri, handler) // 비트맵 리스트에 하나씩 추가
                                 }
-                                adapter = MultiImageAdapter(uriList!!, fileNameList!!,postBitmapList, applicationContext, binding)
+                                adapter = MultiImageAdapter(uriList, fileNameList, postBitmapList, applicationContext, binding)
                                 binding.viewRecyclerImage.adapter = adapter
                                 binding.viewRecyclerImage.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL, true) // 수평 스크롤 적용
                             }else{
-                                Toast.makeText(applicationContext,"제보 미디어 파일은 총 10장까지 가능합니다.",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(applicationContext,"제보 미디어 파일은 총 20장까지 가능합니다.",Toast.LENGTH_SHORT).show()
                             }
                         }
                     }catch (e: ErrorFileSelectedException){
@@ -262,13 +267,13 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
             }
 
             // 필드 검증
-            val validation = Validation()
-            if(validation.startPostValidation(binding)){ // 필드 검증이 성공적이라면
-                // DTO TEST
-                val postData = PostData(
+            val validationPost = ValidationPost()
+            if(validationPost.startPostValidation(binding)){ // 필드 검증이 성공적이라면
+                // 요청 DTO 생성
+                val requestPostData = RequestPostData(
                     binding.etTitle.text.toString(),
                     binding.etContent.text.toString(),
-                    PostLocation("경기도",1.0,2.0),
+                    PostLocation("경기도",1.43211,2.35456),
                     binding.etPostPrice.text.toString().replace(",","").toInt(),
                     hashTagList,
                     isPostTypeSelected,
@@ -276,12 +281,58 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
                     eventTime,
                     0
                 )
-                Log.d(TAG,"DTO TEST 1 : ${postData.eventTime.year}")
-                Log.d(TAG,"DTO TEST 2 : ${postData.price}")
+                // 게시글 작성 요청 다이얼 로그 시작
+                val progressDialog = DialogUtil().ProgressDialog(this)
+                progressDialog.showDialog()
 
-                /* 게시글 등록 요청 구현 예정 */
-
+                // 게시글 작성 요청
+                CoroutineScope(Dispatchers.Main).launch {
+                    processPost(
+                        requestPostData,
+                        postBitmapList,
+                        fileNameList,
+                        JwtTokenUtil(applicationContext).getTokenFromLocal() // 로컬에서 토큰 가져오기
+                    )
+                    if (progressDialog.isShowing()) { // 로딩 다이얼로그 종료
+                        progressDialog.dismissDialog()
+                    }
+                }
             }
+        }
+    }
+
+    /**
+     * @description - 게시글 인풋 정보와 JWT 토큰을 받아와 게시글 작성 요청 함수를 호출하는 메소드
+     * @param - inputData(RequestPostData) : 게시글 인풋 정보
+     * @param - imageData(ArrayList<Bitmap>) : 미디어 비트맵 리스트
+     * @param - imageName(ArrayList<String>) : 미디어 파일명 리스트
+     * @param - token(String) : JWT 토큰
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-08-02
+     */
+    private suspend fun processPost(
+        inputData: RequestPostData,
+        imageData: ArrayList<Bitmap>,
+        imageName: ArrayList<String>,
+        token : String
+    ) {
+        val postManager = PostManager() // 커스텀 게시글 객체 생성
+        try {
+            val responsePostUpload = postManager.startPostUpload(
+                inputData,
+                imageData,
+                imageName,
+                token
+            )
+            Log.d(TAG, "요청 성공 시 받아온 postId : ${responsePostUpload.postId}")
+        }catch (e: ResponseErrorException){
+            e.printStackTrace()
+            DialogUtil().SingleDialog(
+                this,
+                "게시글 작성 요청에 문제가 발생하였습니다.",
+                "확인"
+            )
         }
     }
 
@@ -313,8 +364,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
             // 권한 있으면 Intent 를 통해 갤러리 Open 요청
             var intent = Intent(Intent.ACTION_PICK)
             intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            intent.type = "image/* video/*"  // 갤러리에서 이미지, 영상 둘 다 사용 가능하도록 허용
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true) // 여러 개를 선택할 수 있도록 옵션 지정
+            intent.type = "image/* video/*"  // 갤러리에서 이미지, 영상 둘 다 선택 가능하도록 허용
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true) // 여러 개를 선택할 수 있도록 다중 옵션 지정
             galleryActivityResult.launch(intent)
         }
     }
@@ -352,7 +403,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
      **/
     @SuppressLint("ResourceAsColor")
     private fun changeUploadImageColors(selectItemCount : Int, uriCount : Int){
-        if(selectItemCount + uriCount == 10){ // 사이즈가 꽉 차면 빨간색으로 표시
+        if(selectItemCount + uriCount == 20){ // 사이즈가 꽉 차면 빨간색으로 표시
             binding.tvCurrentCountImage.setTextColor(RED)
             binding.tvMiddleCountImage.setTextColor(RED)
             binding.tvTotalCountImage.setTextColor(RED)
@@ -387,7 +438,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
         year = cal.get(Calendar.YEAR)
         hour = cal.get(Calendar.HOUR_OF_DAY) + 9 // 한국 시간으로 변경
         min = cal.get(Calendar.MINUTE)
-        second = cal.get(Calendar.SECOND)
+        second = 0
     }
 
     /**
@@ -431,7 +482,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, Ti
         savedHour = hourOfDay
         savedMin = minute
         getDateTimeCalendar() // 현재 시간의 초도 가져오기 위함
-        binding.tvEventTimeClicked.text = "$savedYear-$savedMonth-$savedDay "+ String.format("%02d:%02d:%02d",savedHour, savedMin, second) // 서버에 넘겨줘야할 포맷 맞추기
-        eventTime = LocalDateTime.of(savedYear, savedMonth, savedDay, savedHour, savedMin, second) // 타입은 상관없을듯
+        binding.tvEventTimeClicked.text = "$savedYear" + String.format("-%02d-%02d ",savedMonth, savedDay) + String.format("%02d:%02d:%02d",savedHour, savedMin, second) // 서버에 넘겨줘야할 포맷 맞추기
+        eventTime = "$savedYear" + String.format("-%02d-%02d ",savedMonth, savedDay) + String.format("%02d:%02d:%02d",savedHour, savedMin, second)
     }
 }

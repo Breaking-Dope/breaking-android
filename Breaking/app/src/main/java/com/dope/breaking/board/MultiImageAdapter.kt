@@ -38,7 +38,7 @@ class MultiImageAdapter(var list: ArrayList<Uri>, var fileNameList:ArrayList<Str
     @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         binding.tvCurrentCountImage.setText(itemCount.toString()) // 지속적으로 이미지 개수 카운팅해서 보여주기
-        if (itemCount < 10){ // 최대 개수가 아니면 텍스트 색상 복구
+        if (itemCount < 20){ // 최대 개수가 아니면 텍스트 색상 복구
             binding.tvCurrentCountImage.setTextColor(R.color.post_upload_count_color)
             binding.tvMiddleCountImage.setTextColor(R.color.post_upload_count_color)
             binding.tvTotalCountImage.setTextColor(R.color.post_upload_count_color)
