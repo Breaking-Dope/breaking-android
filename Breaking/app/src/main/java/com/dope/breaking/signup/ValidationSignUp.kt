@@ -11,7 +11,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import retrofit2.Response
 
-class Validation {
+class ValidationSignUp {
     private val TAG = "Validation.kt" // Log Tag
     private var jsonObject = JsonObject() // JSONObject
 
