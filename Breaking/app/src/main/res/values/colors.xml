@@ -15,8 +15,8 @@
     <color name="sign_up_input_background_color">#EEEEEE</color>
     <color name="sign_up_input_hint_text_color">#8E8E8E</color>
     <color name="sign_up_button_background_color">#93C7F6</color>
-    <color name="sign_up_user_type_selected_color">#CDDDEA</color>
-    <color name="sign_up_user_type_unselected_color">#B0DDFF</color>
+    <color name="sign_up_user_type_unselected_color">#CDDDEA</color>
+    <color name="sign_up_user_type_selected_color">#B0DDFF</color>
     <color name="sign_up_user_type_text_color">#014D91</color>
     <color name="sign_up_input_error_text_color">#FF0000</color>
     <color name="main_post_button_color">#EFF9FF</color>

@@ -4,7 +4,7 @@ import android.util.Log
 import android.view.View
 import com.dope.breaking.databinding.ActivityPostBinding
 
-class Validation {
+class ValidationPost {
     private val TAG = "Validation.kt" // Log Tag
 
     /**
