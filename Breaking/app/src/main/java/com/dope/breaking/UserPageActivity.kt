@@ -183,7 +183,7 @@ class UserPageActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_my_page_status).text = user.statusMsg
         findViewById<TextView>(R.id.tv_follow_value).text = user.followingCount.toString()
         findViewById<TextView>(R.id.tv_follower_value).text = user.followerCount.toString()
-//        findViewById<TextView>(R.id.tv_post_value).text = user.postCount.toString()
+        findViewById<TextView>(R.id.tv_post_value).text = user.postCount.toString()
 
         if (init)
             Glide.with(this@UserPageActivity) // 이미지 보여주기
