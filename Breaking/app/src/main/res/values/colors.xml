@@ -24,4 +24,6 @@
     <color name="kakao_container">#FEE500</color>
     <color name="google_container">#FFFFFF</color>
     <color name="follow_list_background_color">#F3F7FA</color>
+    <color name="post_chip_exclusive_color">#777777</color>
+    <color name="post_chip_sold_color">#B48F8F</color>
 </resources>
