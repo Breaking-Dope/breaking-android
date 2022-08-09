@@ -13,7 +13,7 @@ data class User(
     @SerializedName("statusMsg") val statusMsg: String,
     @SerializedName("followerCount") val followerCount: Int,
     @SerializedName("followingCount") val followingCount: Int,
-//    @SerializedName("postCount") val postCount: Long,
+    @SerializedName("postCount") val postCount: Int,
     @SerializedName("isFollowing") val isFollowing: Boolean,
 ) : Serializable {
     companion object {
@@ -25,6 +25,7 @@ data class User(
          * @since 2022-07-22 | 2022-08-02
          */
         fun convertJsonToObject(jsonObject: JSONObject): User {
+            println(jsonObject.toString())
             return User(
                 (jsonObject["userId"] as Int).toLong(),
                 if (jsonObject.isNull("profileImgURL")) "" else jsonObject["profileImgURL"] as String,
@@ -34,7 +35,7 @@ data class User(
                 jsonObject["statusMsg"] as String,
                 jsonObject["followerCount"] as Int,
                 jsonObject["followingCount"] as Int,
-//                jsonObject["postCount"] as Long,
+                jsonObject["postCount"] as Int,
                 if (jsonObject.isNull("isFollowing"))
                     jsonObject["following"] as Boolean
                 else
