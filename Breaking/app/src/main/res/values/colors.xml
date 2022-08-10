@@ -26,4 +26,5 @@
     <color name="follow_list_background_color">#F3F7FA</color>
     <color name="post_chip_exclusive_color">#777777</color>
     <color name="post_chip_sold_color">#B48F8F</color>
+    <color name="search_background_color">#F4F4F4</color>
 </resources>
