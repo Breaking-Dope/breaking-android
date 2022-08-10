@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:padding="7dp">
 
     <ImageButton
         android:id="@+id/img_btn_post_more_menu"
@@ -14,99 +14,150 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.45" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/img_btn_post_like"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:background="@drawable/ic_baseline_thumb_up_alt_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.96"
+        app:layout_constraintHorizontal_bias="0.985"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/img_btn_post_bookmark"
+        app:layout_constraintRight_toLeftOf="@id/tv_post_like_count"
         app:layout_constraintTop_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1" />
-
-    <ImageButton
-        android:id="@+id/img_btn_post_bookmark"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:background="@drawable/ic_baseline_bookmark_border_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1"
-        app:layout_constraintWidth_percent="0.08" />
 
     <ImageView
         android:id="@+id/imgv_post_thumbnail"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.94"
+        app:layout_constraintHeight_percent="0.945"
         app:layout_constraintHorizontal_bias="0.04"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.315" />
+        app:layout_constraintWidth_percent="0.3" />
 
     <ImageView
         android:id="@+id/imgv_post_location_icon"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/ic_baseline_location_on_24"
-        app:layout_constraintBottom_toBottomOf="@id/tv_post_location"
+        app:layout_constraintBottom_toBottomOf="@id/tv_post_time"
         app:layout_constraintLeft_toLeftOf="@id/tv_post_title"
-        app:layout_constraintTop_toTopOf="@id/tv_post_location"
+        app:layout_constraintTop_toTopOf="@id/tv_post_time"
         app:layout_constraintVertical_bias="0.6"
-        app:layout_constraintWidth_percent="0.05" />
+        app:layout_constraintWidth_percent="0.045" />
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="@id/imgv_post_thumbnail"
-        app:layout_constraintHeight_percent="0.15"
+    <TextView
+        android:id="@+id/tv_chip_exclusive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/chip_post_exclusive_background"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="2dp"
+        android:text="@string/exclusive_string"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintLeft_toLeftOf="@id/tv_post_price"
-        app:layout_constraintRight_toLeftOf="@id/img_btn_post_like"
+        app:layout_constraintRight_toLeftOf="@id/tv_chip_sold"
         app:layout_constraintTop_toBottomOf="@id/tv_post_price"
-        app:layout_constraintVertical_bias="1"
-        app:layout_constraintWidth_percent="0.35">
+        app:layout_constraintVertical_bias="0" />
 
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
-            android:layout_weight="0.8"
-            android:background="@drawable/chip_post_exclusive_background"
-            android:text="단독"
-            android:textColor="@color/white"
-            android:textSize="10dp" />
+    <TextView
+        android:id="@+id/tv_chip_sold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/chip_post_sold_background"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="2dp"
+        android:text="@string/sold_string"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintLeft_toRightOf="@id/tv_chip_exclusive"
+        app:layout_constraintRight_toLeftOf="@id/tv_chip_unsold"
+        app:layout_constraintTop_toBottomOf="@id/tv_post_price" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/chip_post_sold_background"
-            android:text="판매완료"
-            android:textColor="@color/white"
-            android:textSize="10dp" />
-    </LinearLayout>
+    <TextView
+
+        android:id="@+id/tv_chip_unsold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/chip_post_unsold_background"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="2dp"
+        android:text="@string/is_selling_string"
+        android:textColor="@color/breaking_color"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintLeft_toRightOf="@id/tv_chip_sold"
+        app:layout_constraintRight_toLeftOf="@id/img_btn_post_like"
+        app:layout_constraintTop_toBottomOf="@id/tv_post_price" />
+
+    <TextView
+        android:id="@+id/tv_post_nickname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:text="닉네임 테스트요"
+        android:textColor="@color/black"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintLeft_toRightOf="@id/tv_split_slash"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_post_time"
+        app:layout_constraintVertical_bias="0" />
+
+    <TextView
+        android:id="@+id/tv_split_slash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        android:text="@string/vertical_divider_string"
+        android:textColor="@color/black"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_post_time"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintLeft_toRightOf="@id/tv_post_time"
+        app:layout_constraintRight_toLeftOf="@id/tv_post_nickname"
+        app:layout_constraintTop_toTopOf="@id/tv_post_time" />
 
     <TextView
         android:id="@+id/tv_post_like_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="5"
+        android:text="500"
         android:textColor="@color/black"
-        android:textSize="11sp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="@id/img_btn_post_like"
-        app:layout_constraintLeft_toRightOf="@id/img_btn_post_like"
-        app:layout_constraintRight_toLeftOf="@id/img_btn_post_bookmark"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@id/img_btn_post_like" />
 
     <TextView
@@ -117,9 +168,8 @@
         android:maxLines="2"
         android:text="A씨 사내 비리 폭로 제목테스트제목테스트제목테스트제목테스트제목테스트제목테스트제목테스트제목테스트..."
         android:textColor="@color/black"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="1"
+        android:textSize="13.5sp"
+        app:layout_constraintHorizontal_bias="0.9"
         app:layout_constraintLeft_toRightOf="@id/imgv_post_thumbnail"
         app:layout_constraintRight_toLeftOf="@id/img_btn_post_more_menu"
         app:layout_constraintTop_toTopOf="parent"
@@ -129,9 +179,9 @@
         android:id="@+id/tv_post_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="역삼동"
+        android:text="구로동"
         android:textColor="@color/breaking_color"
-        android:textSize="12sp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/imgv_post_location_icon"
         app:layout_constraintTop_toBottomOf="@id/tv_post_title"
@@ -141,10 +191,9 @@
         android:id="@+id/tv_post_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:text="12분 전"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/tv_post_location"
+        android:layout_marginStart="2dp"
+        android:text="12시간 전"
+        android:textSize="10sp"
         app:layout_constraintLeft_toRightOf="@id/tv_split_dot"
         app:layout_constraintTop_toTopOf="@id/tv_post_location" />
 
@@ -152,8 +201,8 @@
         android:id="@+id/tv_split_dot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:text="·"
+        android:layout_marginStart="2dp"
+        android:text="@string/dot_divider"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@id/tv_post_location"
@@ -170,9 +219,9 @@
         android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.03"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintLeft_toLeftOf="@id/tv_post_title"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_post_time"
-        app:layout_constraintVertical_bias="0.2" />
+        app:layout_constraintTop_toBottomOf="@id/tv_post_nickname"
+        app:layout_constraintVertical_bias="0.15" />
 </androidx.constraintlayout.widget.ConstraintLayout>
