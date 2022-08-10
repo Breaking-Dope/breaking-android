@@ -3,21 +3,25 @@ package com.dope.breaking.model
 import org.json.JSONObject
 
 data class PostLocation(
-    val region : String,
-    val latitude : Double,
-    val longitude : Double
-){
+    val address: String,
+    val latitude: Double,
+    val longitude: Double,
+    val region_1depth_name: String,
+    val region_2depth_name: String
+) {
     /**
      * 모든 필드 값들을 json 데이터로 변환해주는 메소드
      * @return JSONObject: 모든 필드들을 json 으로 변환한 객체 반환
      * @author Tae hyun Park
-     * @since 2022-07-29
+     * @since 2022-07-29 | 2022-08-09
      */
     fun convertFieldsToJson(): JSONObject {
         val jsonObject = JSONObject()
-        jsonObject.put("region", region)
+        jsonObject.put("address", address)
         jsonObject.put("latitude", latitude)
         jsonObject.put("longitude", longitude)
+        jsonObject.put("region_1depth_name", region_1depth_name)
+        jsonObject.put("region_2depth_name", region_2depth_name)
         return jsonObject
     }
 
