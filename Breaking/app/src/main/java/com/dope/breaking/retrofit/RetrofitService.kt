@@ -103,7 +103,32 @@ interface RetrofitService {
      * @author Seunggun Sin
      */
     @GET("oauth2/validate-jwt")
-    suspend fun requestValidationJwt(@Header("Authorization") token: String): Response<ResponseExistLogin>
+    suspend fun requestValidationJwt(@Header("authorization") token: String): Response<ResponseExistLogin>
+
+    /**
+     * 메인 피드 리스트를 가져오는 요청
+     * @param token(String): Jwt 토큰 - 헤더 (옵션)
+     * @param lastPostId(Int): 마지막으로 가져온 post id (필수) (처음 요청 시에는 0 or null)
+     * @param contentsSize(Int): 가져올 게시글 개수 (필수)
+     * @param sortCategory(String?): 정렬 - 정렬 카테고리 (옵션)
+     * @param soldOption(String?): 필터 - 판매 상태 (옵션)
+     * @param dateFrom(String?): 필터 - 시작 날짜 (옵션)
+     * @param dateTo(String?): 필터 - 종료 날짜 (옵션)
+     * @param latestMin(Int?): 필터 - 최근 N분 (옵션)
+     * @response ResponseMainFeed 리스트
+     * @author Seunggun Sin
+     */
+    @GET("feed")
+    fun requestGetMainFeed(
+        @Header("authorization") token: String = "",
+        @Query("cursor") lastPostId: Int,
+        @Query("size") contentsSize: Int,
+        @Query("sort") sortCategory: String? = null,
+        @Query("sold-option") soldOption: String? = null,
+        @Query("date-from") dateFrom: String? = null,
+        @Query("date-to") dateTo: String? = null,
+        @Query("for-last-min") latestMin: Int? = null
+    ): Call<List<ResponseMainFeed>>
 
     /**
      * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)
