@@ -199,11 +199,11 @@ class FollowAdapter(
      * "팔로우" 버튼 상태로 전환(텍스트, 배경 변경)
      * @param button(Button): 우측 버튼 view
      * @author Seunggun Sin
-     * @since 2022-08-02
+     * @since 2022-08-02 | 2022-08-09
      */
     private fun convertToFollowState(button: Button) {
         button.text = "팔로우"
-        button.setBackgroundResource(R.drawable.sign_up_user_type_selected)
+        button.setBackgroundResource(R.drawable.sign_up_user_type_unselected)
     }
 
     /**
