@@ -105,7 +105,7 @@ class NaviUserFragment : Fragment() {
         binding.tvMyPageStatus.text = userData.statusMsg
         binding.tvFollowValue.text = userData.followingCount.toString()
         binding.tvFollowerValue.text = userData.followerCount.toString()
-//        binding.tvPostValue.text = userData.postCount.toString()
+        binding.tvPostValue.text = userData.postCount.toString()
         binding.btnFollow.visibility = View.GONE
 
         val viewPager = binding.viewPager // ViewPager2 객체

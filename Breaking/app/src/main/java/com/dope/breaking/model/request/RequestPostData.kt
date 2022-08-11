@@ -12,10 +12,10 @@ data class RequestPostData(
     val hashtagList: ArrayList<String>,
     val postType: String,
     @get:JsonProperty("isAnonymous")
-    val isAnonymous : Boolean,
-    val eventTime : String,
-    val thumbnailIndex : Int
-){
+    val isAnonymous: Boolean,
+    val eventTime: String,
+    val thumbnailIndex: Int
+) {
     /**
      * 모든 필드 값들을 json 데이터로 변환해주는 메소드
      * @return JSONObject: 모든 필드들을 json 으로 변환한 객체 반환
@@ -29,10 +29,10 @@ data class RequestPostData(
         jsonParentObject.put("title", title)
         jsonParentObject.put("content", content)
 
-        jsonChildObject.put("address",location.address)
-        jsonChildObject.put("latitude",location.latitude)
-        jsonChildObject.put("longitude",location.longitude)
-        jsonParentObject.put("location",jsonChildObject)
+        jsonChildObject.put("address", location.address)
+        jsonChildObject.put("latitude", location.latitude)
+        jsonChildObject.put("longitude", location.longitude)
+        jsonParentObject.put("location", jsonChildObject)
 
         jsonParentObject.put("price", price)
         jsonParentObject.put("hashtagList", hashtagList)

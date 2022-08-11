@@ -79,7 +79,8 @@
             android:exported="true" />
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".SignUpActivity"
             android:exported="false" />
@@ -95,6 +96,7 @@
         </provider>
         <meta-data android:name="com.kakao.sdk.AppKey" android:value="2d91a1b7acbe212ba78a24b4f006615a"/>
     </application>
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />

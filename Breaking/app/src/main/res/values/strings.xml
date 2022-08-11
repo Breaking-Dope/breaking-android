@@ -36,7 +36,7 @@
     <string name="follower">팔로워</string>
     <string name="written_post">작성 제보</string>
     <string name="setting_menu">설정</string>
-    <string name="post_home_btn">+ 제보하기</string>
+    <string name="post_home_btn">제보하기</string>
     <string name="post_register_image_video">사진/동영상 업로드</string>
     <string name="post_register_event_time">제보 발생 시간</string>
     <string name="post_register_location">위치</string>
@@ -56,4 +56,12 @@
     <string name="post_register_profile_type_secret">비공개</string>
     <string name="post_register_btn">제보하기</string>
     <string name="follow_remove">삭제</string>
+    <string name="is_selling_string">판매중</string>
+    <string name="exclusive_string">단독</string>
+    <string name="sold_string">판매완료</string>
+    <string name="vertical_divider_string">|</string>
+    <string name="dot_divider">·</string>
+    <string name="filter">필터</string>
+    <string name="latest_order">최신순</string>
+    <string name="search_hint_text">제보를 검색하세요.</string>
 </resources>
