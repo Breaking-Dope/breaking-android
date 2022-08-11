@@ -29,7 +29,7 @@ data class RequestPostData(
         jsonParentObject.put("title", title)
         jsonParentObject.put("content", content)
 
-        jsonChildObject.put("region",location.region)
+        jsonChildObject.put("address",location.address)
         jsonChildObject.put("latitude",location.latitude)
         jsonChildObject.put("longitude",location.longitude)
         jsonParentObject.put("location",jsonChildObject)
