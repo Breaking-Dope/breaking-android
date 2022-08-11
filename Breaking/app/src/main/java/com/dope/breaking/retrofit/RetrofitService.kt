@@ -74,6 +74,19 @@ interface RetrofitService {
     ): Response<ResponsePostUpload>
 
     /**
+     * 카카오톡 지도로부터 검색 키워드에 대한 위치정보를 가져오는 메소드
+     * @Query - query(String) : 검색 키워드
+     * @Query - page(Int) : 결과 페이지 번호
+     * @author - Tae hyun Park
+     */
+    @GET("v2/local/search/keyword.json")
+    fun getSearchKeyword(
+        @Header("Authorization") key: String,     // 카카오 Rest API 인증키 [필수]
+        @Query("query") query: String,            // 검색을 원하는 질의어 [필수]
+        @Query("page") page: Int                  // 결과 페이지 번호 [옵션]
+    ): Call<ResponseLocationSearch>
+
+    /**
      * 구글 로그인 토큰 검증 요청 메소드
      * @request RequestGoogleToken
      * @response ResponseLogin
