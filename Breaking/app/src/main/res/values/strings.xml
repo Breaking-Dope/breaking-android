@@ -40,7 +40,7 @@
     <string name="post_register_image_video">사진/동영상 업로드</string>
     <string name="post_register_event_time">제보 발생 시간</string>
     <string name="post_register_location">위치</string>
-    <string name="post_register_click_location">현재 위치 찾기</string>
+    <string name="post_register_click_location">제보 위치 찾기</string>
     <string name="post_register_type">제보방식</string>
     <string name="post_register_type_exclusive">단독제보</string>
     <string name="post_register_type_charged">유료제보</string>
