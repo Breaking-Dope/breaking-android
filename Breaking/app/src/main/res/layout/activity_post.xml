@@ -102,6 +102,8 @@
                 android:layout_height="0dp"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal"
+                android:background="@drawable/post_input_background"
+                android:paddingBottom="10dp"
                 app:layout_constraintWidth_percent="0.87"
                 app:layout_constraintHeight_percent="0.1"
                 app:layout_constraintHorizontal_bias="0"
@@ -154,7 +156,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/post_input_background"
                 android:hint="2022년 6월 1일 오후 7시 50분"
-                android:padding="7dp"
+                android:padding="8dp"
                 android:textSize="16sp"
                 android:textStyle="normal"
                 app:layout_constraintLeft_toLeftOf="@+id/tv_event_time"
@@ -210,7 +212,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/post_input_background"
                 android:hint="경기도 성남시 태평로 9"
-                android:padding="7dp"
+                android:padding="8dp"
                 android:textSize="16sp"
                 android:textStyle="normal"
                 app:layout_constraintLeft_toLeftOf="@+id/tv_location"
@@ -244,7 +246,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:padding="5dp"
+                    android:padding="6dp"
                     android:textSize="16sp"
                     android:background="@drawable/post_input_background"
                     android:hint="@string/post_register_content_title"
@@ -265,7 +267,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:padding="5dp"
+                    android:padding="6dp"
                     android:textSize="16sp"
                     android:background="@drawable/post_input_background"
                     android:hint="@string/post_register_content_description"
@@ -280,20 +282,6 @@
                     android:textColor="@color/sign_up_input_error_text_color"
                     android:visibility="gone"
                     android:textSize="13dp" />
-
-                <!--
-                <EditText
-                    android:id="@+id/et_hashtag"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:padding="5dp"
-                    android:textSize="16sp"
-                    android:background="@drawable/post_input_background"
-                    android:hint="@string/post_register_content_hashtag"
-                    android:lines="1"
-                    android:inputType="text"
-                    android:maxLength="30"/>-->
 
             </LinearLayout>
 
