@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_list_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="이름"
+            android:textColor="?android:attr/textColorPrimary"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_list_road"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="도로명"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="12sp"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_list_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_list_name" />
+
+        <TextView
+            android:id="@+id/tv_list_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="지번"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_list_road"
+            app:layout_constraintTop_toBottomOf="@+id/tv_list_road" />
+
+        <Button
+            android:id="@+id/btn_select"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.15"
+            app:layout_constraintHeight_percent="0.4"
+            android:text="선택"
+            android:background="@drawable/location_list_btn_background"
+            app:layout_constraintHorizontal_bias="0.95"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

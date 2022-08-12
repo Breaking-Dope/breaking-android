@@ -16,5 +16,12 @@ class RetrofitManager {
             .baseUrl("https://oauth2.googleapis.com")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+
+        // 카카오 api 서버에 대한 retrofit 객체 선언
+        val retrofitKakao = Retrofit.Builder()
+            .baseUrl("https://dapi.kakao.com")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
     }
 }

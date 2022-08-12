@@ -25,6 +25,7 @@ android {
         buildConfigField "String", "clientId", properties['google_client_id']
         buildConfigField "String", "clientSecret", properties['google_client_secret']
         buildConfigField "String", "kakaoApiKey", properties['kakao_api_key']
+        buildConfigField "String", "kakaoRestApiKey", properties['kakao_rest_api_key']
     }
 
     buildTypes {
@@ -86,5 +87,9 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.9.9"
     implementation "com.fasterxml.jackson.core:jackson-databind:2.9.9"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.9"
+
+    // libs 폴더 접근 인식
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('libs/libDaumMapAndroid.jar')
 }
 tasks.register("prepareKotlinBuildScriptModel"){}

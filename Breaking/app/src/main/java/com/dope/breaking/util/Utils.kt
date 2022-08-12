@@ -55,16 +55,19 @@ object Utils { // 컴패니언 객체 (Static)
     }
 
     /**
-     * @description - 현재 시간을 포맷에 맞게 스트링으로 가져오는 함수
+     * @description - 현재 시간을 포맷에 맞게 스트링으로 가져오는 함수, flag 에 따라 Format 을 다르게 가져온다.
      * @param - None
      * @return - String
      * @author - Tae hyun Park
-     * @since - 2022-07-29
+     * @since - 2022-07-29 | 2022-08-11
      */
-    internal fun getCurrentTime() : String{
+    internal fun getCurrentTime(flag: Boolean) : String{
         var now = System.currentTimeMillis()
         var date = Date(now)
-        var simpleFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+        var simpleFormat : SimpleDateFormat = if(flag)
+            SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+        else
+            SimpleDateFormat("yyyy년 MM월 dd일 hh시 mm분 ss초")
         return simpleFormat.format(date)
     }
 

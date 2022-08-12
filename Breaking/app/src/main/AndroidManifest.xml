@@ -16,6 +16,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".map.KakaoMapActivity"
+            android:exported="false"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
             android:name=".UserPageActivity"
             android:exported="false" />
         <activity
@@ -57,7 +62,7 @@
                 <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
                 <data
                     android:host="oauth"
-                    android:scheme="kakao014eb771997db4366bd8f4c99aa7c210" />
+                    android:scheme="kakao2d91a1b7acbe212ba78a24b4f006615a" />
             </intent-filter>
         </activity>
         <activity
@@ -89,12 +94,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <meta-data android:name="com.kakao.sdk.AppKey" android:value="2d91a1b7acbe212ba78a24b4f006615a"/>
     </application>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
