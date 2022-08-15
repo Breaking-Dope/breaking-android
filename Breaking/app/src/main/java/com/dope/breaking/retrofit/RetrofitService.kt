@@ -132,7 +132,7 @@ interface RetrofitService {
      * @author Seunggun Sin
      */
     @GET("feed")
-    fun requestGetMainFeed(
+    suspend fun requestGetMainFeed(
         @Header("authorization") token: String = "",
         @Query("cursor") lastPostId: Int,
         @Query("size") contentsSize: Int,
@@ -141,7 +141,7 @@ interface RetrofitService {
         @Query("date-from") dateFrom: String? = null,
         @Query("date-to") dateTo: String? = null,
         @Query("for-last-min") latestMin: Int? = null
-    ): Call<List<ResponseMainFeed>>
+    ): Response<List<ResponseMainFeed>>
 
     /**
      * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)
