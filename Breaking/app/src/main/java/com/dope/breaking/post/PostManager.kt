@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.request.RequestPostData
+import com.dope.breaking.model.response.ResponseMainFeed
 import com.dope.breaking.model.response.ResponsePostUpload
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
@@ -17,6 +18,7 @@ import kotlin.jvm.Throws
 
 class PostManager {
     private val TAG = "PostManager.kt"
+
     /**
      * input 으로 받아온 제보 게시글 정보를 바탕으로 Request Body 생성 및 게시글 작성 요청하는 메소드
      * @param inputData(RequestPostData): 제보글 작성 필드에 대한 데이터 클래스 객체
@@ -32,8 +34,8 @@ class PostManager {
         inputData: RequestPostData,
         imageData: ArrayList<Bitmap>,
         imageName: ArrayList<String>,
-        token : String
-    ): ResponsePostUpload{
+        token: String
+    ): ResponsePostUpload {
         // MultiPart.Body List 선언 및 초기화
         var multipartList = ArrayList<MultipartBody.Part>()
 
@@ -41,11 +43,14 @@ class PostManager {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
         // 받아온 미디어의 사이즈만큼 반복하여 multipart List 생성
-        for(i in 0 until imageData.size){
+        for (i in 0 until imageData.size) {
             if (imageData.size == 0) break // 받아온 미디어가 없으면 반복문 탈출
             // 이미지에 대한 RequestBody 생성 (image/* video/*), 영상의 경우 아직 바이너리로 처리되지 않음.
             val imageRequestBody =
-                RequestBody.create(MediaType.parse("image/* video/*"), convertBitmapToByte(imageData.get(i)))
+                RequestBody.create(
+                    MediaType.parse("image/* video/*"),
+                    convertBitmapToByte(imageData.get(i))
+                )
             // 이미지에 대한 RequestBody 를 바탕으로 Multi form 데이터 리스트 생성
             multipartList.add(
                 MultipartBody.Part.createFormData(
@@ -60,9 +65,12 @@ class PostManager {
         val result = objectMapper.writeValueAsString(inputData)
 
         val data =
-            RequestBody.create(MediaType.parse("text/plain"), result) // inputData.convertJsonToString()
+            RequestBody.create(
+                MediaType.parse("text/plain"),
+                result
+            ) // inputData.convertJsonToString()
 
-        Log.d(TAG, "json 테스트1 : "+inputData.convertJsonToString())
+        Log.d(TAG, "json 테스트1 : " + inputData.convertJsonToString())
         Log.d(TAG, "json 테스트2 : ${result}")
 
         // retrofit 이용하여 게시글 작성 요청
@@ -77,6 +85,52 @@ class PostManager {
         } else { // 실패했다면
             // 예외 던지기
             throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 메인 피드 요청을 통해 리스트를 가져옴 (필터 & 정렬 옵션 포함)
+     * @param lastPostId(Int): 마지막으로 요청한 마지막 게시글 id (최초 요청 시, 0 또는 null)
+     * @param contentSize(Int): 요청할 게시글 개수(현재 10개)
+     * @param sortIndex(Int): 정렬 옵션에서 선택한 라디오 버튼 인덱스
+     * @param sellIndex(Int): 필터 옵션에서 판매 제보의 라디오 버튼 인덱스
+     * @param startDate(String): 시작 날짜 (yyyy-MM-dd)
+     * @param endDate(String): 종료 날짜 (yyyy-MM-dd)
+     * @param lastMin(Int): 최근 N분에서 입력한 N 값
+     * @param token(String): 본인의 Jwt 토큰
+     * @return List<ResponseMainFeed>: 게시글 데이터 리스트
+     * @throws ResponseErrorException: 요청 에러 시 발생
+     * @author Seunggun Sin
+     * @since 2022-08-15
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startGetMainFeed(
+        lastPostId: Int,
+        contentSize: Int,
+        sortIndex: Int,
+        sellIndex: Int,
+        startDate: String,
+        endDate: String,
+        lastMin: Int,
+        token: String
+    ): List<ResponseMainFeed> {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java) // retrofit 객체 생성
+
+        val resultList = service.requestGetMainFeed(
+            token,
+            lastPostId,
+            contentSize,
+            ValueUtil.SORT_OPTIONS[sortIndex],
+            ValueUtil.FILTER_SELL_OPTIONS[sellIndex],
+            if (startDate == "-") null else startDate + ValueUtil.FILTER_DATE_FORMAT_SUFFIX,
+            if (endDate == "-") null else endDate + ValueUtil.FILTER_DATE_FORMAT_SUFFIX,
+            if (lastMin == -1) null else lastMin
+        ) // 게시글 요청해서 받아오기
+
+        if (resultList.code() in 200..299) { // 요청에 성공했다면
+            return resultList.body()!! // 응답 리스트 리턴
+        } else { // 실패했다면
+            throw ResponseErrorException("${resultList.errorBody()?.string()}") // 예외 발생
         }
     }
 

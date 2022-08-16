@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -17,23 +18,83 @@ import com.dope.breaking.util.DateUtil
 import com.dope.breaking.util.ValueUtil
 import java.text.DecimalFormat
 
-class UserPostAdapter(private val context: Context, var data: MutableList<ResponseMainFeed>) :
-    RecyclerView.Adapter<UserPostAdapter.ViewHolder>() {
+class FeedAdapter(
+    private val context: Context,
+    var data: MutableList<ResponseMainFeed?>
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val VIEW_TYPE_ITEM = 0 // 일반 아이템에 대한 레이아웃 view type
+    private val VIEW_TYPE_LOADING = 1 // 로딩 아이템에 대한 레이아웃 view type
     private val decimalFormat = DecimalFormat("#,###") // 숫자 콤마 포맷을 위한 클래스
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserPostAdapter.ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_post_list, parent, false)
-        return ViewHolder(view)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_ITEM) {
+            val view = LayoutInflater.from(context).inflate(R.layout.item_post_list, parent, false)
+            ItemViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(context).inflate(R.layout.item_loading, parent, false)
+            LoadingViewHolder(view)
+        }
     }
 
-    override fun onBindViewHolder(holder: UserPostAdapter.ViewHolder, position: Int) {
-        holder.bind(data[position])
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is ItemViewHolder)
+            holder.bind(data[position]!!)
     }
 
     override fun getItemCount(): Int {
         return data.size
     }
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    /**
+     * 아이템 하나를 리스트에 추가하는 함수
+     * @param item(ResponseMainFeed?): 피드 아이템 객체 하나 (nullable)
+     * @author Seunggun Sin
+     * @since 2022-08-10
+     */
+    fun addItem(item: ResponseMainFeed?) {
+        data.add(item)
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 리스트에 비우는 함수
+     * @author Seunggun Sin
+     * @since 2022-08-15
+     */
+    fun clearList() {
+        data.clear()
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 아이템 리스트를 리스트에 추가하는 함수
+     * @param items(List<ResponseMainFeed>): 피드 객체 리스트
+     * @author Seunggun Sin
+     * @since 2022-08-10
+     */
+    fun addItems(items: List<ResponseMainFeed>) {
+        data.addAll(items)
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 리스트의 마지막 아이템을 지우는 함수
+     * @author Seunggun Sin
+     * @since 2022-08-15
+     */
+    fun removeLast() {
+        data.removeAt(data.size - 1)
+        notifyItemRemoved(data.size)
+    }
+
+    /**
+     * 아이템 view type 을 가져옴
+     */
+    override fun getItemViewType(position: Int): Int {
+        return if (data[position] == null) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
+    }
+
+    inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val thumbnail = itemView.findViewById<ImageView>(R.id.imgv_post_thumbnail)
         private val title = itemView.findViewById<TextView>(R.id.tv_post_title)
         private val likeCount = itemView.findViewById<TextView>(R.id.tv_post_like_count)
@@ -44,6 +105,7 @@ class UserPostAdapter(private val context: Context, var data: MutableList<Respon
         private val nickname = itemView.findViewById<TextView>(R.id.tv_post_nickname)
         private val date = itemView.findViewById<TextView>(R.id.tv_post_time)
         private val location = itemView.findViewById<TextView>(R.id.tv_post_location)
+        private val commentCount = itemView.findViewById<TextView>(R.id.tv_post_comment_count)
 
         fun bind(item: ResponseMainFeed) {
             if (item.thumbnailImgURL == null) {
@@ -61,6 +123,7 @@ class UserPostAdapter(private val context: Context, var data: MutableList<Respon
             }
             title.text = item.title
             likeCount.text = item.likeCount.toString()
+            commentCount.text = item.commentCount.toString()
             price.text = decimalFormat.format(item.price) + "원"
             chipExclusive.visibility = if (item.postType == "EXCLUSIVE") View.VISIBLE else View.GONE
 
@@ -73,5 +136,9 @@ class UserPostAdapter(private val context: Context, var data: MutableList<Respon
             nickname.text = if (item.user == null) "익명" else item.user.nickname
             date.text = DateUtil().getTimeDiff(item.createdDate)
         }
+    }
+
+    inner class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val progressDialog = itemView.findViewById<ProgressBar>(R.id.progressbar_loading)
     }
 }
