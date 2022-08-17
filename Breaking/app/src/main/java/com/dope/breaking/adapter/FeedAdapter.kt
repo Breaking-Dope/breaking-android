@@ -15,10 +15,7 @@ import com.dope.breaking.R
 import com.dope.breaking.databinding.CustomMainFeedPopupBinding
 import com.dope.breaking.model.response.ResponseMainFeed
 import com.dope.breaking.post.PostManager
-import com.dope.breaking.util.DateUtil
-import com.dope.breaking.util.JwtTokenUtil
-import com.dope.breaking.util.NumberUtil
-import com.dope.breaking.util.ValueUtil
+import com.dope.breaking.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -136,9 +133,11 @@ class FeedAdapter(
 
             if (item.isBookmarked) {
                 popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT_BOLD
+                popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.breaking_color))
                 popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
             } else {
                 popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT
+                popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.black))
                 popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
             }
 
@@ -151,41 +150,33 @@ class FeedAdapter(
 
             moreMenu.setOnClickListener(popupWindow::showAsDropDown) // 더보기 메뉴 클릭 시, 메뉴 view 중심으로 팝업 메뉴 호출
 
+            val errorDialog = DialogUtil().SingleDialog(context, "요청에 문제가 발생하였습니다.", "확인")
+
             // 수정 메뉴 클릭 시
             popupBind.layoutHorizEdit.setOnClickListener {
-                Toast.makeText(
-                    context,
-                    "수정",
-                    Toast.LENGTH_SHORT
-                ).show()
                 popupWindow.dismiss()
             }
 
             // 삭제 메뉴 클릭 시
             popupBind.layoutHorizDelete.setOnClickListener {
-
-                Toast.makeText(
-                    context,
-                    "삭제",
-                    Toast.LENGTH_SHORT
-                ).show()
                 popupWindow.dismiss()
             }
 
             // 북마크 메뉴 클릭 시
             popupBind.layoutHorizBookmark.setOnClickListener {
                 val postManager = PostManager()
-                val token = ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getTokenFromLocal()
-                println(token)
+                val token =
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getAccessTokenFromLocal()
                 if (item.isBookmarked) {
                     CoroutineScope(Dispatchers.Main).launch {
                         val result = postManager.startUnRegisterBookmark(item.postId, token)
                         if (result) {
                             item.isBookmarked = false
+                            popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.black))
                             popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT
                             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
                         } else {
-                            println("?")
+                            errorDialog.show()
                         }
                     }
                 } else {
@@ -193,23 +184,18 @@ class FeedAdapter(
                         val result = postManager.startRegisterBookmark(item.postId, token)
                         if (result) {
                             item.isBookmarked = true
+                            popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.breaking_color))
                             popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT_BOLD
                             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
                         } else {
-                            println("??")
+                            errorDialog.show()
                         }
                     }
                 }
-                popupWindow.dismiss()
             }
 
             // 공유 메뉴 클릭 시
             popupBind.layoutHorizShare.setOnClickListener {
-                Toast.makeText(
-                    context,
-                    "공유",
-                    Toast.LENGTH_SHORT
-                ).show()
                 popupWindow.dismiss()
             }
 

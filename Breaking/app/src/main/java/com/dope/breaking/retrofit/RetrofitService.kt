@@ -177,7 +177,7 @@ interface RetrofitService {
     suspend fun requestBookmark(
         @Header("authorization") token: String,
         @Path("postId") postId: Int
-    ): Response<JsonElement>
+    ): Response<Unit>
 
     /**
      * 게시글의 북마크를 해제하는 요청
@@ -190,7 +190,7 @@ interface RetrofitService {
     suspend fun requestUnBookmark(
         @Header("authorization") token: String,
         @Path("postId") postId: Int
-    ): Response<JsonElement>
+    ): Response<Unit>
 
     /**
      * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)
