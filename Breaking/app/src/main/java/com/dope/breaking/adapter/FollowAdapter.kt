@@ -57,12 +57,12 @@ class FollowAdapter(
             if (data[position].userId == ResponseExistLogin.baseUserInfo?.userId) View.GONE else View.VISIBLE
 
         val token =
-            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getTokenFromLocal() // 요청 토큰
+            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getAccessTokenFromLocal() // 요청 토큰
 
         /*
         로그인 & 비로그인 유저 구분 / 내 팔로우(워) 리스트 & 다른 유저 팔로우(워) 리스트 구분 / 팔로우 & 팔로워 상태 구분
          */
-        if (ResponseExistLogin.baseUserInfo != null && JwtTokenUtil(context).getTokenFromLocal() != "") { // 로그인한 유저라면
+        if (ResponseExistLogin.baseUserInfo != null && JwtTokenUtil(context).getAccessTokenFromLocal() != "") { // 로그인한 유저라면
             if (currentUserId == ResponseExistLogin.baseUserInfo?.userId) { // 내 팔로우(워) 리스트인 경우
                 if (state) { // 팔로우 리스트
                     convertToFollowingState(holder.removeButton) // 팔로잉 버튼 상태로 전환

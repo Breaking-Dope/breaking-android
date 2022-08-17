@@ -139,7 +139,7 @@ class UserPageActivity : AppCompatActivity() {
                 try {
                     progressDialog.showDialog() // 로딩 창 시작
                     val token =
-                        ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this@UserPageActivity).getTokenFromLocal() // Jwt 토큰 값
+                        ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this@UserPageActivity).getAccessTokenFromLocal() // Jwt 토큰 값
 
                     // 팔로우 중이라면 언팔로우 요청, 아니라면 팔로우 요청
                     val followResult = if (isFollowing) Follow().startUnFollowRequest(

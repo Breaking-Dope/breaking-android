@@ -239,8 +239,9 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         // 카카오 지도에서 제보 위치를 선택하고 제보 페이지로 다시 돌아오면
         locationActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if(it.resultCode == RESULT_OK) {
-                    locationData = it.data?.getSerializableExtra("locationData") as LocationList // 선택한 장소 위치 정보 받아와 할당
+                if (it.resultCode == RESULT_OK) {
+                    locationData =
+                        it.data?.getSerializableExtra("locationData") as LocationList // 선택한 장소 위치 정보 받아와 할당
                     binding.tvLocationShow.text = locationData.address // 선택한 위치 정보 표시
                 }
             }
@@ -267,17 +268,17 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
 
         /* 아래 3개는 현재 위치 불러오는 함수 */
         binding.tvLocationShow.setOnClickListener {
-            var intent = Intent(this,KakaoMapActivity::class.java)
+            var intent = Intent(this, KakaoMapActivity::class.java)
             locationActivityResult.launch(intent)
         }
 
         binding.tvLocationIcon.setOnClickListener {
-            var intent = Intent(this,KakaoMapActivity::class.java)
+            var intent = Intent(this, KakaoMapActivity::class.java)
             locationActivityResult.launch(intent)
         }
 
         binding.tvLocationIconText.setOnClickListener {
-            var intent = Intent(this,KakaoMapActivity::class.java)
+            var intent = Intent(this, KakaoMapActivity::class.java)
             locationActivityResult.launch(intent)
         }
 
@@ -356,8 +357,9 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                         locationData.y,
                         locationData.x,
                         locationData.address.split(" ")[0],
-                        locationData.address.split(" ")[1]),
-                    binding.etPostPrice.text.toString().replace(",","").toInt(),
+                        locationData.address.split(" ")[1]
+                    ),
+                    binding.etPostPrice.text.toString().replace(",", "").toInt(),
                     hashTagList,
                     isPostTypeSelected,
                     isAnonymousSelected,
@@ -374,7 +376,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                         requestPostData,
                         postBitmapList,
                         fileNameList,
-                        JwtTokenUtil(applicationContext).getTokenFromLocal() // 로컬에서 토큰 가져오기
+                        JwtTokenUtil(applicationContext).getAccessTokenFromLocal() // 로컬에서 토큰 가져오기
                     )
                     if (progressDialog.isShowing()) { // 로딩 다이얼로그 종료
                         progressDialog.dismissDialog()
@@ -427,7 +429,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
      * @since - 2022-08-10
      */
     @SuppressLint("MissingPermission") // 권한 재확인 안하기 위한 코드로, 코드 검사에서 제외할 부분을 미리 정의하는 것이라고 보면 됨.
-    private fun setCurrentLocation(){
+    private fun setCurrentLocation() {
         // 현재 위치 불러오기
         val lm: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val userNowLocation: Location? = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
@@ -439,11 +441,15 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         // 좌표를 바탕으로 현재 위치의 주소 불러오기 (Geocoder)
         val address = Geocoder(applicationContext).getFromLocation(uLatitude, uLongitude, 10)
         try {
-            if(address!=null){
-                if(address.isNullOrEmpty()) // 현재 위치 불러오기에 실패했다면
+            if (address != null) {
+                if (address.isNullOrEmpty()) // 현재 위치 불러오기에 실패했다면
                     throw FailedGetLocationException("현재 위치를 불러오는데 실패하였습니다.")
                 else {
-                    binding.tvLocationShow.setText((address as MutableList<Address>)[0].getAddressLine(0).substring(5)) // 선택한 위치 정보 표시
+                    binding.tvLocationShow.setText(
+                        (address as MutableList<Address>)[0].getAddressLine(
+                            0
+                        ).substring(5)
+                    ) // 선택한 위치 정보 표시
                     locationData = LocationList(
                         "", // 장소 이름
                         "", // 도로명
@@ -453,7 +459,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                     )
                 }
             }
-        }catch (e: FailedGetLocationException){
+        } catch (e: FailedGetLocationException) {
             e.printStackTrace()
             DialogUtil().SingleDialog(
                 applicationContext,
@@ -610,7 +616,15 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         savedHour = hourOfDay
         savedMin = minute
         getDateTimeCalendar() // 현재 시간의 초도 가져오기 위함
-        binding.tvEventTimeClicked.text = "$savedYear" + String.format("년 %02d월 %02d일 ",savedMonth, savedDay) + String.format("%02d시 %02d분",savedHour, savedMin) // 서버에 넘겨줘야할 포맷 맞추기
-        eventTime = "$savedYear" + String.format("-%02d-%02d ",savedMonth, savedDay) + String.format("%02d:%02d:%02d",savedHour, savedMin, second)
+        binding.tvEventTimeClicked.text = "$savedYear" + String.format(
+            "년 %02d월 %02d일 ",
+            savedMonth,
+            savedDay
+        ) + String.format("%02d시 %02d분", savedHour, savedMin) // 서버에 넘겨줘야할 포맷 맞추기
+        eventTime = "$savedYear" + String.format(
+            "-%02d-%02d ",
+            savedMonth,
+            savedDay
+        ) + String.format("%02d:%02d:%02d", savedHour, savedMin, second)
     }
 }

@@ -51,7 +51,7 @@ class NaviHomeFragment : Fragment() {
             CoroutineScope(Dispatchers.Main).launch {
                 try {
                     val token =
-                        ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getTokenFromLocal() // 토큰 가져오기
+                        ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal() // 토큰 가져오기
 
                     val list = postManager.startGetMainFeed(
                         0, // 마지막으로 받은 postId (최초 호출 시, 0 또는 null 로 지정)
@@ -112,7 +112,7 @@ class NaviHomeFragment : Fragment() {
 
             try {
                 val token =
-                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getTokenFromLocal()
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
                 val list = postManager.startGetMainFeed(
                     0,
                     ValueUtil.FEED_SIZE,
