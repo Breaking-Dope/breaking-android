@@ -18,10 +18,11 @@ interface RetrofitService {
     @param - RequestKakaoToken
     @return - Call<JsonElement>
     @author - Tae hyun Park
-    @since - 2022-07-05 | 2022-07-20
+    @since - 2022-07-05 | 2022-08-17
      **/
     @POST("oauth2/sign-in/kakao")
     fun requestKakaoLogin(
+        @Header("User-Agent") userAgent: String,
         @Body tokens: RequestKakaoToken
     ): Call<JsonElement>
 
@@ -83,7 +84,7 @@ interface RetrofitService {
      */
     @GET("v2/local/search/keyword.json")
     fun getSearchKeyword(
-        @Header("Authorization") key: String,     // 카카오 Rest API 인증키 [필수]
+        @Header("authorization") key: String,     // 카카오 Rest API 인증키 [필수]
         @Query("query") query: String,            // 검색을 원하는 질의어 [필수]
         @Query("page") page: Int                  // 결과 페이지 번호 [옵션]
     ): Call<ResponseLocationSearch>
@@ -102,15 +103,20 @@ interface RetrofitService {
 
     /**
      * 구글 로그인 토큰 검증 요청 메소드
+     * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
      * @request RequestGoogleToken
      * @response ResponseLogin
      * @author Seunggun Sin
      */
     @POST("oauth2/sign-in/google")
-    fun requestGoogleLogin(@Body tokens: RequestGoogleToken): Call<JsonElement>
+    fun requestGoogleLogin(
+        @Header("User-Agent") userAgent: String,
+        @Body tokens: RequestGoogleToken
+    ): Call<JsonElement>
 
     /**
      * 최종 회원가입 요청 메소드 - Multipart 요청
+     * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
      * @param image(MultipartBody.Part): 이미지가 담긴 multi form 요청 body (key=profileImg)
      * @param data(RequestBody): 나머지 텍스트 필드  값이 담긴 요청 body (key=signUpRequest)
      * @response Unit: 응답 body 자체는 중요 x, Jwt 토큰을 위한 헤더 값만 필요
@@ -119,6 +125,7 @@ interface RetrofitService {
     @Multipart
     @POST("oauth2/sign-up")
     suspend fun requestSignUp(
+        @Header("User-Agent") userAgent: String,
         @Part image: MultipartBody.Part,
         @Part("signUpRequest") data: RequestBody
     ): Response<Unit>
@@ -131,6 +138,20 @@ interface RetrofitService {
      */
     @GET("oauth2/validate-jwt")
     suspend fun requestValidationJwt(@Header("authorization") token: String): Response<ResponseExistLogin>
+
+    /**
+     * 엑세스 토큰 만료 시, 토큰을 재발급하기 위한 요청
+     * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
+     * @param accessToken: 로컬에 저장된 엑세스 토큰
+     * @param refreshToken: 로컬에 저장된 리프레시 토큰
+     * @response: 성공 시 body 없음. 에러 발생 시 json element로 받음
+     */
+    @GET("reissue")
+    suspend fun requestReissueJwtToken(
+        @Header("User-Agent") userAgent: String,
+        @Header("authorization") accessToken: String,
+        @Header("authorization-refresh") refreshToken: String
+    ): Response<JsonElement>
 
     /**
      * 메인 피드 리스트를 가져오는 요청
@@ -146,7 +167,7 @@ interface RetrofitService {
      * @author Seunggun Sin
      */
     @GET("feed")
-    fun requestGetMainFeed(
+    suspend fun requestGetMainFeed(
         @Header("authorization") token: String = "",
         @Query("cursor") lastPostId: Int,
         @Query("size") contentsSize: Int,
@@ -155,7 +176,7 @@ interface RetrofitService {
         @Query("date-from") dateFrom: String? = null,
         @Query("date-to") dateTo: String? = null,
         @Query("for-last-min") latestMin: Int? = null
-    ): Call<List<ResponseMainFeed>>
+    ): Response<List<ResponseMainFeed>>
 
     /**
      * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)

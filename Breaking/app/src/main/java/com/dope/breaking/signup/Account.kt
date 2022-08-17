@@ -50,7 +50,7 @@ class Account {
             RequestBody.create(MediaType.parse("text/plain"), inputData.convertJsonToString())
 
         // retrofit 이용하여 회원가입 요청
-        val response = service.requestSignUp(imgFile, data)
+        val response = service.requestSignUp(System.getProperty("http.agent"), imgFile, data)
 
         if (response.code() in 200..299) { // 요청이 성공적이라면
             return response.headers() // 응답의 헤더 객체 리턴

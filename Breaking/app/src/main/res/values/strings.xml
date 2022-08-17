@@ -70,6 +70,22 @@
     <string name="post_detail_btn_consumer_list">구매자목록</string>
     <string name="post_detail_add_comment_hint">댓글 추가</string>
     <string name="post_detail_add_comment">등록</string>
-
-
+    <string name="order_latest">최신순</string>
+    <string name="order_like">좋아요순</string>
+    <string name="order_view">조회수순</string>
+    <string name="do_apply">적용</string>
+    <string name="sort_option_title">정렬 옵션</string>
+    <string name="reset">초기화</string>
+    <string name="entire">전체</string>
+    <string name="unsold_feed">미판매된 제보만</string>
+    <string name="sold_feed">판매된 제보만</string>
+    <string name="filter_option_title">필터 옵션</string>
+    <string name="start_date">시작 날짜</string>
+    <string name="end_date">종료 날짜</string>
+    <string name="sell_feed">· 판매 제보</string>
+    <string name="date_range">· 기간</string>
+    <string name="for_last_min">· 최근 N분</string>
+    <string name="latest_time">최근 시간 (분)</string>
+    <string name="hyphen">-</string>
+    <string name="no_feed_text">피드가 없습니다.</string>
 </resources>

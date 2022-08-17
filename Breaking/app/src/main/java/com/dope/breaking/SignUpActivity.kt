@@ -32,7 +32,6 @@ import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.ValueUtil
 
-
 class SignUpActivity : AppCompatActivity() {
     private val TAG = "SignUpActivity.kt" // Log Tag
 
@@ -167,13 +166,18 @@ class SignUpActivity : AppCompatActivity() {
             )
 
             val tokenUtil = JwtTokenUtil(applicationContext) // Jwt Util 객체 생성
-            val token = tokenUtil.getTokenFromResponse(responseHeaders) // 응답으로부터 Jwt 토큰 값 추출
+            val accessToken =
+                tokenUtil.getAccessTokenFromResponse(responseHeaders) // 응답으로부터 Jwt 엑세스 토큰 값 추출
+            val refreshToken =
+                tokenUtil.getRefreshTokenFromResponse(responseHeaders) // 응답으로부터 Jwt refresh 토큰 값 추출
 
-            if (token != null) { // 토큰이 존재하면
-                tokenUtil.setToken(token) // SharedPreferences 를 이용하여 Jwt 토큰을 로컬에 저장
+            if (accessToken != null && refreshToken != null) { // 토큰이 존재하면
+                tokenUtil.setAccessToken(accessToken) // SharedPreferences 를 이용하여 Jwt 토큰을 로컬에 저장
+                tokenUtil.setRefreshToken(refreshToken) // SharedPreferences 를 이용하여 refresh 토큰을 로컬에 저장
 
                 //회원가입 응답으로 받아온 토큰 값을 토대로 유저의 기본 정보 가져오는 요청
-                val userInfo = tokenUtil.validateJwtToken(ValueUtil.JWT_REQUEST_PREFIX + token)
+                val userInfo =
+                    tokenUtil.validateJwtToken(ValueUtil.JWT_REQUEST_PREFIX + accessToken)
                 moveToMainPage(userInfo) // 가져온 유저 정보 값을 가지고 메인 페이지로 이동하기
             } else {
                 // 존재하지 않는 Jwt 토큰 케이스에 대한 예외 던지기
@@ -185,9 +189,7 @@ class SignUpActivity : AppCompatActivity() {
                 this,
                 "회원가입 요청에 문제가 발생하였습니다.",
                 "확인"
-            ) {
-
-            }.show()
+            ).show()
             // 응답 에러에 대한 예외 처리하기
         } catch (e: MissingJwtTokenException) {
             // 토큰 값이 존재하지 않을 때에 대한 예외 처리하기
@@ -195,9 +197,7 @@ class SignUpActivity : AppCompatActivity() {
                 this,
                 "회원가입 정보를 불러오는데 실패하였습니다.",
                 "확인"
-            ) {
-
-            }.show()
+            ).show()
         }
     }
 
