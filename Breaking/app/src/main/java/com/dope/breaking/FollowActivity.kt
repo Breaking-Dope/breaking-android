@@ -34,7 +34,7 @@ class FollowActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.Main).launch {
             val requestToken =
-                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this@FollowActivity).getTokenFromLocal()
+                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this@FollowActivity).getAccessTokenFromLocal()
 
             try {
                 if (state) { // 팔로우 페이지라면

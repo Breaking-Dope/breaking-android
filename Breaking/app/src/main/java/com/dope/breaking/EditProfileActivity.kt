@@ -104,7 +104,7 @@ class EditProfileActivity : AppCompatActivity() {
                 val statusMsg = binding.etStateMessage.text.toString()
                 val role = if (isRoleButtonSelected) "USER" else "PRESS"
 
-                val token = JwtTokenUtil(this).getTokenFromLocal() // 로컬에서 토큰 가져오기
+                val token = JwtTokenUtil(this).getAccessTokenFromLocal() // 로컬에서 토큰 가져오기
 
                 val progressDialog = DialogUtil().ProgressDialog(this)
                 progressDialog.showDialog() // 로딩 dialog 시작

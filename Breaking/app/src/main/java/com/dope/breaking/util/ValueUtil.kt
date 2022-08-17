@@ -15,6 +15,7 @@ class ValueUtil {
         const val MULTIPART_PROFILE_KEY = "profileImg" // multi part 프로필 요청에 대한 key 이름
         const val MULTIPART_POST_KEY = "mediaList"  // multi part 게시글 요청에 대한 key 이름
         const val JWT_HEADER_KEY = "authorization" // JWT 토큰 검증을 위한 헤더 키 값
+        const val REFRESH_JWT_HEADER_KEY = "authorization-refresh" // refresh token 키 값
         const val JWT_REQUEST_PREFIX = "Bearer " // Jwt 토큰을 헤더에 넣고 요청할 때 필요한 접두사
         const val FILTER_DATE_FORMAT_SUFFIX = "T00:00" // 피드 요청 시 "기간" 필터의 날짜 형식에 대한 접미사
         const val FEED_SIZE = 10 // 피드 요청마다 가져올 게시글 개수
