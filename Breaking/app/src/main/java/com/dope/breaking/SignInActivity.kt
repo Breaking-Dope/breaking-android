@@ -261,11 +261,9 @@ class SignInActivity : AppCompatActivity() {
                         } else {
                             ResponseExistLogin.convertJsonToObject(responseJson) // 기존 유저일 경우
                         }
-
                         // 정상적인 응답이었다면, JWT 토큰이 있는지 없는지를 검사하여 어떤 페이지로 넘겨줄 것인지 결정
                         if (response.code() in 200..299) {
                             val isJwtToken = JwtTokenUtil(applicationContext)
-
                             if (isJwtToken.hasJwtToken(
                                     ValueUtil.JWT_HEADER_KEY,
                                     response.headers()
