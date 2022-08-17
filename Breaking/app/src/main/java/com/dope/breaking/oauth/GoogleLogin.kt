@@ -77,8 +77,13 @@ class GoogleLogin(private val context: Context) {
                     )
                 ) {
                     // 로컬에 저장된 토큰이 없다면 저장하기
-                    if (jwtTokenUtil.getTokenFromLocal() == "") {
-                        jwtTokenUtil.setToken(jwtTokenUtil.getTokenFromResponse(validationResponse.headers())!!)
+                    if (jwtTokenUtil.getAccessTokenFromLocal() == "") {
+                        jwtTokenUtil.setAccessToken(
+                            jwtTokenUtil.getAccessTokenFromResponse(validationResponse.headers())!!
+                        ) // 엑세스 토큰 로컬에 저장
+                        jwtTokenUtil.setRefreshToken(
+                            jwtTokenUtil.getRefreshTokenFromResponse(validationResponse.headers())!!
+                        ) // 리프레시 토큰 로컬에 저장
                     }
                     true
                 } else
@@ -160,6 +165,7 @@ class GoogleLogin(private val context: Context) {
             */
             val response =
                 service.requestGoogleLogin(
+                    System.getProperty("http.agent"),
                     RequestGoogleToken(
                         idToken,
                         accessToken
@@ -167,7 +173,11 @@ class GoogleLogin(private val context: Context) {
                 ).execute()
             // 먼저 예기치 못한 응답 코드에 대해서 예외 발생 시키기
             if (response.code() != 406 && response.code() >= 400) {
-                throw ResponseErrorException("요청에 실패하였습니다. code: ${response.code()}\nerror: ${response.errorBody()}")
+                throw ResponseErrorException(
+                    "요청에 실패하였습니다. code: ${response.code()}\nerror: ${
+                        response.errorBody()?.string()
+                    }"
+                )
             }
             // 응답으로 온 json string 을 json object 로 변환
             val responseJson = JSONObject(response.body().toString())

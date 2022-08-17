@@ -238,111 +238,120 @@ class SignInActivity : AppCompatActivity() {
         customProgressDialog.showDialog() // 로딩 progress 시작
 
         // 토큰 요청과 응답이 이루어지는 콜백 함수
-        service.requestKakaoLogin(RequestKakaoToken(token)).enqueue(object : Callback<JsonElement> {
-            // 응답이 왔으면
-            override fun onResponse(call: Call<JsonElement>, response: Response<JsonElement>) {
-                if (response.isSuccessful) {      // 토큰 검증에 대한 응답이 왔다면
-                    try {
-                        // 받아온 응답이 클라이언트의 요청 오류였다면
-                        if (response.code() != 406 && response.code() >= 400) {
-                            throw ResponseErrorException("\"요청에 실패하였습니다. code: ${response.code()}\\nerror: ${response.errorBody()}\"")
-                        }
-                        // 받아오는 응답 객체를 JSONObject 로 변환
-                        val responseJson = JSONObject(response.body().toString())
-
-                        // 받아온 응답이 에러에 대한 응답이라면
-                        if (responseJson.has("errorMessage")) {
-                            throw InvalidAccessTokenException("카카오 엑세스 토큰으로 인증할 수 없습니다. error:${responseJson["errorMessage"]}")
-                        }
-
-                        // 받아온 응답이 아래와 같이 정상적인 응답이라면 두 가지 경우로 DTO 할당
-                        responseBody = if (responseJson.has("username")) {
-                            ResponseLogin.convertJsonToObject(responseJson) // 신규 유저일 경우
-                        } else {
-                            ResponseExistLogin.convertJsonToObject(responseJson) // 기존 유저일 경우
-                        }
-
-                        // 정상적인 응답이었다면, JWT 토큰이 있는지 없는지를 검사하여 어떤 페이지로 넘겨줄 것인지 결정
-                        if (response.code() in 200..299) {
-                            val isJwtToken = JwtTokenUtil(applicationContext)
-
-                            if (isJwtToken.hasJwtToken(
-                                    ValueUtil.JWT_HEADER_KEY,
-                                    response.headers()
-                                )
-                            ) {  // 우선 응답으로 받아온 헤더에 JWT 토큰이 있을 경우
-                                if (customProgressDialog.isShowing()) // 로딩 progress 가 실행 중이라면
-                                    customProgressDialog.dismissDialog() // 종료
-
-                                // 로컬에 JWT 토큰이 없다면 새로 저장, 있었다면 Pass
-                                if (isJwtToken.getTokenFromLocal() == "")
-                                    isJwtToken.setToken(isJwtToken.getTokenFromResponse(response.headers())!!)
-                                // 기존 유저이므로 메인 페이지로 이동
-                                if (responseBody is ResponseExistLogin)
-                                    moveToMainPage(responseBody as ResponseExistLogin)
-                                else
-                                    showToast("정보를 불러오는데 실패하였습니다.")
-                            } else { // 없다면 신규 유저이므로 회원 가입 페이지로 이동
-                                if (responseBody is ResponseLogin)
-                                    moveToSignUpPage(responseBody as ResponseLogin)
-                                else
-                                    showToast("정보를 불러오는데 실패하였습니다.")
+        service.requestKakaoLogin(System.getProperty("http.agent"), RequestKakaoToken(token))
+            .enqueue(object : Callback<JsonElement> {
+                // 응답이 왔으면
+                override fun onResponse(call: Call<JsonElement>, response: Response<JsonElement>) {
+                    if (response.isSuccessful) {      // 토큰 검증에 대한 응답이 왔다면
+                        try {
+                            // 받아온 응답이 클라이언트의 요청 오류였다면
+                            if (response.code() != 406 && response.code() >= 400) {
+                                throw ResponseErrorException("\"요청에 실패하였습니다. code: ${response.code()}\\nerror: ${response.errorBody()}\"")
                             }
-                        } else {
-                            // 응답 에러에 대한 예외 발생
-                            throw ResponseErrorException(
-                                "요청에 실패하였습니다. code: ${response.code()}\nerror: ${
-                                    response.errorBody()?.string()
-                                }"
-                            )
-                        }
-                    } catch (e: ResponseErrorException) {
-                        e.printStackTrace()
-                        if (customProgressDialog.isShowing()) { // 로딩 progress 가 실행 중이라면
-                            customProgressDialog.dismissDialog() // 종료
-                        }
-                        DialogUtil().SingleDialog(
-                            this@SignInActivity,
-                            "요청에 문제가 발생하였습니다.",
-                            "확인"
-                        ) {
+                            // 받아오는 응답 객체를 JSONObject 로 변환
+                            val responseJson = JSONObject(response.body().toString())
 
-                        }.show()
-                    } catch (e: InvalidAccessTokenException) { // 엑세스 토큰을 인증할 수 없는 예외 처리
-                        e.printStackTrace()
-                        if (customProgressDialog.isShowing()) {
-                            customProgressDialog.dismissDialog()
-                        }
-                        DialogUtil().SingleDialog(
-                            this@SignInActivity,
-                            "구글 인증에 문제가 발생하였습니다.",
-                            "확인"
-                        ) {
+                            // 받아온 응답이 에러에 대한 응답이라면
+                            if (responseJson.has("errorMessage")) {
+                                throw InvalidAccessTokenException("카카오 엑세스 토큰으로 인증할 수 없습니다. error:${responseJson["errorMessage"]}")
+                            }
 
-                        }.show()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        if (customProgressDialog.isShowing()) {
-                            customProgressDialog.dismissDialog()
-                        }
-                        DialogUtil().SingleDialog(
-                            this@SignInActivity,
-                            "예기치 못한 문제가 발생하였습니다.",
-                            "확인"
-                        ) {
+                            // 받아온 응답이 아래와 같이 정상적인 응답이라면 두 가지 경우로 DTO 할당
+                            responseBody = if (responseJson.has("username")) {
+                                ResponseLogin.convertJsonToObject(responseJson) // 신규 유저일 경우
+                            } else {
+                                ResponseExistLogin.convertJsonToObject(responseJson) // 기존 유저일 경우
+                            }
 
-                        }.show()
+                            // 정상적인 응답이었다면, JWT 토큰이 있는지 없는지를 검사하여 어떤 페이지로 넘겨줄 것인지 결정
+                            if (response.code() in 200..299) {
+                                val isJwtToken = JwtTokenUtil(applicationContext)
+
+                                if (isJwtToken.hasJwtToken(
+                                        ValueUtil.JWT_HEADER_KEY,
+                                        response.headers()
+                                    )
+                                ) {  // 우선 응답으로 받아온 헤더에 JWT 토큰이 있을 경우
+                                    if (customProgressDialog.isShowing()) // 로딩 progress 가 실행 중이라면
+                                        customProgressDialog.dismissDialog() // 종료
+
+                                    // 로컬에 JWT 토큰이 없다면 새로 저장, 있었다면 Pass
+                                    if (isJwtToken.getAccessTokenFromLocal() == "") {
+                                        isJwtToken.setAccessToken(
+                                            isJwtToken.getAccessTokenFromResponse(
+                                                response.headers()
+                                            )!!
+                                        )
+                                        isJwtToken.setRefreshToken(
+                                            isJwtToken.getRefreshTokenFromResponse(response.headers())!!
+                                        )
+                                    }
+                                    // 기존 유저이므로 메인 페이지로 이동
+                                    if (responseBody is ResponseExistLogin)
+                                        moveToMainPage(responseBody as ResponseExistLogin)
+                                    else
+                                        showToast("정보를 불러오는데 실패하였습니다.")
+                                } else { // 없다면 신규 유저이므로 회원 가입 페이지로 이동
+                                    if (responseBody is ResponseLogin)
+                                        moveToSignUpPage(responseBody as ResponseLogin)
+                                    else
+                                        showToast("정보를 불러오는데 실패하였습니다.")
+                                }
+                            } else {
+                                // 응답 에러에 대한 예외 발생
+                                throw ResponseErrorException(
+                                    "요청에 실패하였습니다. code: ${response.code()}\nerror: ${
+                                        response.errorBody()?.string()
+                                    }"
+                                )
+                            }
+                        } catch (e: ResponseErrorException) {
+                            e.printStackTrace()
+                            if (customProgressDialog.isShowing()) { // 로딩 progress 가 실행 중이라면
+                                customProgressDialog.dismissDialog() // 종료
+                            }
+                            DialogUtil().SingleDialog(
+                                this@SignInActivity,
+                                "요청에 문제가 발생하였습니다.",
+                                "확인"
+                            ) {
+
+                            }.show()
+                        } catch (e: InvalidAccessTokenException) { // 엑세스 토큰을 인증할 수 없는 예외 처리
+                            e.printStackTrace()
+                            if (customProgressDialog.isShowing()) {
+                                customProgressDialog.dismissDialog()
+                            }
+                            DialogUtil().SingleDialog(
+                                this@SignInActivity,
+                                "구글 인증에 문제가 발생하였습니다.",
+                                "확인"
+                            ) {
+
+                            }.show()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            if (customProgressDialog.isShowing()) {
+                                customProgressDialog.dismissDialog()
+                            }
+                            DialogUtil().SingleDialog(
+                                this@SignInActivity,
+                                "예기치 못한 문제가 발생하였습니다.",
+                                "확인"
+                            ) {
+
+                            }.show()
+                        }
+                    } else {
+                        Log.d(TAG, "response error: " + response.errorBody()?.string()!!)
                     }
-                } else {
-                    Log.d(TAG, "response error: " + response.errorBody()?.string()!!)
                 }
-            }
 
-            // 응답 받기를 실패했다면
-            override fun onFailure(call: Call<JsonElement>, t: Throwable) {
-                Log.d("onFailure", "실패$t")
-            }
-        })
+                // 응답 받기를 실패했다면
+                override fun onFailure(call: Call<JsonElement>, t: Throwable) {
+                    Log.d("onFailure", "실패$t")
+                }
+            })
     }
 
     /**

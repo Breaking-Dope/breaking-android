@@ -40,7 +40,7 @@ class NaviHomeFragment : Fragment() {
 
         // 요청 Jwt 토큰 가져오기
         val token =
-            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getTokenFromLocal()
+            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
 
         // 피드 요청 에러 시 띄워줄 다이얼로그 정의
         val requestErrorDialog =

@@ -71,7 +71,7 @@ class UserProfile(private val activity: Activity) {
      */
     fun getUserDetailInfo() {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
-        val token = JwtTokenUtil(activity).getTokenFromLocal() // 로컬에 저장된 토큰 가져오기
+        val token = JwtTokenUtil(activity).getAccessTokenFromLocal() // 로컬에 저장된 토큰 가져오기
         if (token.isNotEmpty())
         // 기존 유저 데이터 요청
             service.requestDetailUserInfo(ValueUtil.JWT_REQUEST_PREFIX + token)
@@ -118,7 +118,7 @@ class UserProfile(private val activity: Activity) {
     suspend fun getUserProfileInfo(userId: Long): User {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
         val token =
-            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(activity).getTokenFromLocal() // 로컬에 저장된 토큰 가져오기
+            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(activity).getAccessTokenFromLocal() // 로컬에 저장된 토큰 가져오기
         if (token.isNotEmpty()) {
             val response =
                 service.requestUserProfileInfo(userId, token)
