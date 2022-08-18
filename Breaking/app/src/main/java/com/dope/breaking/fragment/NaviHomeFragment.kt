@@ -1,15 +1,22 @@
 package com.dope.breaking.fragment
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dope.breaking.adapter.FeedAdapter
 import com.dope.breaking.board.PostActivity
+import com.dope.breaking.board.PostDetailActivity
 import com.dope.breaking.databinding.FragmentNaviHomeBinding
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.response.ResponseMainFeed
@@ -22,22 +29,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class NaviHomeFragment : Fragment() {
+    private val TAG = "NaviHomeFragment.kt"
     private var mbinding: FragmentNaviHomeBinding? = null // 바인딩 변수 초기화
     private val binding get() = mbinding!! // 바인딩 변수 재할당
     private lateinit var filterDialog: DialogUtil.FilterOptionDialog // 필터 dialog
     private lateinit var sortDialog: DialogUtil.SortOptionDialog // 정렬 dialog
-    private val feedList = mutableListOf<ResponseMainFeed?>() // 피드 리스트
+    private var feedList = mutableListOf<ResponseMainFeed?>() // 피드 리스트
     private lateinit var adapter: FeedAdapter // 피드 리스트 어댑터
     private var isObtainedAll = false // 모든 피드를 받았는지 판단(더 이상 요청할 것이 없는)
     private var isLoading = false  // 로딩 중 판단
     private val postManager = PostManager() // 게시글 기능 관련 클래스 객체 생성
+    private var isWritePost = false // 제보하기 페이지에서 제보글 작성을 하고 돌아왔다면 true, 아니라면 false
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>> // 위치 권한에 관한 콜백 함수 정의
+    private lateinit var isWriteActivityResult: ActivityResultLauncher<Intent> // 게시글 작성을 하고 돌아온다면 그 후 처리를 위한 activityResult
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         mbinding = FragmentNaviHomeBinding.inflate(inflater, container, false)
-
         // 요청 Jwt 토큰 가져오기
         val token =
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
@@ -69,6 +79,11 @@ class NaviHomeFragment : Fragment() {
                     // 리스트 보여주기
                     binding.tvNoFeedAlert.visibility = View.GONE
                     binding.rcvMainFeed.visibility = View.VISIBLE
+                    // 가져온 피드 리스트 할당 및 초기화
+                    feedList.clear()
+                    feedList = (it as List<ResponseMainFeed>).toMutableList()
+                    // 아이템 리스트 클릭시 상세 페이지로 이동
+                    moveToPostDetailPage()
                 }
                 adapter.addItems(it) // 받아온 리스트 추가하기
             }, {
@@ -104,6 +119,11 @@ class NaviHomeFragment : Fragment() {
                     // 리스트 보여주기
                     binding.tvNoFeedAlert.visibility = View.GONE
                     binding.rcvMainFeed.visibility = View.VISIBLE
+                    // 가져온 피드 리스트 할당 및 초기화
+                    feedList.clear()
+                    feedList = (it as List<ResponseMainFeed>).toMutableList()
+                    // 아이템 리스트 클릭시 상세 페이지로 이동
+                    moveToPostDetailPage()
                 }
                 adapter.addItems(it) // 받아온 리스트 추가하기
             }, {
@@ -134,6 +154,9 @@ class NaviHomeFragment : Fragment() {
         }, { it ->
             feedList.addAll(it) // 동적 리스트에 가져온 리스트 추가
             adapter = FeedAdapter(requireContext(), feedList) // 어댑터 초기화
+
+            // 아이템 리스트 클릭시 상세 페이지로 이동
+            moveToPostDetailPage()
 
             // 리스트의 divider 선 추가
             binding.rcvMainFeed.addItemDecoration(
@@ -192,11 +215,82 @@ class NaviHomeFragment : Fragment() {
             requestErrorDialog.show()
         })
 
-        // 제보하기 버튼을 누르면 게시글 작성 페이지로 이동
-        binding.fabPosting.setOnClickListener {
-            val intent = Intent(activity, PostActivity::class.java)
-            startActivity(intent)
+        // 위치 권한에 대한 콜백 핸들링
+        requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+        ){
+            if(it.all { permission -> permission.value == true }){
+                // 권한 허용했다면 제보하기 페이지로 이동
+                val intent = Intent(activity, PostActivity::class.java)
+                isWriteActivityResult.launch(intent)
+            }else{
+                // 권한 허용 X의 경우
+                Toast.makeText(requireContext(),"위치 권한 동의가 필요한 컨텐츠입니다.",Toast.LENGTH_SHORT).show()
+            }
         }
+
+        // 제보하기 버튼을 누르면 권한 허락받고 게시글 작성 페이지로 이동
+        binding.fabPosting.setOnClickListener {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+
+        // PostActivity 에서 제보글을 작성하고 다시 돌아온다면
+        isWriteActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == AppCompatActivity.RESULT_OK) {
+                    isWritePost =
+                        it.data?.getBooleanExtra("isWritePost", false) == true // 제보글을 썼다면 true, 쓰지 않았다면 false
+                    if (isWritePost){ // true 면 피드 다시 조회하여 refresh
+                        // 요청 Jwt 토큰 가져오기
+                        val token =
+                            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
+
+                        // 피드 요청 에러 시 띄워줄 다이얼로그 정의
+                        val requestErrorDialog =
+                            DialogUtil().SingleDialog(requireContext(), "피드를 가져오는데 문제가 발생하였습니다.", "확인")
+
+                        processGetMainFeed(0, token, {
+                            // 로딩 시작
+                            binding.progressbarLoading.visibility = View.VISIBLE
+                            binding.rcvMainFeed.visibility = View.GONE
+                            adapter.clearList()
+                            isObtainedAll = false
+                        }, { it ->
+                            feedList.addAll(it) // 동적 리스트에 가져온 리스트 추가
+                            adapter = FeedAdapter(requireContext(), feedList) // 어댑터 초기화
+
+                            // 아이템 리스트 클릭시 상세 페이지로 이동
+                            moveToPostDetailPage()
+
+                            // 리스트의 divider 선 추가
+                            binding.rcvMainFeed.addItemDecoration(
+                                DividerItemDecoration(
+                                    requireActivity(),
+                                    LinearLayout.VERTICAL
+                                )
+                            )
+                            // 로딩 종료
+                            binding.rcvMainFeed.visibility = View.VISIBLE
+                            binding.progressbarLoading.visibility = View.GONE
+
+                            // 어댑터 지정
+                            binding.rcvMainFeed.adapter = adapter
+
+                            // 다시 false 로 변경
+                            isWritePost = false
+                        }, {
+                            it.printStackTrace()
+                            requestErrorDialog.show()
+                        })
+                    }
+                }
+            }
+
         return binding.root
     }
 
@@ -236,5 +330,23 @@ class NaviHomeFragment : Fragment() {
                 error(e) // 예외 발생 시 에러 함수 호출
             }
         }
+    }
+
+    /**
+     * 어댑터에서 아이템 리스트를 클릭했을 때, 해당 postId를 받아와 세부 조회 액티비티로 넘겨주는 함수
+     * @param - None
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-08-18
+     */
+    private fun moveToPostDetailPage() {
+        adapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
+            override fun onClick(v: View, position: Int) {
+                Log.d(TAG, "클릭한 게시물 id : ${feedList[position]!!.postId}")
+                var intent = Intent(context, PostDetailActivity::class.java)
+                intent.putExtra("postId", feedList[position]!!.postId)
+                startActivity(intent)
+            }
+        })
     }
 }

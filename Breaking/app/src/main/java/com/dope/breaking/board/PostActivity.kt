@@ -147,7 +147,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         allowScrollEditText() // EditText 스크롤 터치 이벤트 허용
         pickDate() // 제보 이벤트 발생 시간 선택을 위한 데이트, 타임 피커
         clickPostPageButtons() // 제보하기 페이지들의 버튼 이벤트 함수
-        setCurrentLocation() // 위치 정보 기본값으로 현재 위치 설정하는 함수
+        setCurrentLocation() // 현재 위치 설정 함수
 
         /*
         deprecated된 OnActivityResult를 대신하는 콜백 함수로, 갤러리에서 이미지나 영상을 선택하면 호출됨.
@@ -245,7 +245,6 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                     binding.tvLocationShow.text = locationData.address // 선택한 위치 정보 표시
                 }
             }
-
     }
 
     /**
@@ -411,6 +410,10 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                 token
             )
             Log.d(TAG, "요청 성공 시 받아온 postId : ${responsePostUpload.postId}")
+            Toast.makeText(applicationContext, "게시글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
+            intent.putExtra("isWritePost", true) // 메인 피드로 제보글 상태값 전달
+            setResult(RESULT_OK, intent)
+            finish() // 제보하기 페이지 종료
         } catch (e: ResponseErrorException) {
             e.printStackTrace()
             DialogUtil().SingleDialog(

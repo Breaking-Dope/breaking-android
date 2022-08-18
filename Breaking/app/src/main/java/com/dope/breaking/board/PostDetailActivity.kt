@@ -2,18 +2,24 @@ package com.dope.breaking.board
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import com.dope.breaking.R
 import com.dope.breaking.databinding.ActivityPostDetailBinding
 
 class PostDetailActivity : AppCompatActivity() {
-
+    private val TAG = "PostDetailActivity.kt"
     private var mbinding : ActivityPostDetailBinding? = null
     private val binding get() = mbinding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mbinding = ActivityPostDetailBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_post_detail)
+        setContentView(binding.root)
+        settingPostToolBar()
+
+        var getPostId = intent.getIntExtra("postId",-1)
+        Log.d(TAG,"받아온 postId 값 : ${getPostId.toString()}")
     }
 
     /**
@@ -28,5 +34,16 @@ class PostDetailActivity : AppCompatActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true) // 왼쪽 상단 버튼 만들기
         supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24) // 왼쪽 상단 아이콘
         supportActionBar!!.setDisplayShowTitleEnabled(true) // 툴 바에 타이틀 보이게
+    }
+
+    // 툴 바의 item 선택 이벤트 리스너
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> { // 툴 바의 뒤로가기 키가 눌렸을 때 동작
+                finish()
+                true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
