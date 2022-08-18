@@ -18,7 +18,7 @@ interface RetrofitService {
     @param - RequestKakaoToken
     @return - Call<JsonElement>
     @author - Tae hyun Park
-    @since - 2022-07-05 | 2022-07-20
+    @since - 2022-07-05 | 2022-08-17
      **/
     @POST("oauth2/sign-in/kakao")
     fun requestKakaoLogin(
@@ -88,6 +88,18 @@ interface RetrofitService {
         @Query("query") query: String,            // 검색을 원하는 질의어 [필수]
         @Query("page") page: Int                  // 결과 페이지 번호 [옵션]
     ): Call<ResponseLocationSearch>
+
+
+    /**
+     * 게시글 세부 조회 정보를 요청하는 메소드
+     * @Path - postId(Long) : 게시글 id
+     * @author - Tae hyun Park
+     */
+    @GET("post/{postId}")
+    fun requestPostDetail(
+        @Header("authorization") token: String,
+        @Path("postId") postId : Long
+    )
 
     /**
      * 구글 로그인 토큰 검증 요청 메소드

@@ -64,6 +64,12 @@
     <string name="filter">필터</string>
     <string name="latest_order">최신순</string>
     <string name="search_hint_text">제보를 검색하세요.</string>
+    <string name="post_detail_tool_bar">제보글</string>
+    <string name="post_detail_btn_purchase">구매하기</string>
+    <string name="post_detail_btn_sold">구매완료</string>
+    <string name="post_detail_btn_consumer_list">구매자목록</string>
+    <string name="post_detail_add_comment_hint">댓글 추가</string>
+    <string name="post_detail_add_comment">등록</string>
     <string name="order_latest">최신순</string>
     <string name="order_like">좋아요순</string>
     <string name="order_view">조회수순</string>

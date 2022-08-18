@@ -13,7 +13,7 @@ data class RequestPostData(
     val postType: String,
     @get:JsonProperty("isAnonymous")
     val isAnonymous: Boolean,
-    val eventTime: String,
+    val eventDate: String,
     val thumbnailIndex: Int
 ) {
     /**
@@ -38,7 +38,7 @@ data class RequestPostData(
         jsonParentObject.put("hashtagList", hashtagList)
         jsonParentObject.put("postType", postType)
         jsonParentObject.put("isAnonymous", isAnonymous)
-        jsonParentObject.put("eventTime", eventTime)
+        jsonParentObject.put("eventTime", eventDate)
         jsonParentObject.put("thumbnailIndex", thumbnailIndex)
         return jsonParentObject
     }

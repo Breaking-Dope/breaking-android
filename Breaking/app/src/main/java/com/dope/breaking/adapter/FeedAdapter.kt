@@ -28,6 +28,7 @@ class FeedAdapter(
     private val VIEW_TYPE_ITEM = 0 // 일반 아이템에 대한 레이아웃 view type
     private val VIEW_TYPE_LOADING = 1 // 로딩 아이템에 대한 레이아웃 view type
     private val decimalFormat = DecimalFormat("#,###") // 숫자 콤마 포맷을 위한 클래스
+    private lateinit var itemListClickListener : FeedAdapter.OnItemClickListener // 아이템 리스트 클릭 리스너
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_ITEM) {
@@ -42,6 +43,10 @@ class FeedAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ItemViewHolder)
             holder.bind(data[position]!!)
+        // 아이템 리스트가 클릭된다면
+        holder.itemView.setOnClickListener {
+            itemListClickListener.onClick(it, position)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -217,5 +222,15 @@ class FeedAdapter(
 
     inner class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val progressDialog = itemView.findViewById<ProgressBar>(R.id.progressbar_loading)
+    }
+
+    // 액티비티에서 클릭 이벤트 오버라이드 하기 위해 인터페이스 정의
+    interface OnItemClickListener {
+        fun onClick(v: View, position: Int)
+    }
+
+    // 아이템 리스트 클릭 리스너 함수
+    fun setItemListClickListener(onItemClickListener: FeedAdapter.OnItemClickListener) {
+        this.itemListClickListener = onItemClickListener // 액티비티에서 구현한 인터페이스 정보를 할당
     }
 }

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/post_detail_page_tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="?attr/actionBarTheme"
+        android:background="@color/white"
+        android:elevation="4dp"
+        app:title="@string/post_detail_tool_bar"
+        app:titleTextColor="@color/black">
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context=".board.PostDetailActivity">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/view_pager"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintHeight_percent="0.27"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_profile_writer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintWidth_percent="0.2"
+                android:adjustViewBounds="true"
+                app:layout_constraintHorizontal_bias="0.05"
+                app:layout_constraintVertical_bias="0.1"
+                android:scaleType="centerCrop"
+                tools:srcCompat="@tools:sample/avatars"
+                app:layout_constraintTop_toBottomOf="@+id/view_pager"
+                app:layout_constraintBottom_toTopOf="@+id/divider1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"/>
+
+            <TextView
+                android:id="@+id/tv_user_nick_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:text="만두피"
+                android:textColor="@color/black"
+                app:layout_constraintLeft_toLeftOf="@+id/iv_profile_writer"
+                app:layout_constraintTop_toBottomOf="@+id/iv_profile_writer"
+                app:layout_constraintRight_toRightOf="@+id/iv_profile_writer"/>
+
+            <TextView
+                android:id="@+id/tv_chip_exclusive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/chip_post_exclusive_background"
+                android:gravity="center"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2dp"
+                android:text="@string/exclusive_string"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintLeft_toRightOf="@id/iv_profile_writer"
+                app:layout_constraintRight_toLeftOf="@id/tv_chip_sold"
+                app:layout_constraintTop_toTopOf="@id/iv_profile_writer" />
+
+            <TextView
+                android:id="@+id/tv_chip_sold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:background="@drawable/chip_post_sold_background"
+                android:gravity="center"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2dp"
+                android:text="@string/sold_string"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintHorizontal_bias="1"
+                app:layout_constraintLeft_toRightOf="@id/tv_chip_exclusive"
+                app:layout_constraintRight_toLeftOf="@id/tv_chip_unsold"
+                app:layout_constraintTop_toTopOf="@id/iv_profile_writer" />
+
+            <TextView
+                android:id="@+id/tv_chip_unsold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:background="@drawable/chip_post_unsold_background"
+                android:gravity="center"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2dp"
+                android:text="@string/is_selling_string"
+                android:textColor="@color/breaking_color"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintLeft_toRightOf="@id/tv_chip_sold"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/iv_profile_writer" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:text="광화문 불법 집회가 열렸습니다."
+            android:textColor="@color/black"
+            android:textSize="17sp"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_chip_exclusive"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_chip_exclusive" />
+
+        <ImageView
+            android:id="@+id/iv_location_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/ic_baseline_location_on_24"
+            app:layout_constraintLeft_toLeftOf="@id/tv_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title"
+            app:layout_constraintWidth_percent="0.045" />
+
+            <TextView
+                android:id="@+id/tv_post_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="구로동"
+                android:textColor="@color/breaking_color"
+                android:textSize="12sp"
+                app:layout_constraintTop_toTopOf="@id/iv_location_icon"
+                app:layout_constraintBottom_toBottomOf="@id/iv_location_icon"
+                app:layout_constraintLeft_toRightOf="@id/iv_location_icon" />
+            <TextView
+                android:id="@+id/tv_post_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:text="2022년 6월 10일 15시 00분"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toTopOf="@+id/divider1"
+                app:layout_constraintLeft_toLeftOf="@+id/iv_location_icon"
+                app:layout_constraintTop_toBottomOf="@+id/iv_location_icon" />
+
+            <Button
+                android:id="@+id/btn_purchase"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                app:layout_constraintWidth_percent="0.22"
+                android:background="@drawable/sign_up_user_type_selected"
+                android:text="@string/post_detail_btn_purchase"
+                app:layout_constraintHorizontal_bias="0.9"
+                app:layout_constraintVertical_bias="1"
+                app:layout_constraintTop_toBottomOf="@id/tv_post_price"
+                app:layout_constraintBottom_toTopOf="@id/divider1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                />
+
+            <TextView
+                android:id="@+id/tv_post_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintWidth_percent="0.3"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="10,000,000원"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@+id/tv_title"
+                app:layout_constraintLeft_toLeftOf="@+id/btn_purchase"
+                app:layout_constraintBottom_toTopOf="@+id/btn_purchase"
+                app:layout_constraintRight_toRightOf="@+id/btn_purchase"/>
+
+            <View
+                android:id="@+id/divider1"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/gray"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_post_time" />
+
+            <TextView
+                android:id="@+id/tv_post_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="15sp"
+                android:layout_marginTop="7dp"
+                android:padding="10dp"
+                android:ellipsize="end"
+                android:text="광화문 불법 집회 관련 상세 내용입니다."
+                android:lines="10"
+                android:scrollbars="vertical"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/divider1" />
+
+            <TextView
+                android:id="@+id/tv_post_hashtag"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/breaking_color"
+                android:textSize="15sp"
+                android:text="#해시 #태그"
+                android:layout_marginTop="7dp"
+                android:padding="10dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_post_content" />
+
+            <ImageButton
+                android:id="@+id/ib_post_like"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/ic_post_like"
+                app:layout_constraintHorizontal_bias="0.04"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_post_hashtag" />
+
+            <ImageButton
+                android:id="@+id/ib_post_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_post_comment"
+                app:layout_constraintTop_toTopOf="@+id/ib_post_like"
+                app:layout_constraintBottom_toBottomOf="@id/ib_post_like"
+                app:layout_constraintHorizontal_bias="0.05"
+                app:layout_constraintLeft_toRightOf="@id/ib_post_like"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <ImageButton
+                android:id="@+id/ib_post_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_baseline_more_horiz_24"
+                app:layout_constraintTop_toTopOf="@+id/ib_post_like"
+                app:layout_constraintBottom_toBottomOf="@id/ib_post_like"
+                app:layout_constraintHorizontal_bias="0.95"
+                app:layout_constraintLeft_toRightOf="@id/ib_post_comment"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/gray"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ib_post_like" />
+
+            <ImageView
+                android:id="@+id/iv_comment_writer_profile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:layout_constraintWidth_percent="0.17"
+                app:layout_constraintHorizontal_bias="0.06"
+                android:scaleType="centerCrop"
+                tools:srcCompat="@tools:sample/avatars"
+                android:adjustViewBounds="true"
+                app:layout_constraintTop_toBottomOf="@+id/divider2"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/rv_comment_list"/>
+
+        <EditText
+            android:id="@+id/et_post_write"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:layout_constraintHorizontal_bias="0.1"
+            android:hint="@string/post_detail_add_comment_hint"
+            app:layout_constraintLeft_toRightOf="@+id/iv_comment_writer_profile"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider2"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_comment_writer_profile"
+            app:layout_constraintWidth_percent="0.65" />
+
+        <TextView
+            android:id="@+id/tv_add_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/post_detail_add_comment"
+            android:textColor="@color/breaking_color"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintTop_toBottomOf="@+id/divider2"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_comment_writer_profile"
+            app:layout_constraintLeft_toRightOf="@+id/et_post_write"
+            app:layout_constraintRight_toRightOf="parent"
+             />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_comment_list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_comment_writer_profile"
+            app:layout_constraintRight_toRightOf="@id/et_post_write"
+            app:layout_constraintTop_toBottomOf="@+id/iv_comment_writer_profile"
+            />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>
