@@ -8,6 +8,7 @@ import com.dope.breaking.exception.UnLoginAccessException
 import com.dope.breaking.model.FollowData
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.util.ValueUtil
 
 /**
  * 팔로우 관련 처리를 하는 클래스
@@ -21,17 +22,23 @@ class Follow {
 
     /**
      * userId 에 해당하는 사람의 팔로우 목록을 가져오는 요청
+     * @param cursorId(Int): 마지막으로 가져온 리스트의 마지막 인덱스 값(리스트의 인덱스)
      * @param token(String): 요청하는 유저의 Jwt 토큰 (없으면 비회원 유저)
      * @param userId(Long): 요청 대상의 고유 id
      * @return List<FollowData>: userId 가 팔로우한 사람들에 대한 리스트
      * @throws ResponseErrorException: 응답 코드가 2xx 가 아닌 응답에 대한 예외 처리
      * @author Seunggun Sin
-     * @since 2022-07-28
+     * @since 2022-07-28 | 2022-08-18
      */
     @Throws(ResponseErrorException::class)
-    suspend fun startGetFollowingList(token: String, userId: Long): List<FollowData> {
+    suspend fun startGetFollowingList(
+        cursorId: Int,
+        token: String,
+        userId: Long
+    ): List<FollowData> {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
-        val response = service.requestGetFollowingList(token, userId)
+        val response =
+            service.requestGetFollowingList(token, userId, cursorId, ValueUtil.FOLLOW_SIZE)
 
         if (response.isSuccessful) {
             val body = response.body()
@@ -46,17 +53,19 @@ class Follow {
 
     /**
      * userId 에 해당하는 사람의 팔로워 목록을 가져오는 요청
+     * @param cursorId(Int): 마지막으로 가져온 리스트의 마지막 인덱스 값(리스트의 인덱스)
      * @param token(String): 요청하는 유저의 Jwt 토큰 (없으면 비회원 유저)
      * @param userId(Long): 요청 대상의 고유 id
      * @return List<FollowData>: userId 를 팔로워한 사람들에 대한 리스트
      * @throws ResponseErrorException: 응답 코드가 2xx 가 아닌 응답에 대한 예외 처리
      * @author Seunggun Sin
-     * @since 2022-07-28
+     * @since 2022-07-28 | 2022-08-18
      */
     @Throws(ResponseErrorException::class)
-    suspend fun startGetFollowerList(token: String, userId: Long): List<FollowData> {
+    suspend fun startGetFollowerList(cursorId: Int, token: String, userId: Long): List<FollowData> {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
-        val response = service.requestGetFollowerList(token, userId)
+        val response =
+            service.requestGetFollowerList(token, userId, cursorId, ValueUtil.FOLLOW_SIZE)
 
         if (response.isSuccessful) {
             val body = response.body()
@@ -86,7 +95,7 @@ class Follow {
         }
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
-        val response = service.requestFollow(token, userId)
+        val response = service.requestFollow(token, userId) // 팔로우 요청
 
         if (response.isSuccessful) {
             return response.code() in 200..299
@@ -112,7 +121,7 @@ class Follow {
         }
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
-        val response = service.requestUnFollow(token, userId)
+        val response = service.requestUnFollow(token, userId) // 언팔로우 요청
 
         if (response.isSuccessful) {
             return response.code() in 200..299

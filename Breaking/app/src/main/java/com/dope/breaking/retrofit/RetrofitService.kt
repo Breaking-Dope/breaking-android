@@ -208,26 +208,34 @@ interface RetrofitService {
      * userId 에 해당하는 사람의 팔로잉 리스트를 가져오는 요청
      * @header authorization: 요청하는 유저의 Jwt 토큰 값
      * @path userId: 팔로잉 리스트를 얻고자 하는 유저의 고유 아이디
+     * @query cursor: 마지막으로 요청한 마지막 id
+     * @query size: 팔로우 리스트에서 가져올 아이템 개수
      * @response userId 에 해당하는 사람이 팔로우한 사람들의 리스트
      * @author Seunggun Sin
      */
     @GET("follow/following/{userId}")
     suspend fun requestGetFollowingList(
         @Header("authorization") token: String,
-        @Path("userId") userId: Long
+        @Path("userId") userId: Long,
+        @Query("cursor") cursorId: Int,
+        @Query("size") contentSize: Int
     ): Response<List<FollowData>>
 
     /**
      * userId 에 해당하는 사람의 팔로워 리스트를 가져오는 요청
      * @header authorization: 요청하는 유저의 Jwt 토큰 값
      * @path userId: 팔로워 리스트를 얻고자 하는 유저의 고유 아이디
+     * @query cursor: 마지막으로 요청한 마지막 id
+     * @query size: 팔로우 리스트에서 가져올 아이템 개수
      * @response userId 에 해당하는 사람을 팔로워한 사람들의 리스트
      * @author Seunggun Sin
      */
     @GET("follow/follower/{userId}")
     suspend fun requestGetFollowerList(
         @Header("authorization") token: String,
-        @Path("userId") userId: Long
+        @Path("userId") userId: Long,
+        @Query("cursor") cursorId: Int,
+        @Query("size") contentSize: Int
     ): Response<List<FollowData>>
 
     /**
