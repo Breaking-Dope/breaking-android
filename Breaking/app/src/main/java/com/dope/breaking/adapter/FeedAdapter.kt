@@ -25,13 +25,11 @@ class FeedAdapter(
     private val context: Context,
     var data: MutableList<ResponseMainFeed?>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val VIEW_TYPE_ITEM = 0 // 일반 아이템에 대한 레이아웃 view type
-    private val VIEW_TYPE_LOADING = 1 // 로딩 아이템에 대한 레이아웃 view type
     private val decimalFormat = DecimalFormat("#,###") // 숫자 콤마 포맷을 위한 클래스
     private lateinit var itemListClickListener : FeedAdapter.OnItemClickListener // 아이템 리스트 클릭 리스너
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_ITEM) {
+        return if (viewType == ValueUtil.VIEW_TYPE_ITEM) {
             val view = LayoutInflater.from(context).inflate(R.layout.item_post_list, parent, false)
             ItemViewHolder(view)
         } else {
@@ -61,7 +59,7 @@ class FeedAdapter(
      */
     fun addItem(item: ResponseMainFeed?) {
         data.add(item)
-        notifyDataSetChanged()
+        notifyItemInserted(itemCount)
     }
 
     /**
@@ -71,7 +69,7 @@ class FeedAdapter(
      */
     fun clearList() {
         data.clear()
-        notifyDataSetChanged()
+        notifyItemRangeRemoved(0, itemCount)
     }
 
     /**
@@ -82,7 +80,7 @@ class FeedAdapter(
      */
     fun addItems(items: List<ResponseMainFeed>) {
         data.addAll(items)
-        notifyDataSetChanged()
+        notifyItemRangeInserted(itemCount, items.size)
     }
 
     /**
@@ -99,7 +97,7 @@ class FeedAdapter(
      * 아이템 view type 을 가져옴
      */
     override fun getItemViewType(position: Int): Int {
-        return if (data[position] == null) VIEW_TYPE_LOADING else VIEW_TYPE_ITEM
+        return if (data[position] == null) ValueUtil.VIEW_TYPE_LOADING else ValueUtil.VIEW_TYPE_ITEM
     }
 
     inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
