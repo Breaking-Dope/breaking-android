@@ -20,5 +20,5 @@ data class ResponseMainFeed(
     @SerializedName("isAnonymous") val isAnonymous: Boolean,
     @SerializedName("isMyPost") val isMyPost: Boolean,
     @SerializedName("isLiked") val isLiked: Boolean,
-    @SerializedName("isBookmarked") val isBookmarked: Boolean,
+    @SerializedName("isBookmarked") var isBookmarked: Boolean,
 )

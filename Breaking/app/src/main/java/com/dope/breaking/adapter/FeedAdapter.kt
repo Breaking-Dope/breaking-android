@@ -1,21 +1,24 @@
 package com.dope.breaking.adapter
 
 import android.content.Context
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.dope.breaking.R
+import com.dope.breaking.databinding.CustomMainFeedPopupBinding
 import com.dope.breaking.model.response.ResponseMainFeed
-import com.dope.breaking.util.DateUtil
-import com.dope.breaking.util.ValueUtil
+import com.dope.breaking.post.PostManager
+import com.dope.breaking.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 
 class FeedAdapter(
@@ -106,6 +109,7 @@ class FeedAdapter(
         private val date = itemView.findViewById<TextView>(R.id.tv_post_time)
         private val location = itemView.findViewById<TextView>(R.id.tv_post_location)
         private val commentCount = itemView.findViewById<TextView>(R.id.tv_post_comment_count)
+        private val moreMenu = itemView.findViewById<ImageButton>(R.id.img_btn_post_more_menu)
 
         fun bind(item: ResponseMainFeed) {
             if (item.thumbnailImgURL == null) {
@@ -121,14 +125,87 @@ class FeedAdapter(
                     .apply(RequestOptions().transform(CenterCrop(), RoundedCorners(24)))
                     .into(thumbnail)
             }
+
+            val popupInflater =
+                context.applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val popupBind =
+                CustomMainFeedPopupBinding.inflate(popupInflater) // 커스텀 팝업 레이아웃 binding inflate
+
+            if (item.isBookmarked) {
+                popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT_BOLD
+                popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.breaking_color))
+                popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
+            } else {
+                popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT
+                popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.black))
+                popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
+            }
+
+            val popupWindow = PopupWindow(
+                popupBind.root,
+                ViewGroup.LayoutParams.WRAP_CONTENT, // 가로 길이
+                ViewGroup.LayoutParams.WRAP_CONTENT, // 세로 길이
+                true
+            ) // 팝업 윈도우 화면 설정
+
+            moreMenu.setOnClickListener(popupWindow::showAsDropDown) // 더보기 메뉴 클릭 시, 메뉴 view 중심으로 팝업 메뉴 호출
+
+            val errorDialog = DialogUtil().SingleDialog(context, "요청에 문제가 발생하였습니다.", "확인")
+
+            // 수정 메뉴 클릭 시
+            popupBind.layoutHorizEdit.setOnClickListener {
+                popupWindow.dismiss()
+            }
+
+            // 삭제 메뉴 클릭 시
+            popupBind.layoutHorizDelete.setOnClickListener {
+                popupWindow.dismiss()
+            }
+
+            // 북마크 메뉴 클릭 시
+            popupBind.layoutHorizBookmark.setOnClickListener {
+                val postManager = PostManager()
+                val token =
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getAccessTokenFromLocal()
+                if (item.isBookmarked) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val result = postManager.startUnRegisterBookmark(item.postId, token)
+                        if (result) {
+                            item.isBookmarked = false
+                            popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.black))
+                            popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT
+                            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
+                        } else {
+                            errorDialog.show()
+                        }
+                    }
+                } else {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val result = postManager.startRegisterBookmark(item.postId, token)
+                        if (result) {
+                            item.isBookmarked = true
+                            popupBind.tvPopupBookmark.setTextColor(context.getColor(R.color.breaking_color))
+                            popupBind.tvPopupBookmark.typeface = Typeface.DEFAULT_BOLD
+                            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
+                        } else {
+                            errorDialog.show()
+                        }
+                    }
+                }
+            }
+
+            // 공유 메뉴 클릭 시
+            popupBind.layoutHorizShare.setOnClickListener {
+                popupWindow.dismiss()
+            }
+
             title.text = item.title
-            likeCount.text = item.likeCount.toString()
-            commentCount.text = item.commentCount.toString()
-            price.text = decimalFormat.format(item.price) + "원"
+            likeCount.text = NumberUtil().countNumberFormatter(item.likeCount)
+            commentCount.text = NumberUtil().countNumberFormatter(item.commentCount)
+            price.text = "${decimalFormat.format(item.price)}원"
             chipExclusive.visibility = if (item.postType == "EXCLUSIVE") View.VISIBLE else View.GONE
 
-            if (item.postType == "FREE" || item.price == 0)
-                price.text = "무료"
+            if (item.postType == "FREE" || item.price == 0) price.text = "무료"
 
             location.text = item.location.region_2depth_name
             chipSold.visibility = if (item.isSold) View.VISIBLE else View.GONE

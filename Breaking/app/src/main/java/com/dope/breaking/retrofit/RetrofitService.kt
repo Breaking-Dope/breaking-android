@@ -179,6 +179,32 @@ interface RetrofitService {
     ): Response<List<ResponseMainFeed>>
 
     /**
+     * 게시글의 북마크를 등록하는 요청
+     * @header authorization: 유저의 jwt 토큰 값 (필수)
+     * @path postId: 북마크를 등록하고자 하는 게시글의 postId (필수)
+     * @response 성공 시, body 는 없음. 에러 응답 시 json 데이터
+     * @author Seunggun Sin
+     */
+    @POST("post/{postId}/bookmark")
+    suspend fun requestBookmark(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Int
+    ): Response<Unit>
+
+    /**
+     * 게시글의 북마크를 해제하는 요청
+     * @header authorization: 유저의 jwt 토큰 값 (필수)
+     * @path postId: 북마크를 해제하고자 하는 게시글의 postId (필수)
+     * @response 성공 시, body 는 없음. 에러 응답 시 json 데이터
+     * @author Seunggun Sin
+     */
+    @DELETE("post/{postId}/bookmark")
+    suspend fun requestUnBookmark(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Int
+    ): Response<Unit>
+
+    /**
      * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)
      * @path userId: 유저 고유 id 값
      * @header authorization: 요청하는 유저의 Jwt 토큰 값

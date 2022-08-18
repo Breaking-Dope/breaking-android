@@ -134,6 +134,22 @@ class PostManager {
         }
     }
 
+    suspend fun startRegisterBookmark(postId: Int, token: String): Boolean {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        val response = service.requestBookmark(token, postId)
+        println(response.code())
+        return response.code() in 200..299
+    }
+
+    suspend fun startUnRegisterBookmark(postId: Int, token: String): Boolean {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        val response = service.requestUnBookmark(token, postId)
+        println(response.code())
+        return response.code() in 200..299
+    }
+
     /**
      * Bitmap 데이터를 Byte Array 형태로 변환 (이미지 compression 포함)
      * @param bitmap(Bitmap): Bitmap 타입의 이미지 데이터
