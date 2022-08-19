@@ -28,7 +28,6 @@ class FollowActivity : AppCompatActivity() {
     private var isLoading = false // 로딩 중 판단
     private var isObtainedAll = false // 더 이상 얻을 리스트 있는지 판단
     private lateinit var followAdapter: FollowAdapter // 팔로우 리스트 어댑터
-    private val cursorList = mutableListOf<Int>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /*
@@ -57,9 +56,6 @@ class FollowActivity : AppCompatActivity() {
             recyclerView.visibility = View.GONE
         }, { it ->
             followAdapter.addItems(it) // 리스트에 추가하기
-            followList.forEach {
-                cursorList.add(it!!.cursorId)
-            }
 
             if (followList.size == 0) { // 목록 없을 때
                 handleEmptyList(state) // 빈 레이아웃 처리하기
@@ -82,7 +78,10 @@ class FollowActivity : AppCompatActivity() {
 
                     val lastIndex =
                         (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
-
+                    // 실제 데이터 리스트의 마지막 인덱스와 스크롤 이벤트에 의한 인덱스 값이 같으면서
+                    // 스크롤이 드래깅 중이면서
+                    // 피드 요청이 더 가능하면서
+                    // 로딩 중이 아니라면
                     if (lastIndex == recyclerView.adapter!!.itemCount - 1 && newState == 2 && !isObtainedAll && !isLoading) {
                         processGetFollowList(state,
                             followList[lastIndex]!!.cursorId, // 마지막 인덱스
@@ -92,9 +91,9 @@ class FollowActivity : AppCompatActivity() {
                                 isLoading = true // 로딩 상태 on
                             },
                             { it2 ->
-                                if (it2.size < ValueUtil.FOLLOW_SIZE) { // 리스트가 비어있다면
+                                if (it2.size < ValueUtil.FOLLOW_SIZE) { // 정량으로 가져오는 개수보다 적다면
                                     followAdapter.removeLast() // 먼저 로딩 아이템 제거
-                                    if (it2.isNotEmpty()) {
+                                    if (it2.isNotEmpty()) { // 리스트가 비어있지 않다면
                                         followAdapter.addItems(it2) // 받아온 리스트 추가
                                     }
                                     isObtainedAll = true // 더 이상 받아올 피드가 없다는 상태로 전환
@@ -133,7 +132,7 @@ class FollowActivity : AppCompatActivity() {
     private fun extractMyselfItem() {
         var i = 0
         for (followData in followAdapter.data) {
-            if (followData!!.userId == ResponseExistLogin.baseUserInfo?.userId) {
+            if (followData!!.userId == ResponseExistLogin.baseUserInfo?.userId && i != 0) {
                 followAdapter.removeItem(followData) // 현재 데이터 제거
                 followAdapter.addItemIndex(0, followData) // 첫번째 인덱스에 추가
                 break
