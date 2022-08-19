@@ -88,4 +88,10 @@
     <string name="latest_time">최근 시간 (분)</string>
     <string name="hyphen">-</string>
     <string name="no_feed_text">피드가 없습니다.</string>
+    <string name="unsold_option">· 미판매</string>
+    <string name="sold_option">· 판매완료</string>
+    <string name="entire_option">· 전체</string>
+    <string name="no_purchased">구매한 제보가 없습니다.</string>
+    <string name="no_written">작성한 제보가 없습니다.</string>
+    <string name="no_bookmarked">북마크한 제보가 없습니다.</string>
 </resources>
