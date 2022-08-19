@@ -98,7 +98,7 @@ interface RetrofitService {
     @GET("post/{postId}")
     fun requestPostDetail(
         @Header("authorization") token: String,
-        @Path("postId") postId : Long
+        @Path("postId") postId: Long
     )
 
     /**
@@ -176,6 +176,27 @@ interface RetrofitService {
         @Query("date-from") dateFrom: String? = null,
         @Query("date-to") dateTo: String? = null,
         @Query("for-last-min") latestMin: Int? = null
+    ): Response<List<ResponseMainFeed>>
+
+    /**
+     * 유저 페이지 피드 리스트 가져오는 요청
+     * @header token(String): 본인의 Jwt 토큰 (옵션)
+     * @path userId(Long): 요청의 대상 유저 id
+     * @path optionString(String): 피드 구분 옵션
+     * @query cursor: 마지막 게시글 id
+     * @query size: 가져올 게시글 개수
+     * @query sold-option: 판매 상태 옵션
+     * @response ResponseMainFeed 리스트
+     * @author Seunggun 2022-08-19
+     */
+    @GET("feed/user/{userId}/{option}")
+    suspend fun requestGetUserPageFeed(
+        @Header("authorization") token: String = "",
+        @Path("userId") userId: Long,
+        @Path("option") optionString: String,
+        @Query("cursor") cursor: Int,
+        @Query("size") contentSize: Int,
+        @Query("sold-option") soldOption: String
     ): Response<List<ResponseMainFeed>>
 
     /**

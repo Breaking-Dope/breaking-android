@@ -14,7 +14,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.ByteArrayOutputStream
-import kotlin.jvm.Throws
+import kotlin.Throws
 
 class PostManager {
     private val TAG = "PostManager.kt"
@@ -134,19 +134,66 @@ class PostManager {
         }
     }
 
+    /**
+     * 메인 피드 요청을 통해 리스트를 가져옴 (필터 & 정렬 옵션 포함)
+     * @param userId(Int): 대상 유저 id
+     * @param cursorId(Int): 마지막으로 요청한 리스트에서 마지막 아이템의 게시글 id
+     * @param contentSize(Int): 요청할 게시글 개수(현재 7개)
+     * @param option(Int): 피드 구분 옵션
+     * @param soldOption(String): 판매 상태 옵션
+     * @param token(String): 본인의 Jwt 토큰
+     * @return List<ResponseMainFeed>: 게시글 데이터 리스트
+     * @throws ResponseErrorException: 요청 에러 시 발생
+     * @author Seunggun Sin
+     * @since 2022-08-19
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startGetUserPageFeed(
+        userId: Long,
+        cursorId: Int,
+        contentSize: Int,
+        option: String,
+        soldOption: String,
+        token: String
+    ): List<ResponseMainFeed> {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        val resultList =
+            service.requestGetUserPageFeed(token, userId, option, cursorId, contentSize, soldOption)
+        if (resultList.code() in 200..299) {
+            return resultList.body()!!
+        } else {
+            throw ResponseErrorException("${resultList.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * postId 에 해당하는 게시글에 북마크를 등록하는 요청 (토큰 필수)
+     * @param postId(Int): 등록하고자 하는 게시글 id
+     * @param token(String): 본인의 Jwt 토큰
+     * @return Boolean: 북마크 등록 성공 시 true, 실패 시 false
+     * @author Seunggun Sin
+     * @since 2022-08-19
+     */
     suspend fun startRegisterBookmark(postId: Int, token: String): Boolean {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
         val response = service.requestBookmark(token, postId)
-        println(response.code())
         return response.code() in 200..299
     }
 
+    /**
+     * postId 에 해당하는 게시글에 북마크를 해제하는 요청 (토큰 필수)
+     * @param postId(Int): 해제하고자 하는 게시글 id
+     * @param token(String): 본인의 Jwt 토큰
+     * @return Boolean: 북마크 해제 성공 시 true, 실패 시 false
+     * @author Seunggun Sin
+     * @since 2022-08-19
+     */
     suspend fun startUnRegisterBookmark(postId: Int, token: String): Boolean {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
         val response = service.requestUnBookmark(token, postId)
-        println(response.code())
         return response.code() in 200..299
     }
 
