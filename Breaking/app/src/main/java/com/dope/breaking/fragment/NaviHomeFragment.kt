@@ -191,15 +191,17 @@ class NaviHomeFragment : Fragment() {
                             adapter.addItem(null) // 로딩 창 아이템 추가
                             isLoading = true // 로딩 시작 상태 전환
                         }, {
-                            if (it.isEmpty()) { // 리스트가 비어있다면
-                                isObtainedAll = true // 더 이상 받아올 피드가 없다는 상태로 전환
+                            if (it.size < ValueUtil.FEED_SIZE) { // 정량으로 가져오는 개수보다 적다면
                                 adapter.removeLast() // 로딩 아이템 제거
-                                isLoading = false
+                                if (it.isNotEmpty()) // 리스트가 비어있지 않다면
+                                    adapter.addItems(it) // 받아온 리스트 추가
+                                isObtainedAll = true // 더 이상 받아올 피드가 없다는 상태로 전환
                             } else { // 리스트가 있다면
                                 adapter.removeLast() // 먼저 로딩 아이템 제거
                                 adapter.addItems(it) // 받아온 리스트 추가
-                                isLoading = false // 로딩 종료
                             }
+                            isLoading = false // 로딩 종료 상태 전환
+
                         }, {
                             // BSE450 에러의 경우 더 이상 제보가 없는 경우 발생
                             if (it.message!!.contains("BSE450")) {
@@ -217,15 +219,15 @@ class NaviHomeFragment : Fragment() {
 
         // 위치 권한에 대한 콜백 핸들링
         requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-        ){
-            if(it.all { permission -> permission.value == true }){
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) {
+            if (it.all { permission -> permission.value == true }) {
                 // 권한 허용했다면 제보하기 페이지로 이동
                 val intent = Intent(activity, PostActivity::class.java)
                 isWriteActivityResult.launch(intent)
-            }else{
+            } else {
                 // 권한 허용 X의 경우
-                Toast.makeText(requireContext(),"위치 권한 동의가 필요한 컨텐츠입니다.",Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "위치 권한 동의가 필요한 컨텐츠입니다.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -244,15 +246,22 @@ class NaviHomeFragment : Fragment() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == AppCompatActivity.RESULT_OK) {
                     isWritePost =
-                        it.data?.getBooleanExtra("isWritePost", false) == true // 제보글을 썼다면 true, 쓰지 않았다면 false
-                    if (isWritePost){ // true 면 피드 다시 조회하여 refresh
+                        it.data?.getBooleanExtra(
+                            "isWritePost",
+                            false
+                        ) == true // 제보글을 썼다면 true, 쓰지 않았다면 false
+                    if (isWritePost) { // true 면 피드 다시 조회하여 refresh
                         // 요청 Jwt 토큰 가져오기
                         val token =
                             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
 
                         // 피드 요청 에러 시 띄워줄 다이얼로그 정의
                         val requestErrorDialog =
-                            DialogUtil().SingleDialog(requireContext(), "피드를 가져오는데 문제가 발생하였습니다.", "확인")
+                            DialogUtil().SingleDialog(
+                                requireContext(),
+                                "피드를 가져오는데 문제가 발생하였습니다.",
+                                "확인"
+                            )
 
                         processGetMainFeed(0, token, {
                             // 로딩 시작
