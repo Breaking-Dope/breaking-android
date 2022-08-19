@@ -22,6 +22,7 @@ class ValueUtil {
         const val FOLLOW_SIZE = 15 // 팔로우 리스트 요청 시 가져올 아이템 개수
         const val VIEW_TYPE_ITEM = 0 // 일반 아이템에 대한 레이아웃 view type
         const val VIEW_TYPE_LOADING = 1 // 로딩 아이템에 대한 레이아웃 view type
+        const val USER_FEED_SIZE = 6 // 유저 페이지 피드 요청마다 가져올 게시글 개수
 
         val TAB_ICONS = arrayOf(
             R.drawable.ic_baseline_create_24,
