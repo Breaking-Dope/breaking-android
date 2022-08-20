@@ -89,7 +89,7 @@ class UserPageActivity : AppCompatActivity() {
             toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.setting_action -> { // 툴바의 톱니바퀴 아이콘 클릭 시, 환경설정 액티비티로 이동
-                        startActivity(Intent(this, NaviSettingActivity::class.java))
+                        startActivity(Intent(this, SettingActivity::class.java))
                         true
                     }
                     else -> false

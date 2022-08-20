@@ -123,7 +123,7 @@ class NaviUserFragment : Fragment() {
             when (it.itemId) {
                 R.id.setting_action -> { // 툴바의 톱니바퀴 아이콘 클릭 시, 환경설정 액티비티로 이동
                     init = false // 다시 이 페이지로 돌아와서 onStart 생명주기를 사용하기 위해 flag 값 전환
-                    startActivity(Intent(requireActivity(), NaviSettingActivity::class.java))
+                    startActivity(Intent(requireActivity(), SettingActivity::class.java))
                     true
                 }
                 else -> false
