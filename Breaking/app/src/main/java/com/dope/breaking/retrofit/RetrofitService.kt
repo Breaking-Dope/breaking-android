@@ -98,7 +98,7 @@ interface RetrofitService {
     @GET("post/{postId}")
     fun requestPostDetail(
         @Header("authorization") token: String,
-        @Path("postId") postId : Long
+        @Path("postId") postId: Long
     )
 
     /**
@@ -138,6 +138,14 @@ interface RetrofitService {
      */
     @GET("oauth2/validate-jwt")
     suspend fun requestValidationJwt(@Header("authorization") token: String): Response<ResponseExistLogin>
+
+    /**
+     * 로그아웃 요청
+     * @header authorization: Jwt 엑세스 토큰 (필수)
+     * @author Seunggun Sin
+     */
+    @GET("oauth2/sign-out")
+    suspend fun requestSignOut(@Header("authorization") accessToken: String): Response<Unit>
 
     /**
      * 엑세스 토큰 만료 시, 토큰을 재발급하기 위한 요청
