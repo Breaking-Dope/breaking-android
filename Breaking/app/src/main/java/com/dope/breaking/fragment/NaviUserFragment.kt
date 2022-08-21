@@ -111,7 +111,11 @@ class NaviUserFragment : Fragment() {
         val viewPager = binding.viewPager // ViewPager2 객체
         val tabLayout = binding.tabLayout // TabLayout 객체
         viewPager.adapter =
-            UserViewPagerAdapter(parentFragmentManager, lifecycle) // ViewPager 어댑터 지정
+            UserViewPagerAdapter(
+                parentFragmentManager,
+                lifecycle,
+                userData.userId
+            ) // ViewPager 어댑터 지정
 
         // TabLayout 과 ViewPager 를 연결
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->

@@ -377,6 +377,8 @@ class SignInActivity : AppCompatActivity() {
     private fun moveToMainPage(userInfo: ResponseExistLogin) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("userInfo", userInfo)
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
     }
 

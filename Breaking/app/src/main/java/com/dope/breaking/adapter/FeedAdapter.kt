@@ -26,7 +26,7 @@ class FeedAdapter(
     var data: MutableList<ResponseMainFeed?>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val decimalFormat = DecimalFormat("#,###") // 숫자 콤마 포맷을 위한 클래스
-    private lateinit var itemListClickListener : FeedAdapter.OnItemClickListener // 아이템 리스트 클릭 리스너
+    private lateinit var itemListClickListener: OnItemClickListener // 아이템 리스트 클릭 리스너
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == ValueUtil.VIEW_TYPE_ITEM) {
@@ -55,7 +55,7 @@ class FeedAdapter(
      * 아이템 하나를 리스트에 추가하는 함수
      * @param item(ResponseMainFeed?): 피드 아이템 객체 하나 (nullable)
      * @author Seunggun Sin
-     * @since 2022-08-10
+     * @since 2022-08-10 | 2022-08-18
      */
     fun addItem(item: ResponseMainFeed?) {
         data.add(item)
@@ -65,7 +65,7 @@ class FeedAdapter(
     /**
      * 리스트에 비우는 함수
      * @author Seunggun Sin
-     * @since 2022-08-15
+     * @since 2022-08-15 | 2022-08-18
      */
     fun clearList() {
         data.clear()
@@ -76,7 +76,7 @@ class FeedAdapter(
      * 아이템 리스트를 리스트에 추가하는 함수
      * @param items(List<ResponseMainFeed>): 피드 객체 리스트
      * @author Seunggun Sin
-     * @since 2022-08-10
+     * @since 2022-08-10 | 20222-08-18
      */
     fun addItems(items: List<ResponseMainFeed>) {
         data.addAll(items)
@@ -86,13 +86,18 @@ class FeedAdapter(
     /**
      * 리스트의 마지막 아이템을 지우는 함수
      * @author Seunggun Sin
-     * @since 2022-08-15
+     * @since 2022-08-15 | 2022-08-18
      */
     fun removeLast() {
         data.removeAt(data.size - 1)
         notifyItemRemoved(data.size)
     }
 
+    fun replaceAll(items: List<ResponseMainFeed>){
+        data.clear()
+        data.addAll(items)
+        notifyDataSetChanged()
+    }
     /**
      * 아이템 view type 을 가져옴
      */
@@ -228,7 +233,7 @@ class FeedAdapter(
     }
 
     // 아이템 리스트 클릭 리스너 함수
-    fun setItemListClickListener(onItemClickListener: FeedAdapter.OnItemClickListener) {
+    fun setItemListClickListener(onItemClickListener: OnItemClickListener) {
         this.itemListClickListener = onItemClickListener // 액티비티에서 구현한 인터페이스 정보를 할당
     }
 }
