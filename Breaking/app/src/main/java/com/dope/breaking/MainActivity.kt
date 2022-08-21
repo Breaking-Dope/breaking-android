@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Pressed Profile Screen", Toast.LENGTH_SHORT).show()
                 }
                 else -> { // 그 외는 설정 버튼을 누른 것으로 간주
-                    val intent = Intent(this, NaviSettingActivity::class.java)
+                    val intent = Intent(this, SettingActivity::class.java)
                     startActivity(intent)
                     Toast.makeText(this, "Pressed Setting Screen", Toast.LENGTH_SHORT).show()
                 }

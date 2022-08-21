@@ -140,6 +140,14 @@ interface RetrofitService {
     suspend fun requestValidationJwt(@Header("authorization") token: String): Response<ResponseExistLogin>
 
     /**
+     * 로그아웃 요청
+     * @header authorization: Jwt 엑세스 토큰 (필수)
+     * @author Seunggun Sin
+     */
+    @GET("oauth2/sign-out")
+    suspend fun requestSignOut(@Header("authorization") accessToken: String): Response<Unit>
+
+    /**
      * 엑세스 토큰 만료 시, 토큰을 재발급하기 위한 요청
      * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
      * @param accessToken: 로컬에 저장된 엑세스 토큰

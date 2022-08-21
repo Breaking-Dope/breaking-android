@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SettingActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tb_setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="2dp"
+        app:title="설정"
+        app:titleTextColor="@color/black" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+        <TextView
+            android:padding="5dp"
+            android:textColor="@color/black"
+            android:id="@+id/tv_account_title"
+            android:textSize="12sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tv_log_out"
+            app:layout_constraintHorizontal_bias="0.05"
+            app:layout_constraintVertical_bias="0.015"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="계정"/>
+        <TextView
+            android:textColor="@color/black"
+            android:id="@+id/tv_log_out"
+            android:background="@drawable/text_click_background"
+            android:text="로그아웃"
+            android:padding="17dp"
+            app:layout_constraintLeft_toLeftOf="@id/tv_account_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_account_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
