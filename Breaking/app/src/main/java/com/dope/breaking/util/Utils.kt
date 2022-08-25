@@ -10,12 +10,16 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.OpenableColumns
 import android.text.InputFilter
+import android.util.Log
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dope.breaking.databinding.ActivitySignUpBinding
+import java.lang.Exception
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.regex.Pattern
 
@@ -23,7 +27,7 @@ import java.util.regex.Pattern
 object Utils { // 컴패니언 객체 (Static)
 
     /**
-     * @description - 해시 태그가 포함된 문자열에서 태그 내용만 추출하여 ArrayList<String>으로 받아오는 함수
+     * @description - 해시 태그가 포함된 문자열에서 태그 내용만 추출하여 ArrayList<String>으로 받아오는 함수(띄어쓰기를 해야 인식하므로 Deprecated.)
      * @param - hashTag(String) : 해시태그 입력 필드 문자열 전체
      * @return - ArrayList<String> : #별로 처리된 해시 태그 리스트 반환
      * @author - Tae hyun Park
@@ -52,6 +56,54 @@ object Utils { // 컴패니언 객체 (Static)
             }
         }
         return hashTagList
+    }
+
+    /**
+     * @description - 해시 태그가 포함된 문자열에서 태그 내용만 추출하여 ArrayList<String>으로 받아오는 함수(띄어쓰기가 없이도 인식이 가능하도록 구현한 함수)
+     * @param - hashTag(String) : 해시태그 입력 필드 문자열 전체
+     * @return - ArrayList<String> : #별로 처리된 해시 태그 리스트 반환
+     * @author - Tae hyun Park
+     * @since - 2022-08-23
+     */
+    internal fun getArrayHashTagWithOutSpace(hashTag: String): ArrayList<String> {
+        var hashTagList = ArrayList<String>()
+        var contentStringEnter = hashTag.split("\n") // 가장 먼저, 엔터 즉 줄바꿈을 기준으로 나눔
+        if(contentStringEnter.isNotEmpty()){
+            for(i in contentStringEnter.indices){ // 리스트가 비어 있지 않으면서, 한 줄이라면 1개의 리스트가 들어가고, 그 이상이라면 여러 개가 들어감.
+                var splitStringTag = contentStringEnter[i].split("#") // 한 줄 한 줄 샵(#)을 기준으로 나눔
+                if(splitStringTag.size > 1) { // #이 하나라도 있다면 전처리 시작
+                    for (i in splitStringTag.indices){
+                        if (i > 0){ // #을 기준으로 나눠지는 앞에 오는 첫 번째 리스트는 해시태그에 포함되지 않으므로 제외
+                            var splitStringSpace = splitStringTag[i].split(" ") // 각각에 대해 공백으로 나눈다.
+                            for (j in splitStringSpace.indices){ // 리스트의 첫 번째 인덱스 값을 다시 해시 태그 값으로 취한다.
+                                if(j == 0 && splitStringSpace[j].isNotEmpty()){
+                                    Log.d("Utils.kt","해시 태그 값 : ${splitStringSpace[j]}")
+                                    hashTagList.add(splitStringSpace[j])
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return hashTagList
+    }
+
+    /**
+     * @description - 게시글 생성 날짜 문자열의 초 부분 포맷이 매칭이 모두 ssssss로 안되는 문제가 있어 sssss의 경우도 고려해주는 함수
+     * @param - checkDate(String) : 게시글 생성 날짜 문자열
+     * @return - Boolean : 날짜 형식에 따른 true false 값 반환
+     * @author - Tae hyun Park
+     * @since - 2022-08-22
+     */
+    internal fun checkDate(checkDate: String): Boolean{
+        return try {
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS") // exception이 난다면 SSSSS 형식으로 맞춰주면 됨.
+            val localStartDateTime = LocalDateTime.parse(checkDate, formatter)
+            true
+        }catch (e : Exception){
+            false
+        }
     }
 
     /**
