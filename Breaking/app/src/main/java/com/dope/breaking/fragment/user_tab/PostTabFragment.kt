@@ -121,6 +121,7 @@ class PostTabFragment : Fragment() {
         binding.tvOptionAll.setOnClickListener {
             if (!isLoading) { // 로딩 중이 아닐 때 가능
                 optionState = 0 // 상태 변경
+                isObtainAll = false
                 processGetUserFeed(userId, 0, ValueUtil.FILTER_SELL_OPTIONS[optionState], token, {
                     isLoading = true // 로딩 상태 전환
                     selectOption(binding.tvOptionAll) // 옵션 선택 view 전환
@@ -145,6 +146,7 @@ class PostTabFragment : Fragment() {
         binding.tvOptionSold.setOnClickListener {
             if (!isLoading) {
                 optionState = 1
+                isObtainAll = false
                 processGetUserFeed(userId, 0, ValueUtil.FILTER_SELL_OPTIONS[optionState], token, {
                     isLoading = true
                     selectOption(binding.tvOptionSold)
@@ -167,6 +169,7 @@ class PostTabFragment : Fragment() {
         binding.tvOptionUnsold.setOnClickListener {
             if (!isLoading) {
                 optionState = 2
+                isObtainAll = false
                 processGetUserFeed(userId, 0, ValueUtil.FILTER_SELL_OPTIONS[optionState], token, {
                     isLoading = true
                     selectOption(binding.tvOptionUnsold)

@@ -65,11 +65,11 @@ class FeedAdapter(
     /**
      * 리스트에 비우는 함수
      * @author Seunggun Sin
-     * @since 2022-08-15 | 2022-08-18
+     * @since 2022-08-15 | 2022-08-25
      */
     fun clearList() {
         data.clear()
-        notifyItemRangeRemoved(0, itemCount)
+        notifyDataSetChanged()
     }
 
     /**
@@ -93,11 +93,17 @@ class FeedAdapter(
         notifyItemRemoved(data.size)
     }
 
-    fun replaceAll(items: List<ResponseMainFeed>){
+    /**
+     * 현재 아이템을 새로운 아이템으로 대체하는 함수
+     * @author Seunggun Sin
+     * @since 2022-08-18
+     */
+    fun replaceAll(items: List<ResponseMainFeed>) {
         data.clear()
         data.addAll(items)
         notifyDataSetChanged()
     }
+
     /**
      * 아이템 view type 을 가져옴
      */
