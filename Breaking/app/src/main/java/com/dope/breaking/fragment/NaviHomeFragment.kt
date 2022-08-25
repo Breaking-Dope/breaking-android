@@ -79,11 +79,6 @@ class NaviHomeFragment : Fragment() {
                     // 리스트 보여주기
                     binding.tvNoFeedAlert.visibility = View.GONE
                     binding.rcvMainFeed.visibility = View.VISIBLE
-                    // 가져온 피드 리스트 할당 및 초기화
-                    feedList.clear()
-                    feedList = (it as List<ResponseMainFeed>).toMutableList()
-                    // 아이템 리스트 클릭시 상세 페이지로 이동
-                    moveToPostDetailPage()
                 }
                 adapter.addItems(it) // 받아온 리스트 추가하기
             }, {
@@ -119,11 +114,6 @@ class NaviHomeFragment : Fragment() {
                     // 리스트 보여주기
                     binding.tvNoFeedAlert.visibility = View.GONE
                     binding.rcvMainFeed.visibility = View.VISIBLE
-                    // 가져온 피드 리스트 할당 및 초기화
-                    feedList.clear()
-                    feedList = (it as List<ResponseMainFeed>).toMutableList()
-                    // 아이템 리스트 클릭시 상세 페이지로 이동
-                    moveToPostDetailPage()
                 }
                 adapter.addItems(it) // 받아온 리스트 추가하기
             }, {
@@ -154,9 +144,22 @@ class NaviHomeFragment : Fragment() {
         }, { it ->
             feedList.addAll(it) // 동적 리스트에 가져온 리스트 추가
             adapter = FeedAdapter(requireContext(), feedList) // 어댑터 초기화
-
-            // 아이템 리스트 클릭시 상세 페이지로 이동
-            moveToPostDetailPage()
+            adapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
+                override fun onClick(v: View, position: Int) {
+                    moveToPostDetailPage(position)
+                }
+            })
+            if (it.isEmpty()) { // 리스트가 비어있다면
+                // 비어있다면 화면 뿌려주기
+                binding.tvNoFeedAlert.visibility = View.VISIBLE
+                binding.rcvMainFeed.visibility = View.GONE
+            } else { // 아니라면
+                // 리스트 보여주기
+                binding.tvNoFeedAlert.visibility = View.GONE
+                binding.rcvMainFeed.visibility = View.VISIBLE
+            }
+            // 로딩 종료
+            binding.progressbarLoading.visibility = View.GONE
 
             // 리스트의 divider 선 추가
             binding.rcvMainFeed.addItemDecoration(
@@ -165,9 +168,6 @@ class NaviHomeFragment : Fragment() {
                     LinearLayout.VERTICAL
                 )
             )
-            // 로딩 종료
-            binding.rcvMainFeed.visibility = View.VISIBLE
-            binding.progressbarLoading.visibility = View.GONE
 
             // 어댑터 지정
             binding.rcvMainFeed.adapter = adapter
@@ -182,6 +182,12 @@ class NaviHomeFragment : Fragment() {
                     // 스크롤하면서 리스트의 가장 마지막 위치에 도달했을 때, 그 인덱스 값 가져오기
                     val lastIndex =
                         (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+
+                    // 가져온 아이템 사이즈가 가져와야하는 사이즈보다 작은 경우 새로운 요청을 못하게 막기
+                    if (recyclerView.adapter!!.itemCount < ValueUtil.FEED_SIZE) {
+                        return
+                    }
+
                     // 실제 데이터 리스트의 마지막 인덱스와 스크롤 이벤트에 의한 인덱스 값이 같으면서
                     // 스크롤이 드래깅 중이면서
                     // 피드 요청이 더 가능하면서
@@ -251,17 +257,6 @@ class NaviHomeFragment : Fragment() {
                             false
                         ) == true // 제보글을 썼다면 true, 쓰지 않았다면 false
                     if (isWritePost) { // true 면 피드 다시 조회하여 refresh
-                        // 요청 Jwt 토큰 가져오기
-                        val token =
-                            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
-
-                        // 피드 요청 에러 시 띄워줄 다이얼로그 정의
-                        val requestErrorDialog =
-                            DialogUtil().SingleDialog(
-                                requireContext(),
-                                "피드를 가져오는데 문제가 발생하였습니다.",
-                                "확인"
-                            )
 
                         processGetMainFeed(0, token, {
                             // 로딩 시작
@@ -269,26 +264,21 @@ class NaviHomeFragment : Fragment() {
                             binding.rcvMainFeed.visibility = View.GONE
                             adapter.clearList()
                             isObtainedAll = false
-                        }, { it ->
+                        }, {
                             feedList.addAll(it) // 동적 리스트에 가져온 리스트 추가
                             adapter = FeedAdapter(requireContext(), feedList) // 어댑터 초기화
 
-                            // 아이템 리스트 클릭시 상세 페이지로 이동
-                            moveToPostDetailPage()
-
-                            // 리스트의 divider 선 추가
-                            binding.rcvMainFeed.addItemDecoration(
-                                DividerItemDecoration(
-                                    requireActivity(),
-                                    LinearLayout.VERTICAL
-                                )
-                            )
+                            if (it.isEmpty()) { // 리스트가 비어있다면
+                                // 비어있다면 화면 뿌려주기
+                                binding.tvNoFeedAlert.visibility = View.VISIBLE
+                                binding.rcvMainFeed.visibility = View.GONE
+                            } else { // 아니라면
+                                // 리스트 보여주기
+                                binding.tvNoFeedAlert.visibility = View.GONE
+                                binding.rcvMainFeed.visibility = View.VISIBLE
+                            }
                             // 로딩 종료
-                            binding.rcvMainFeed.visibility = View.VISIBLE
                             binding.progressbarLoading.visibility = View.GONE
-
-                            // 어댑터 지정
-                            binding.rcvMainFeed.adapter = adapter
 
                             // 다시 false 로 변경
                             isWritePost = false
@@ -343,19 +333,14 @@ class NaviHomeFragment : Fragment() {
 
     /**
      * 어댑터에서 아이템 리스트를 클릭했을 때, 해당 postId를 받아와 세부 조회 액티비티로 넘겨주는 함수
-     * @param - None
-     * @return - None
-     * @author - Tae hyun Park
-     * @since - 2022-08-18
+     * @param position(Int): 현재 리스트의 인덱스
+     * @author Tae hyun Park | Seunggun Sin
+     * @since 2022-08-18 | 2022-08-25
      */
-    private fun moveToPostDetailPage() {
-        adapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
-            override fun onClick(v: View, position: Int) {
-                Log.d(TAG, "클릭한 게시물 id : ${feedList[position]!!.postId}")
-                var intent = Intent(context, PostDetailActivity::class.java)
-                intent.putExtra("postId", feedList[position]!!.postId)
-                startActivity(intent)
-            }
-        })
+    private fun moveToPostDetailPage(position: Int) {
+        Log.d(TAG, "클릭한 게시물 id : ${feedList[position]!!.postId}")
+        val intent = Intent(context, PostDetailActivity::class.java)
+        intent.putExtra("postId", feedList[position]!!.postId)
+        startActivity(intent)
     }
 }
