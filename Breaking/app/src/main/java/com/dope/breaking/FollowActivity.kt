@@ -3,8 +3,11 @@ package com.dope.breaking
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dope.breaking.adapter.FollowAdapter
 import com.dope.breaking.exception.ResponseErrorException
@@ -19,8 +22,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class FollowActivity : AppCompatActivity() {
-    private val data = mutableListOf<FollowData>() // 팔로우 목록 저장하는 리스트
+    private val followList = mutableListOf<FollowData?>() // 팔로우 목록 저장하는 리스트
     private var userId: Long = 0
+    private val follow = Follow() // 팔로우 관련 기능 객체 생성
+    private var isLoading = false // 로딩 중 판단
+    private var isObtainedAll = false // 더 이상 얻을 리스트 있는지 판단
+    private lateinit var followAdapter: FollowAdapter // 팔로우 리스트 어댑터
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /*
@@ -30,36 +37,107 @@ class FollowActivity : AppCompatActivity() {
          */
         val state = intent.getBooleanExtra("state", true)
         userId = intent.getLongExtra("userId", 0) // 리스트를 보여주고자 하는 대상의 고유 id
-        val follow = Follow() // 팔로우 관련 기능 객체 생성
+        val requestToken =
+            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this).getAccessTokenFromLocal()
 
-        CoroutineScope(Dispatchers.Main).launch {
-            val requestToken =
-                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this@FollowActivity).getAccessTokenFromLocal()
+        setContentView(R.layout.activity_follow) // 목록 레이아웃 처리
 
-            try {
-                if (state) { // 팔로우 페이지라면
-                    val list = follow.startGetFollowingList(requestToken, userId) // 팔로잉 리스트 요청
-                    val size = list.size // 리스트 크기
-                    showFollowList(size, state, list) // 가져온 리스트를 화면에 보여주기
-                } else { // 팔로워 페이지라면
-                    val list = follow.startGetFollowerList(requestToken, userId) // 팔로워 리스트 요청
-                    val size = list.size // 리스트 크기
-                    showFollowList(size, state, list) // 가져온 리스트를 화면에 보여주기
-                }
-            } catch (e: ResponseErrorException) {
-                DialogUtil().SingleDialog(
-                    this@FollowActivity,
-                    "요청에 문제가 발생하였습니다.",
-                    "확인"
-                ).show()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                DialogUtil().SingleDialog(
-                    this@FollowActivity,
-                    "예기치 못한 문제가 발생하였습니다.",
-                    "확인"
-                ).show()
+        val progress = findViewById<ProgressBar>(R.id.progressbar_loading)
+        val recyclerView = findViewById<RecyclerView>(R.id.rcv_following)
+
+        followAdapter = FollowAdapter(this, followList, state, userId) // 초기 어댑터 지정
+
+        /*
+            최초 팔로우 리스트 요청
+         */
+        processGetFollowList(state, 0, requestToken, {
+            // 초기 로딩 처리
+            progress.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+        }, { it ->
+            followAdapter.addItems(it) // 리스트에 추가하기
+
+            if (followList.size == 0) { // 목록 없을 때
+                handleEmptyList(state) // 빈 레이아웃 처리하기
+            } else {
+                setToolbar(state) // 툴바 설정
+                extractMyselfItem() // 본인이 있다면 최상단으로 올리기
             }
+            recyclerView.adapter = followAdapter // 리사이클러 뷰에 어댑터 설정
+
+            // 로딩 처리 종료
+            progress.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+
+            /*
+                스크롤 이벤트 지정
+             */
+            recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+
+                    val lastIndex =
+                        (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+                    // 실제 데이터 리스트의 마지막 인덱스와 스크롤 이벤트에 의한 인덱스 값이 같으면서
+                    // 스크롤이 드래깅 중이면서
+                    // 피드 요청이 더 가능하면서
+                    // 로딩 중이 아니라면
+                    if (lastIndex == recyclerView.adapter!!.itemCount - 1 && newState == 2 && !isObtainedAll && !isLoading) {
+                        processGetFollowList(state,
+                            followList[lastIndex]!!.cursorId, // 마지막 인덱스
+                            requestToken,
+                            {
+                                followAdapter.addItem(null) // 로딩 아이템 추가
+                                isLoading = true // 로딩 상태 on
+                            },
+                            { it2 ->
+                                if (it2.size < ValueUtil.FOLLOW_SIZE) { // 정량으로 가져오는 개수보다 적다면
+                                    followAdapter.removeLast() // 먼저 로딩 아이템 제거
+                                    if (it2.isNotEmpty()) { // 리스트가 비어있지 않다면
+                                        followAdapter.addItems(it2) // 받아온 리스트 추가
+                                    }
+                                    isObtainedAll = true // 더 이상 받아올 피드가 없다는 상태로 전환
+                                } else { // 리스트가 있다면
+                                    followAdapter.removeLast() // 먼저 로딩 아이템 제거
+                                    followAdapter.addItems(it2) // 받아온 리스트 추가
+                                }
+
+                                extractMyselfItem() // 새로 업데이트할 때마다 본인 아이템 있는 경우 최상단으로 옮기기
+                                isLoading = false // 로딩 상태 off
+                            },
+                            {
+                                DialogUtil().SingleDialog(
+                                    this@FollowActivity,
+                                    "요청에 문제가 발생하였습니다.",
+                                    "확인"
+                                ).show()
+                            })
+                    }
+                }
+            })
+        }, {
+            DialogUtil().SingleDialog(
+                this@FollowActivity,
+                "요청에 문제가 발생하였습니다.",
+                "확인"
+            ).show()
+        })
+    }
+
+    /**
+     * 현재 리스트에서 본인이 포함되어있다면 맨 상단으로 이동시키는 함수
+     * @author Seunggun
+     * @since 2022-08-18
+     */
+    private fun extractMyselfItem() {
+        var i = 0
+        for (followData in followAdapter.data) {
+            if (followData!!.userId == ResponseExistLogin.baseUserInfo?.userId && i != 0) {
+                followAdapter.removeItem(followData) // 현재 데이터 제거
+                followAdapter.addItemIndex(0, followData) // 첫번째 인덱스에 추가
+                break
+            }
+            i++
         }
     }
 
@@ -92,47 +170,36 @@ class FollowActivity : AppCompatActivity() {
     }
 
     /**
-     * 가져온 리스트를 RecyclerView 의 어댑터에 적용하기
-     * @param recyclerView(RecyclerView): 화면에 보여줄 recyclerView
-     * @param list(List<FollowData>): 응답으로 받아온 팔로우(워) 목록 리스트
-     * @param state(Boolean): 팔로잉(true) or 팔로워(false) 구분
+     * 팔로우(워) 리스트를 얻는 요청 프로세스 함수
+     * @param state(Boolean): 팔로우인지, 팔로워 리스트인지 판단
+     * @param cursorId(Int): 마지막으로 요청한 리스트의 마지막 인덱스
+     * @param token(String): Jwt 엑세스 토큰
+     * @param init(() -> Unit): 요청전 초기 실행 함수
+     * @param last((List<FollowData>) -> Unit): 요청 후 실행할 함수
+     * @param error((ResponseErrorException) -> Unit): 에러 발생 시 실행 함수
      * @author Seunggun Sin
-     * @since 2022-07-28 | 2022-07-31
+     * @since 2022-08-18
      */
-    private fun adaptList(recyclerView: RecyclerView, list: List<FollowData>, state: Boolean) {
-        list.forEach { element ->
-            data.add(element) // mutable 리스트에 아이템 추가
-        }
-        /*
-           특정 유저의 팔로우 or 팔로워 리스트에 내가 포함되어 있을 때 첫번째 인덱스로 이동
-         */
-        for (followData in data) {
-            if (followData.userId == ResponseExistLogin.baseUserInfo?.userId) {
-                data.remove(followData) // 현재 데이터 제거
-                data.add(0, followData) // 첫번째 인덱스에 추가
-                break
-            }
-        }
-        val followAdapter = FollowAdapter(this, data, state, userId)
-        recyclerView.adapter = followAdapter // recyclerView 에 어댑터 적용
-    }
+    private fun processGetFollowList(
+        state: Boolean,
+        cursorId: Int,
+        token: String,
+        init: () -> Unit,
+        last: (List<FollowData>) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기 함수 실행
+            try {
+                val responseList = if (state)
+                    follow.startGetFollowingList(cursorId, token, userId)
+                else
+                    follow.startGetFollowerList(cursorId, token, userId)
 
-    /**
-     * 가져온 리스트를 바탕으로 화면처리하기 (목록 화면, 빈 화면 처리)
-     * @param size(Int): 리스트의 사이즈
-     * @param state(Boolean): 팔로우 리스트(true)인지 팔로워 리스트(false)인지 구분
-     * @param list(List<FollowData>): 응답으로 받아온 팔로우(워) 목록 리스트
-     * @author Seunggun Sin
-     * @since 2022-07-28
-     */
-    private fun showFollowList(size: Int, state: Boolean, list: List<FollowData>) {
-        if (size == 0) { // 목록 없을 때
-            handleEmptyList(state) // 빈 레이아웃 처리하기
-        } else {
-            setContentView(R.layout.activity_follow) // 목록 레이아웃 처리
-            setToolbar(state) // 툴바 설정
-            val recyclerView = findViewById<RecyclerView>(R.id.rcv_following)
-            adaptList(recyclerView, list, state) // recyclerView 에 적용하기
+                last(responseList) // 요청 후 함수 호출
+            } catch (e: ResponseErrorException) {
+                error(e) // 에러 함수 호출
+            }
         }
     }
 

@@ -12,7 +12,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.ByteArrayOutputStream
-import kotlin.jvm.Throws
+import kotlin.Throws
 
 class Account {
 
@@ -96,6 +96,24 @@ class Account {
             val response = service.requestUpdateUserInfo(token, null, data)
             response.code() in 200..299 // 요청 성공 시 true 리턴
         }
+    }
+
+    /**
+     * 로그아웃 요청
+     * @param accessToken(String): Jwt 엑세스 토큰
+     * @return Boolean: 로그아웃 요청 성공 여부
+     * @throws ResponseErrorException: 토큰 관련 문제 발생 시 예외
+     * @author Seunggun Sin
+     * @since 2022-08-20
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startRequestLogOut(accessToken: String): Boolean {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+        val response = service.requestSignOut(accessToken)
+        if (response.code() in 200..299)
+            return true
+        else
+            throw ResponseErrorException(response.errorBody()?.string()!!)
     }
 
     /**

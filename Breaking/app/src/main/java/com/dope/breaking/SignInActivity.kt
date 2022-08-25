@@ -275,17 +275,16 @@ class SignInActivity : AppCompatActivity() {
                                     if (customProgressDialog.isShowing()) // 로딩 progress 가 실행 중이라면
                                         customProgressDialog.dismissDialog() // 종료
 
-                                    // 로컬에 JWT 토큰이 없다면 새로 저장, 있었다면 Pass
-                                    if (isJwtToken.getAccessTokenFromLocal() == "") {
-                                        isJwtToken.setAccessToken(
-                                            isJwtToken.getAccessTokenFromResponse(
-                                                response.headers()
-                                            )!!
-                                        )
-                                        isJwtToken.setRefreshToken(
-                                            isJwtToken.getRefreshTokenFromResponse(response.headers())!!
-                                        )
-                                    }
+                                    // 로컬에 JWT 토큰 새로 저장
+                                    isJwtToken.setAccessToken(
+                                        isJwtToken.getAccessTokenFromResponse(
+                                            response.headers()
+                                        )!!
+                                    ) // 엑세스 토큰 저장
+                                    isJwtToken.setRefreshToken(
+                                        isJwtToken.getRefreshTokenFromResponse(response.headers())!!
+                                    ) // 리프레시 토큰 저장
+
                                     // 기존 유저이므로 메인 페이지로 이동
                                     if (responseBody is ResponseExistLogin)
                                         moveToMainPage(responseBody as ResponseExistLogin)
@@ -377,6 +376,8 @@ class SignInActivity : AppCompatActivity() {
     private fun moveToMainPage(userInfo: ResponseExistLogin) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("userInfo", userInfo)
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
     }
 

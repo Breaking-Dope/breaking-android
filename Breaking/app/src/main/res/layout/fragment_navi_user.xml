@@ -97,10 +97,10 @@
             android:id="@+id/tv_follow_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
             android:text="@string/follow"
             android:textColor="@color/black"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
@@ -121,10 +121,10 @@
             android:id="@+id/tv_follower_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
             android:text="@string/follower"
             android:textColor="@color/black"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.85"
             app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
@@ -145,10 +145,10 @@
             android:id="@+id/tv_post_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
             android:text="@string/written_post"
             android:textColor="@color/black"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.15"
             app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
@@ -168,7 +168,7 @@
         <View
             android:layout_width="0.3dp"
             android:layout_height="0dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="13dp"
             android:background="@color/sign_up_input_hint_text_color"
             app:layout_constraintBottom_toBottomOf="@id/divider"
             app:layout_constraintHeight_percent="0.04"
@@ -181,7 +181,7 @@
         <View
             android:layout_width="0.3dp"
             android:layout_height="0dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="13dp"
             android:background="@color/sign_up_input_hint_text_color"
             app:layout_constraintBottom_toBottomOf="@id/divider"
             app:layout_constraintHeight_percent="0.04"
@@ -194,16 +194,23 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="0.1dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="18dp"
             android:background="@color/sign_up_input_hint_text_color"
             app:layout_constraintTop_toBottomOf="@id/tv_follow_value" />
+
+        <View
+            android:id="@+id/middle_divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@color/sign_up_input_hint_text_color"
+            app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tab_layout" />
+            app:layout_constraintTop_toBottomOf="@id/middle_divider" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
@@ -214,7 +221,7 @@
             app:layout_constraintTop_toBottomOf="@id/divider"
             app:layout_constraintWidth_percent="0.7"
             app:tabIndicatorColor="@color/breaking_color"
-            app:tabIndicatorHeight="5dp" />
+            app:tabIndicatorHeight="4dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

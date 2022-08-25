@@ -141,6 +141,14 @@ interface RetrofitService {
     suspend fun requestValidationJwt(@Header("authorization") token: String): Response<ResponseExistLogin>
 
     /**
+     * 로그아웃 요청
+     * @header authorization: Jwt 엑세스 토큰 (필수)
+     * @author Seunggun Sin
+     */
+    @GET("oauth2/sign-out")
+    suspend fun requestSignOut(@Header("authorization") accessToken: String): Response<Unit>
+
+    /**
      * 엑세스 토큰 만료 시, 토큰을 재발급하기 위한 요청
      * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
      * @param accessToken: 로컬에 저장된 엑세스 토큰
@@ -177,6 +185,27 @@ interface RetrofitService {
         @Query("date-from") dateFrom: String? = null,
         @Query("date-to") dateTo: String? = null,
         @Query("for-last-min") latestMin: Int? = null
+    ): Response<List<ResponseMainFeed>>
+
+    /**
+     * 유저 페이지 피드 리스트 가져오는 요청
+     * @header token(String): 본인의 Jwt 토큰 (옵션)
+     * @path userId(Long): 요청의 대상 유저 id
+     * @path optionString(String): 피드 구분 옵션
+     * @query cursor: 마지막 게시글 id
+     * @query size: 가져올 게시글 개수
+     * @query sold-option: 판매 상태 옵션
+     * @response ResponseMainFeed 리스트
+     * @author Seunggun 2022-08-19
+     */
+    @GET("feed/user/{userId}/{option}")
+    suspend fun requestGetUserPageFeed(
+        @Header("authorization") token: String = "",
+        @Path("userId") userId: Long,
+        @Path("option") optionString: String,
+        @Query("cursor") cursor: Int,
+        @Query("size") contentSize: Int,
+        @Query("sold-option") soldOption: String
     ): Response<List<ResponseMainFeed>>
 
     /**
@@ -247,26 +276,34 @@ interface RetrofitService {
      * userId 에 해당하는 사람의 팔로잉 리스트를 가져오는 요청
      * @header authorization: 요청하는 유저의 Jwt 토큰 값
      * @path userId: 팔로잉 리스트를 얻고자 하는 유저의 고유 아이디
+     * @query cursor: 마지막으로 요청한 마지막 id
+     * @query size: 팔로우 리스트에서 가져올 아이템 개수
      * @response userId 에 해당하는 사람이 팔로우한 사람들의 리스트
      * @author Seunggun Sin
      */
     @GET("follow/following/{userId}")
     suspend fun requestGetFollowingList(
         @Header("authorization") token: String,
-        @Path("userId") userId: Long
+        @Path("userId") userId: Long,
+        @Query("cursor") cursorId: Int,
+        @Query("size") contentSize: Int
     ): Response<List<FollowData>>
 
     /**
      * userId 에 해당하는 사람의 팔로워 리스트를 가져오는 요청
      * @header authorization: 요청하는 유저의 Jwt 토큰 값
      * @path userId: 팔로워 리스트를 얻고자 하는 유저의 고유 아이디
+     * @query cursor: 마지막으로 요청한 마지막 id
+     * @query size: 팔로우 리스트에서 가져올 아이템 개수
      * @response userId 에 해당하는 사람을 팔로워한 사람들의 리스트
      * @author Seunggun Sin
      */
     @GET("follow/follower/{userId}")
     suspend fun requestGetFollowerList(
         @Header("authorization") token: String,
-        @Path("userId") userId: Long
+        @Path("userId") userId: Long,
+        @Query("cursor") cursorId: Int,
+        @Query("size") contentSize: Int
     ): Response<List<FollowData>>
 
     /**

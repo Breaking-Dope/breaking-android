@@ -45,7 +45,7 @@ class GoogleLogin(private val context: Context) {
      * @throws ResponseErrorException: 정상 응답 (2xx) 이외의 응답이 왔을 때 exception 발생
      * @throws InvalidAccessTokenException: 에러 응답(406), 즉, 플랫폼에 인증할 수 없을 때 발생하는 응답에 대한 예외
      * @author Seunggun Sin
-     * @since 2022-07-07 | 2022-07-28
+     * @since 2022-07-07 | 2022-08-20
      */
     @Throws(ResponseErrorException::class, InvalidAccessTokenException::class)
     suspend fun requestGoogleLogin(account: GoogleSignInAccount): Boolean {
@@ -68,7 +68,7 @@ class GoogleLogin(private val context: Context) {
                 accessTokenResponseObject.idToken,
                 accessTokenResponseObject.accessToken
             )
-            if (validationResponse?.code() in 200..299) {
+            if (validationResponse?.code() in 200..299) { // 응답이 성공이라면
                 // 토큰이 있으면 true, 없으면 false 리턴
                 val jwtTokenUtil = JwtTokenUtil(context)
                 return if (jwtTokenUtil.hasJwtToken(
@@ -76,15 +76,13 @@ class GoogleLogin(private val context: Context) {
                         validationResponse!!.headers()
                     )
                 ) {
-                    // 로컬에 저장된 토큰이 없다면 저장하기
-                    if (jwtTokenUtil.getAccessTokenFromLocal() == "") {
-                        jwtTokenUtil.setAccessToken(
-                            jwtTokenUtil.getAccessTokenFromResponse(validationResponse.headers())!!
-                        ) // 엑세스 토큰 로컬에 저장
-                        jwtTokenUtil.setRefreshToken(
-                            jwtTokenUtil.getRefreshTokenFromResponse(validationResponse.headers())!!
-                        ) // 리프레시 토큰 로컬에 저장
-                    }
+                    // 로컬에 엑세스 토큰과 리프레시 토큰저장하기
+                    jwtTokenUtil.setAccessToken(
+                        jwtTokenUtil.getAccessTokenFromResponse(validationResponse.headers())!!
+                    ) // 엑세스 토큰 로컬에 저장
+                    jwtTokenUtil.setRefreshToken(
+                        jwtTokenUtil.getRefreshTokenFromResponse(validationResponse.headers())!!
+                    ) // 리프레시 토큰 로컬에 저장
                     true
                 } else
                     false

@@ -45,7 +45,7 @@ class UserPageActivity : AppCompatActivity() {
                 fillDataInView(user) // view 에 유저 데이터 뿌려주기
                 initView(userId, user) // 유저 레이아웃 초기 설정
                 setFollowButton(user.isFollowing, userId) // 팔로우 버튼 설정
-                setPostLayout() // 게시글 레이아웃 설정
+                setPostLayout(userId) // 게시글 레이아웃 설정
                 setButtonEvents(user) // 버튼 이벤트 설정
                 init = false
             } catch (e: ResponseErrorException) {
@@ -89,7 +89,7 @@ class UserPageActivity : AppCompatActivity() {
             toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.setting_action -> { // 툴바의 톱니바퀴 아이콘 클릭 시, 환경설정 액티비티로 이동
-                        startActivity(Intent(this, NaviSettingActivity::class.java))
+                        startActivity(Intent(this, SettingActivity::class.java))
                         true
                     }
                     else -> false
@@ -251,11 +251,11 @@ class UserPageActivity : AppCompatActivity() {
      * @author Seunggun Sin
      * @since 2022-07-29
      */
-    private fun setPostLayout() {
+    private fun setPostLayout(userId: Long) {
         val viewPager = findViewById<ViewPager2>(R.id.view_pager) // ViewPager2 객체
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout) // TabLayout 객체
         viewPager.adapter =
-            UserViewPagerAdapter(supportFragmentManager, lifecycle) // ViewPager 어댑터 지정
+            UserViewPagerAdapter(supportFragmentManager, lifecycle, userId) // ViewPager 어댑터 지정
 
         // TabLayout 과 ViewPager 를 연결
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->

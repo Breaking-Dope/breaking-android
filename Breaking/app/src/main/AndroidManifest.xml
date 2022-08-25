@@ -46,7 +46,7 @@
             android:name=".board.PostActivity"
             android:exported="false" />
         <activity
-            android:name=".NaviSettingActivity"
+            android:name=".SettingActivity"
             android:exported="false" />
         <activity
             android:name=".NaviProfileActivity"
