@@ -49,7 +49,6 @@ import com.dope.breaking.post.PostManager
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils
-import com.dope.breaking.util.ValueUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -327,19 +326,11 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
 
         // 제보하기 버튼을 누르면
         binding.btnPostRegisterBtn.setOnClickListener {
-            // 미디어 파일 선택 안하면, 기본 이미지 넣어주도록 처리 필요
-            if (postBitmapList.size == 0) {
-                postBitmapList.add(ValueUtil.getDefaultPost(this@PostActivity))
-                fileNameList.add("default.png")
-            } else {
-                postBitmapList.removeAt(0)
-                fileNameList.removeAt(0)
-            }
+            // 미디어 파일 선택 안하면, 기본 이미지 넣어주도록 처리 필요 (해당 코드 삭제됨)
 
             // 해시 태그 값이 있는지 확인, 태그가 없다면 기본 값으로 다시 초기화
             if (binding.etContent.text.toString().indexOf('#') !== -1) {
-                hashTagList =
-                    Utils.getArrayHashTag(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
+                hashTagList = Utils.getArrayHashTagWithOutSpace(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
             } else {
                 hashTagList.clear() // 해시 태그 값이 없으면 리스트 재 초기화
             }

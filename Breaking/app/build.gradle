@@ -91,6 +91,9 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:2.9.9"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.9"
 
+    // ViewPager2
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
+
     // libs 폴더 접근 인식
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation files('libs/libDaumMapAndroid.jar')
