@@ -10,19 +10,14 @@ class DateUtil {
      * @param date(String): 문자열 형태의 날짜 데이터 (포맷: "yyyy-MM-ddTHH:mm:ss.fp" or "yyyy-MM-dd HH:mm:ss"")
      * @return String: 현재와 날짜 차이를 적절한 범위에 해당하는 초/분/시/일 단위로 반환
      * @author Seunggun Sin
-     * @since 2022-08-10
+     * @since 2022-08-10 | 2022-08-28
      */
     fun getTimeDiff(date: String): String {
-        if (!(date.length == 26 || date.length == 19)) { // 형식에 맞지 않으면 에러 리턴
-            return "-"
-        }
         val today = Calendar.getInstance() // 오늘 날짜 가져오기
         var newDate: String = date // 가져온 날짜를 가공할 변수
 
-        if (date.length == 26) { // 서버 기준 포맷이라면
-            newDate = date.replace("T", " ")
-            newDate = newDate.split(".")[0]
-        }
+        newDate = date.replace("T", " ")
+        newDate = newDate.split(".")[0]
 
         try {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss") // 형식 맞추기
