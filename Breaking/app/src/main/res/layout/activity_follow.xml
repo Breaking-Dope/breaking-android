@@ -24,7 +24,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcv_following"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:overScrollMode="never"
             android:scrollbarAlwaysDrawVerticalTrack="true"
             android:scrollbarSize="13dp"
@@ -43,7 +43,29 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/hashtag_bottom_divider" />
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/sfl_follow_list_skeleton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
+                <include layout="@layout/skeleton_item_follow_list"/>
 
+            </LinearLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
     </LinearLayout>
 
 </LinearLayout>

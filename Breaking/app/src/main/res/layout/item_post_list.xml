@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="6dp">
+    android:padding="7dp">
 
     <ImageButton
         android:id="@+id/img_btn_post_more_menu"
@@ -34,13 +34,13 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.96"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintHorizontal_bias="0.04"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.29" />
+        app:layout_constraintWidth_percent="0.3" />
 
     <ImageView
         android:id="@+id/imgv_post_location_icon"
@@ -68,8 +68,8 @@
         android:id="@+id/tv_chip_exclusive"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
         android:layout_marginEnd="6dp"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/chip_post_exclusive_background"
         android:gravity="center"
         android:paddingStart="8dp"
@@ -80,20 +80,20 @@
         android:textColor="@color/white"
         android:textSize="9sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintLeft_toLeftOf="@id/tv_post_price"
         app:layout_constraintRight_toLeftOf="@id/tv_chip_sold"
         app:layout_constraintTop_toBottomOf="@id/tv_post_price"
-        app:layout_constraintVertical_bias="0" />
+        app:layout_constraintVertical_bias="1" />
 
     <TextView
         android:id="@+id/tv_chip_sold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
         android:layout_marginEnd="6dp"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/chip_post_sold_background"
         android:gravity="center"
         android:paddingStart="8dp"
@@ -104,16 +104,18 @@
         android:textColor="@color/white"
         android:textSize="9sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintLeft_toRightOf="@id/tv_chip_exclusive"
         app:layout_constraintRight_toLeftOf="@id/tv_chip_unsold"
-        app:layout_constraintTop_toBottomOf="@id/tv_post_price" />
+        app:layout_constraintTop_toBottomOf="@id/tv_post_price"
+        app:layout_constraintVertical_bias="1" />
 
     <TextView
         android:id="@+id/tv_chip_unsold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/chip_post_unsold_background"
         android:gravity="center"
         android:paddingStart="8dp"
@@ -124,10 +126,12 @@
         android:textColor="@color/breaking_color"
         android:textSize="9sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintLeft_toRightOf="@id/tv_chip_sold"
         app:layout_constraintRight_toLeftOf="@id/img_btn_post_like"
-        app:layout_constraintTop_toBottomOf="@id/tv_post_price" />
+        app:layout_constraintTop_toBottomOf="@id/tv_post_price"
+        app:layout_constraintVertical_bias="1" />
 
     <TextView
         android:id="@+id/tv_post_nickname"

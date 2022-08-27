@@ -13,14 +13,14 @@
         android:layout_height="0dp"
         android:background="@drawable/my_profile_edit_profile_btn_background"
         android:text="@string/follow_remove"
-        android:textSize="11sp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.65"
-        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintHeight_percent="0.63"
+        app:layout_constraintHorizontal_bias="0.97"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.17" />
+        app:layout_constraintWidth_percent="0.16" />
 
     <ImageView
         android:id="@+id/imgv_following_profile"
@@ -34,14 +34,16 @@
 
     <TextView
         android:id="@+id/tv_following_status"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
         android:text="@string/status_msg"
         android:textSize="11sp"
         app:layout_constraintBottom_toBottomOf="@id/imgv_following_profile"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintLeft_toRightOf="@id/imgv_following_profile"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintLeft_toLeftOf="@id/tv_following_nickname"
+        app:layout_constraintRight_toLeftOf="@id/btn_following_remove"
         app:layout_constraintTop_toBottomOf="@id/tv_following_nickname"
         app:layout_constraintVertical_bias="0.4" />
 

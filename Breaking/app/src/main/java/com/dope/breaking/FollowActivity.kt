@@ -17,6 +17,7 @@ import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.ValueUtil
+import com.facebook.shimmer.ShimmerFrameLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +29,9 @@ class FollowActivity : AppCompatActivity() {
     private var isLoading = false // 로딩 중 판단
     private var isObtainedAll = false // 더 이상 얻을 리스트 있는지 판단
     private lateinit var followAdapter: FollowAdapter // 팔로우 리스트 어댑터
+    private lateinit var progressBar: ProgressBar
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var shimmerFrameLayout: ShimmerFrameLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /*
@@ -42,8 +46,9 @@ class FollowActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_follow) // 목록 레이아웃 처리
 
-        val progress = findViewById<ProgressBar>(R.id.progressbar_loading)
-        val recyclerView = findViewById<RecyclerView>(R.id.rcv_following)
+        progressBar = findViewById(R.id.progressbar_loading)
+        recyclerView = findViewById(R.id.rcv_following)
+        shimmerFrameLayout = findViewById(R.id.sfl_follow_list_skeleton)
 
         followAdapter = FollowAdapter(this, followList, state, userId) // 초기 어댑터 지정
 
@@ -51,9 +56,8 @@ class FollowActivity : AppCompatActivity() {
             최초 팔로우 리스트 요청
          */
         processGetFollowList(state, 0, requestToken, {
-            // 초기 로딩 처리
-            progress.visibility = View.VISIBLE
-            recyclerView.visibility = View.GONE
+            showSkeletonView() // 스켈레톤 UI 시작
+            isLoading = true
         }, { it ->
             followAdapter.addItems(it) // 리스트에 추가하기
 
@@ -65,10 +69,6 @@ class FollowActivity : AppCompatActivity() {
             }
             recyclerView.adapter = followAdapter // 리사이클러 뷰에 어댑터 설정
 
-            // 로딩 처리 종료
-            progress.visibility = View.GONE
-            recyclerView.visibility = View.VISIBLE
-
             /*
                 스크롤 이벤트 지정
              */
@@ -78,6 +78,12 @@ class FollowActivity : AppCompatActivity() {
 
                     val lastIndex =
                         (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+
+                    // 가져온 아이템 사이즈가 가져와야하는 사이즈보다 작은 경우 새로운 요청을 못하게 막기
+                    if (recyclerView.adapter!!.itemCount < ValueUtil.FOLLOW_SIZE) {
+                        return
+                    }
+
                     // 실제 데이터 리스트의 마지막 인덱스와 스크롤 이벤트에 의한 인덱스 값이 같으면서
                     // 스크롤이 드래깅 중이면서
                     // 피드 요청이 더 가능하면서
@@ -115,6 +121,8 @@ class FollowActivity : AppCompatActivity() {
                     }
                 }
             })
+            dismissSkeletonView() // 스켈레톤 UI 종료
+            isLoading = false // 로딩 종료
         }, {
             DialogUtil().SingleDialog(
                 this@FollowActivity,
@@ -201,6 +209,28 @@ class FollowActivity : AppCompatActivity() {
                 error(e) // 에러 함수 호출
             }
         }
+    }
+
+    /**
+     * 스켈레톤 UI를 보여주는 함수 with shimmer effect
+     * @author Seunggun Sin
+     * @since 2022-08-25
+     */
+    private fun showSkeletonView() {
+        recyclerView.visibility = View.GONE
+        shimmerFrameLayout.visibility = View.VISIBLE
+        shimmerFrameLayout.startShimmer()
+    }
+
+    /**
+     * 스켈레톤 UI를 종료하는 함수
+     * @author Seunggun Sin
+     * @since 2022-08-25
+     */
+    private fun dismissSkeletonView() {
+        shimmerFrameLayout.stopShimmer()
+        shimmerFrameLayout.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
     }
 
     /**
