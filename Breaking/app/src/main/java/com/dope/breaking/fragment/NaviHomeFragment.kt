@@ -59,17 +59,11 @@ class NaviHomeFragment : Fragment() {
         // 필터 다이얼로그 객체 초기화 및 버튼 클릭 이벤트 정의
         filterDialog = DialogUtil().FilterOptionDialog(requireContext()) {
             processGetMainFeed(0, token, {
-                // 로딩 시작
-                binding.progressbarLoading.visibility = View.VISIBLE
-                binding.rcvMainFeed.visibility = View.GONE
-
+                showSkeletonView() // 스켈레톤 UI 시작
                 // 리스트 비우기
                 adapter.clearList()
                 isObtainedAll = false // 더 이상 얻을 피드가 없는 상태 초기화
             }, {
-                // 로딩 종료
-                binding.rcvMainFeed.visibility = View.VISIBLE
-                binding.progressbarLoading.visibility = View.GONE
 
                 if (it.isEmpty()) { // 리스트가 비어있다면
                     // 비어있다면 화면 뿌려주기
@@ -81,6 +75,7 @@ class NaviHomeFragment : Fragment() {
                     binding.rcvMainFeed.visibility = View.VISIBLE
                 }
                 adapter.addItems(it) // 받아온 리스트 추가하기
+                dismissSkeletonView() // 스켈레톤 UI 종료
             }, {
                 it.printStackTrace()
                 requestErrorDialog.show()
@@ -93,18 +88,12 @@ class NaviHomeFragment : Fragment() {
                 // 정렬 옵션에서 선택한 값을 버튼 텍스트에 보여주기
                 binding.btnMainSort.text =
                     getString(ValueUtil.SORT_OPTIONS_VIEW[sortDialog.sortIndex])
-
-                // 로딩 시작
-                binding.progressbarLoading.visibility = View.VISIBLE
-                binding.rcvMainFeed.visibility = View.GONE
+                showSkeletonView() // 스켈레톤 UI 시작
 
                 // 리스트 비우기
                 adapter.clearList()
                 isObtainedAll = false // 더 이상 얻을 피드가 없는 상태 초기화
             }, {
-                // 로딩 종료
-                binding.rcvMainFeed.visibility = View.VISIBLE
-                binding.progressbarLoading.visibility = View.GONE
 
                 if (it.isEmpty()) { // 리스트가 비어있다면
                     // 비어있다면 화면 뿌려주기
@@ -116,6 +105,7 @@ class NaviHomeFragment : Fragment() {
                     binding.rcvMainFeed.visibility = View.VISIBLE
                 }
                 adapter.addItems(it) // 받아온 리스트 추가하기
+                dismissSkeletonView() // 스켈레톤 UI 종료
             }, {
                 it.printStackTrace()
                 requestErrorDialog.show()
@@ -136,10 +126,7 @@ class NaviHomeFragment : Fragment() {
          최초로 피드 가져오는 요청
          */
         processGetMainFeed(0, token, {
-            // 로딩 시작
-            binding.progressbarLoading.visibility = View.VISIBLE
-            binding.rcvMainFeed.visibility = View.GONE
-
+            showSkeletonView() // 스켈레톤 UI 시작
             isObtainedAll = false
         }, { it ->
             feedList.addAll(it) // 동적 리스트에 가져온 리스트 추가
@@ -158,8 +145,7 @@ class NaviHomeFragment : Fragment() {
                 binding.tvNoFeedAlert.visibility = View.GONE
                 binding.rcvMainFeed.visibility = View.VISIBLE
             }
-            // 로딩 종료
-            binding.progressbarLoading.visibility = View.GONE
+            dismissSkeletonView() // 스켈레톤 UI 종료
 
             // 리스트의 divider 선 추가
             binding.rcvMainFeed.addItemDecoration(
@@ -259,9 +245,7 @@ class NaviHomeFragment : Fragment() {
                     if (isWritePost) { // true 면 피드 다시 조회하여 refresh
 
                         processGetMainFeed(0, token, {
-                            // 로딩 시작
-                            binding.progressbarLoading.visibility = View.VISIBLE
-                            binding.rcvMainFeed.visibility = View.GONE
+                            showSkeletonView() // 스켈레톤 UI 시작
                             adapter.clearList()
                             isObtainedAll = false
                         }, {
@@ -277,9 +261,7 @@ class NaviHomeFragment : Fragment() {
                                 binding.tvNoFeedAlert.visibility = View.GONE
                                 binding.rcvMainFeed.visibility = View.VISIBLE
                             }
-                            // 로딩 종료
-                            binding.progressbarLoading.visibility = View.GONE
-
+                            dismissSkeletonView() // 스켈레톤 UI 종료
                             // 다시 false 로 변경
                             isWritePost = false
                         }, {
@@ -329,6 +311,28 @@ class NaviHomeFragment : Fragment() {
                 error(e) // 예외 발생 시 에러 함수 호출
             }
         }
+    }
+
+    /**
+     * 스켈레톤 UI를 보여주는 함수 with shimmer effect
+     * @author Seunggun Sin
+     * @since 2022-08-27
+     */
+    private fun showSkeletonView() {
+        binding.rcvMainFeed.visibility = View.GONE
+        binding.sflPostListSkeleton.visibility = View.VISIBLE
+        binding.sflPostListSkeleton.startShimmer()
+    }
+
+    /**
+     * 스켈레톤 UI를 종료하는 함수
+     * @author Seunggun Sin
+     * @since 2022-08-27
+     */
+    private fun dismissSkeletonView() {
+        binding.sflPostListSkeleton.stopShimmer()
+        binding.sflPostListSkeleton.visibility = View.GONE
+        binding.rcvMainFeed.visibility = View.VISIBLE
     }
 
     /**
