@@ -261,7 +261,9 @@ class NaviHomeFragment : Fragment() {
                                 binding.tvNoFeedAlert.visibility = View.GONE
                                 binding.rcvMainFeed.visibility = View.VISIBLE
                             }
+                            
                             dismissSkeletonView() // 스켈레톤 UI 종료
+
                             // 다시 false 로 변경
                             isWritePost = false
                         }, {

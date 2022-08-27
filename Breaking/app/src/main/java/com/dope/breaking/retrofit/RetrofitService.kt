@@ -93,13 +93,14 @@ interface RetrofitService {
     /**
      * 게시글 세부 조회 정보를 요청하는 메소드
      * @Path - postId(Long) : 게시글 id
+     * @response - ResponsePostDetail : 세부 조회 DTO
      * @author - Tae hyun Park
      */
     @GET("post/{postId}")
-    fun requestPostDetail(
+    suspend fun requestPostDetail(
         @Header("authorization") token: String,
-        @Path("postId") postId: Long
-    )
+        @Path("postId") postId : Long
+    ): Response<ResponsePostDetail>
 
     /**
      * 구글 로그인 토큰 검증 요청 메소드

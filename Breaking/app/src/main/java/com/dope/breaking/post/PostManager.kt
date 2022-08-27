@@ -5,6 +5,7 @@ import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.request.RequestPostData
 import com.dope.breaking.model.response.ResponseMainFeed
+import com.dope.breaking.model.response.ResponsePostDetail
 import com.dope.breaking.model.response.ResponsePostUpload
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
@@ -79,6 +80,34 @@ class PostManager {
             multipartList ?: null, // 미디어 리스트가 없으면 서버로 null 전송
             data
         )
+
+        if (response.code() in 200..299) { // 요청이 성공적이라면
+            return response.body()!! // 응답의 response 객체 리턴
+        } else { // 실패했다면
+            // 예외 던지기
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 받아온 제보 postId 값을 바탕으로 게시글 상세 조회 정보를 받아오기 위한 요청을 하는 메소드
+     * @param token(String): jwt token 값
+     * @param postId(Long): 상세 조회 할 postId 값
+     * @throws ResponseErrorException: 정상 응답 (2xx) 이외의 응답이 왔을 때 exception 발생
+     * @return ResponsePostDetail: 응답 바디로 오는 게시글 상세 조회 DTO
+     * @author Tae hyun Park
+     * @since 2022-08-18
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startGetPostDetail(
+        token: String,
+        postId: Long
+    ): ResponsePostDetail{
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 상세 조회 요청
+        val response = service.requestPostDetail(token, postId)
 
         if (response.code() in 200..299) { // 요청이 성공적이라면
             return response.body()!! // 응답의 response 객체 리턴
