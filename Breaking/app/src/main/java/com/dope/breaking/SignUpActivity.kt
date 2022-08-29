@@ -152,7 +152,7 @@ class SignUpActivity : AppCompatActivity() {
      */
     private suspend fun processSignUp(
         inputData: RequestSignUp,
-        imageData: Bitmap,
+        imageData: Bitmap?,
         imageName: String
     ) {
         try {
@@ -283,8 +283,7 @@ class SignUpActivity : AppCompatActivity() {
                     // 회원가입 요청 시작, 회원가입 버튼 클릭하고 검증 완료 후 input 데이터와 함께 호출
                     processSignUp(
                         inputData = inputData,
-                        imageData = profileImgBitmap
-                            ?: ValueUtil.getDefaultProfile(this@SignUpActivity),
+                        imageData = profileImgBitmap,
                         imageName = filename ?: "default.png"
                     )
                     Log.d(TAG, "filename test : " + filename)

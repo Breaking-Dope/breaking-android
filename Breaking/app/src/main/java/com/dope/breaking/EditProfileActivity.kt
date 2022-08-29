@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.model.request.RequestUpdateUser
 import com.dope.breaking.model.response.DetailUser
@@ -167,7 +168,7 @@ class EditProfileActivity : AppCompatActivity() {
      * 초기 View 에 데이터 채워넣기
      * @param data(DetailUser): 기존 유저 데이터
      * @author Seunggun Sin
-     * @since 2022-07-25
+     * @since 2022-07-25 | 2022-08-29
      */
     private fun fillDataInView(data: DetailUser) {
         binding.etName.setText(data.realName)
@@ -175,10 +176,18 @@ class EditProfileActivity : AppCompatActivity() {
         binding.etNickname.setText(data.nickname)
         binding.etPhoneNumber.setText(data.phoneNumber)
         binding.etStateMessage.setText(data.statusMsg)
-        Glide.with(this)
-            .load(ValueUtil.IMAGE_BASE_URL + data.profileImgURL)
-            .circleCrop()
-            .into(binding.imgBtnProfileImage)
+        if (data.profileImgURL != null) {
+            Glide.with(this)
+                .load(ValueUtil.IMAGE_BASE_URL + data.profileImgURL)
+                .placeholder(R.drawable.ic_default_profile_image)
+                .circleCrop()
+                .into(binding.imgBtnProfileImage)
+        } else {
+            Glide.with(this)
+                .load(R.drawable.ic_default_profile_image)
+                .circleCrop()
+                .into(binding.imgBtnProfileImage)
+        }
     }
 
     /**

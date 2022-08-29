@@ -19,44 +19,64 @@ class Account {
     /**
      * input 으로 받아온 회원가입 정보를 바탕으로 Request Body 생성 및 회원가입 요청하는 메소드
      * @param inputData(RequestSignUp): 회원가입 필드에 대한 데이터 클래스 객체
-     * @param imageData(Bitmap): 프로필 이미지에 대한 bitmap 데이터
+     * @param imageData(Bitmap?): 프로필 이미지에 대한 bitmap 데이터
      * @param imageName(String): 프로필 이미지의 파일 이름
      * @throws ResponseErrorException: 정상 응답 (2xx) 이외의 응답이 왔을 때 exception 발생
      * @return Headers: 응답에 대한 헤더 전체 데이터
      * @author Seunggun Sin
-     * @since 2022-07-08 | 2022-07-09
+     * @since 2022-07-08 | 2022-08-28
      */
     @Throws(ResponseErrorException::class) // @Throws 어노테이션 사용 (Java 에서의 throws 키워드)
     suspend fun startRequestSignUp(
         inputData: RequestSignUp,
-        imageData: Bitmap,
+        imageData: Bitmap?,
         imageName: String
     ): Headers {
 
         // Retrofit 서비스 객체 생성
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
-        // 이미지에 대한 RequestBody 생성 (image/*)
-        val imageRequestBody =
-            RequestBody.create(MediaType.parse("image/*"), convertBitmapToByte(imageData))
-        // 이미지에 대한 RequestBody 를 바탕으로 Multi form 데이터 생성
-        val imgFile =
-            MultipartBody.Part.createFormData(
-                ValueUtil.MULTIPART_PROFILE_KEY,
-                imageName,
-                imageRequestBody
-            )
+
         // 나머지 필드에 대한 RequestBody 생성 (text/plain)
         val data =
             RequestBody.create(MediaType.parse("text/plain"), inputData.convertJsonToString())
+        return if (imageData != null) {
+            // 이미지에 대한 RequestBody 생성 (image/*)
+            val imageRequestBody =
+                RequestBody.create(MediaType.parse("image/*"), convertBitmapToByte(imageData))
+            // 이미지에 대한 RequestBody 를 바탕으로 Multi form 데이터 생성
+            val imgFile =
+                MultipartBody.Part.createFormData(
+                    ValueUtil.MULTIPART_PROFILE_KEY,
+                    imageName,
+                    imageRequestBody
+                )
 
-        // retrofit 이용하여 회원가입 요청
-        val response = service.requestSignUp(System.getProperty("http.agent"), imgFile, data)
+            // retrofit 이용하여 회원가입 요청
+            val response = service.requestSignUp(System.getProperty("http.agent"), imgFile, data)
 
-        if (response.code() in 200..299) { // 요청이 성공적이라면
-            return response.headers() // 응답의 헤더 객체 리턴
-        } else { // 실패했다면
-            // 예외 던지기
-            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+            if (response.code() in 200..299) { // 요청이 성공적이라면
+                response.headers() // 응답의 헤더 객체 리턴
+            } else { // 실패했다면
+                // 예외 던지기
+                throw ResponseErrorException(
+                    "요청에 실패하였습니다. error: ${
+                        response.errorBody()?.string()
+                    }"
+                )
+            }
+        } else {
+            val response = service.requestSignUp(System.getProperty("http.agent"), null, data)
+
+            if (response.code() in 200..299) { // 요청이 성공적이라면
+                response.headers() // 응답의 헤더 객체 리턴
+            } else { // 실패했다면
+                // 예외 던지기
+                throw ResponseErrorException(
+                    "요청에 실패하였습니다. error: ${
+                        response.errorBody()?.string()
+                    }"
+                )
+            }
         }
     }
 

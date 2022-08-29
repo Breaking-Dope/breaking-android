@@ -118,7 +118,7 @@ interface RetrofitService {
     /**
      * 최종 회원가입 요청 메소드 - Multipart 요청
      * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
-     * @param image(MultipartBody.Part): 이미지가 담긴 multi form 요청 body (key=profileImg)
+     * @param image(MultipartBody.Part?): 이미지가 담긴 multi form 요청 body (key=profileImg)
      * @param data(RequestBody): 나머지 텍스트 필드  값이 담긴 요청 body (key=signUpRequest)
      * @response Unit: 응답 body 자체는 중요 x, Jwt 토큰을 위한 헤더 값만 필요
      * @author Seunggun Sin
@@ -127,7 +127,7 @@ interface RetrofitService {
     @POST("oauth2/sign-up")
     suspend fun requestSignUp(
         @Header("User-Agent") userAgent: String,
-        @Part image: MultipartBody.Part,
+        @Part image: MultipartBody.Part?,
         @Part("signUpRequest") data: RequestBody
     ): Response<Unit>
 

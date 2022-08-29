@@ -6,7 +6,7 @@ import java.io.Serializable
 
 data class ResponseExistLogin(
     @SerializedName("userId") val userId: Long,
-    @SerializedName("profileImgURL") val profileImgUrl: String,
+    @SerializedName("profileImgURL") val profileImgUrl: String?,
     @SerializedName("nickname") val nickname: String,
     @SerializedName("balance") val balance: Int
 ) : Serializable {
@@ -15,7 +15,7 @@ data class ResponseExistLogin(
         fun convertJsonToObject(jsonObject: JSONObject): ResponseExistLogin {
             return ResponseExistLogin(
                 (jsonObject["userId"] as Int).toLong(),
-                jsonObject["profileImgURL"] as String,
+                jsonObject["profileImgURL"] as String?,
                 jsonObject["nickname"] as String,
                 jsonObject["balance"] as Int
             )

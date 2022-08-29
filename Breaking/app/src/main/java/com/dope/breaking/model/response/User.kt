@@ -6,7 +6,7 @@ import java.io.Serializable
 
 data class User(
     @SerializedName("userId") val userId: Long,
-    @SerializedName("profileImgURL") val profileImgURL: String,
+    @SerializedName("profileImgURL") val profileImgURL: String?,
     @SerializedName("nickname") val nickname: String,
     @SerializedName("email") val email: String,
     @SerializedName("role") val role: String,
@@ -28,7 +28,7 @@ data class User(
             println(jsonObject.toString())
             return User(
                 (jsonObject["userId"] as Int).toLong(),
-                if (jsonObject.isNull("profileImgURL")) "" else jsonObject["profileImgURL"] as String,
+                jsonObject["profileImgURL"] as String?,
                 jsonObject["nickname"] as String,
                 jsonObject["email"] as String,
                 jsonObject["role"] as String,

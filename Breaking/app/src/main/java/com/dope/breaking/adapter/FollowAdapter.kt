@@ -191,11 +191,18 @@ class FollowAdapter(
         fun bind(item: FollowData) {
             textNickname.text = item.nickname
             textStatus.text = item.statusMsg
-            Glide.with(itemView)
-                .load(ValueUtil.IMAGE_BASE_URL + item.profileImgURL)
-                .circleCrop()
-                .error(R.drawable.ic_default_profile_image)
-                .into(imageProfile)
+            if (item.profileImgURL != null)
+                Glide.with(itemView)
+                    .load(ValueUtil.IMAGE_BASE_URL + item.profileImgURL)
+                    .placeholder(R.drawable.ic_default_profile_image)
+                    .circleCrop()
+                    .error(R.drawable.ic_default_profile_image)
+                    .into(imageProfile)
+            else
+                Glide.with(itemView)
+                    .load(R.drawable.ic_default_profile_image)
+                    .circleCrop()
+                    .into(imageProfile)
         }
     }
 
