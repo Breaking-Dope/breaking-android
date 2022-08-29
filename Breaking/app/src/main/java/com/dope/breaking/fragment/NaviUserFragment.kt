@@ -92,14 +92,19 @@ class NaviUserFragment : Fragment() {
         /*
             받아온 유저 데이터를 view 에 뿌려주기
          */
-        Glide.with(this) // 이미지 보여주기
-            .load(ValueUtil.IMAGE_BASE_URL + userData.profileImgURL) // url 에 대한 이미지 호출
-            .placeholder(R.drawable.ic_default_profile_image)
-            .fitCenter()
-            .circleCrop() // 이미지 원형으로 만들기
-            .diskCacheStrategy(DiskCacheStrategy.ALL) // 이미지 캐싱
-            .error(R.drawable.ic_default_profile_image) // url 호출 에러 시 기본 이미지
-            .into(binding.imgViewMyPageProfile)
+        if (userData.profileImgURL != null)
+            Glide.with(this) // 이미지 보여주기
+                .load(ValueUtil.IMAGE_BASE_URL + userData.profileImgURL) // url 에 대한 이미지 호출
+                .placeholder(R.drawable.ic_default_profile_image)
+                .fitCenter()
+                .circleCrop() // 이미지 원형으로 만들기
+                .error(R.drawable.ic_default_profile_image) // url 호출 에러 시 기본 이미지
+                .into(binding.imgViewMyPageProfile)
+        else
+            Glide.with(this)
+                .load(R.drawable.ic_default_profile_image)
+                .circleCrop()
+                .into(binding.imgViewMyPageProfile)
 
         binding.tvMyPageNickname.text = userData.nickname
         binding.tvMyPageStatus.text = userData.statusMsg

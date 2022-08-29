@@ -176,7 +176,7 @@ class UserPageActivity : AppCompatActivity() {
      * 응답으로 받아온 대상 유저의 데이터를 바탕으로 유저 프로필 view 에 뿌려주기
      * @param user(User): 대상 유저 데이터 객체
      * @author Seunggun Sin
-     * @since 2022-07-29 | 2022-07-31
+     * @since 2022-07-29 | 2022-08-29
      */
     private fun fillDataInView(user: User) {
         findViewById<TextView>(R.id.tv_my_page_nickname).text = user.nickname
@@ -186,14 +186,21 @@ class UserPageActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_post_value).text = user.postCount.toString()
 
         if (init)
-            Glide.with(this@UserPageActivity) // 이미지 보여주기
-                .load(ValueUtil.IMAGE_BASE_URL + user.profileImgURL) // url 에 대한 이미지 호출
-                .placeholder(R.drawable.ic_default_profile_image)
-                .fitCenter()
-                .circleCrop() // 이미지 원형으로 만들기
-                .diskCacheStrategy(DiskCacheStrategy.ALL) // 이미지 캐싱
-                .error(R.drawable.ic_default_profile_image) // url 호출 에러 시 기본 이미지
-                .into(findViewById(R.id.img_view_my_page_profile))
+            if (user.profileImgURL != null)
+                Glide.with(this@UserPageActivity) // 이미지 보여주기
+                    .load(ValueUtil.IMAGE_BASE_URL + user.profileImgURL) // url 에 대한 이미지 호출
+                    .placeholder(R.drawable.ic_default_profile_image)
+                    .fitCenter()
+                    .circleCrop() // 이미지 원형으로 만들기
+                    .error(R.drawable.ic_default_profile_image) // url 호출 에러 시 기본 이미지
+                    .into(findViewById(R.id.img_view_my_page_profile))
+            else
+                Glide.with(this@UserPageActivity)
+                    .load(R.drawable.ic_default_profile_image)
+                    .fitCenter()
+                    .circleCrop()
+                    .into(findViewById(R.id.img_view_my_page_profile))
+
     }
 
     /**
