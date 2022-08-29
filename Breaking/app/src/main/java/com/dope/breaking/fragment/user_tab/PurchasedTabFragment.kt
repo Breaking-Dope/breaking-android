@@ -76,6 +76,12 @@ class PurchasedTabFragment : Fragment() {
                     // 리스트의 마지막 인덱스
                     val lastIndex =
                         (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+
+                    // 가져온 아이템 사이즈가 가져와야하는 사이즈보다 작은 경우 새로운 요청을 못하게 막기
+                    if (recyclerView.adapter!!.itemCount < ValueUtil.USER_FEED_SIZE) {
+                        return
+                    }
+
                     // 실제 데이터 리스트의 마지막 인덱스와 스크롤 이벤트에 의한 인덱스 값이 같으면서
                     // 스크롤이 드래깅 중이면서
                     // 피드 요청이 더 가능하면서

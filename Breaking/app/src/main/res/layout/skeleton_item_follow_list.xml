@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="3dp"
-    android:background="@color/follow_list_background_color"
     android:padding="8dp">
 
     <Button
@@ -14,6 +13,7 @@
         android:background="@drawable/my_profile_edit_profile_btn_background"
         android:text="@string/follow_remove"
         android:textSize="10sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.63"
         app:layout_constraintHorizontal_bias="0.97"
@@ -25,20 +25,24 @@
     <ImageView
         android:id="@+id/imgv_following_profile"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="0dp"
+        android:background="@drawable/skeleton_circle_background"
+        app:layout_constraintBottom_toBottomOf="@id/tv_following_status"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintHorizontal_bias="0.01"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
         app:layout_constraintWidth_percent="0.15" />
 
     <TextView
         android:id="@+id/tv_following_status"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/skeleton_background"
         android:ellipsize="end"
         android:maxLines="2"
-        android:text="@string/status_msg"
         android:textSize="11sp"
         app:layout_constraintBottom_toBottomOf="@id/imgv_following_profile"
         app:layout_constraintHorizontal_bias="0"
@@ -49,14 +53,15 @@
 
     <TextView
         android:id="@+id/tv_following_nickname"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/nickname"
+        android:background="@drawable/skeleton_background"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@id/imgv_following_profile"
         app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintLeft_toRightOf="@id/imgv_following_profile"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.1" />
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintWidth_percent="0.25" />
 </androidx.constraintlayout.widget.ConstraintLayout>

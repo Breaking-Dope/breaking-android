@@ -130,6 +130,7 @@ class FeedAdapter(
                 Glide.with(itemView)
                     .load(R.drawable.ic_default_post_image_size_up)
                     .apply(RequestOptions().transform(CenterCrop(), RoundedCorners(24)))
+                    .fitCenter()
                     .into(thumbnail)
             } else {
                 Glide.with(itemView)

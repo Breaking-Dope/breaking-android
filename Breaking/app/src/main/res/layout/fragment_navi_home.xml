@@ -127,7 +127,6 @@
             android:layout_height="0.8dp"
             android:layout_marginTop="8dp"
             android:background="@color/gray"
-            app:layout_constraintBottom_toTopOf="@id/rcv_main_feed"
             app:layout_constraintTop_toBottomOf="@id/btn_main_filter" />
 
         <View
@@ -160,6 +159,34 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/hashtag_bottom_divider"
             app:layout_constraintVertical_bias="0.05" />
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/sfl_post_list_skeleton"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/hashtag_bottom_divider"
+            app:layout_constraintVertical_bias="0.05">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <include layout="@layout/skeleton_item_post_list" />
+
+                <include layout="@layout/skeleton_item_post_list" />
+
+                <include layout="@layout/skeleton_item_post_list" />
+
+                <include layout="@layout/skeleton_item_post_list" />
+
+                <include layout="@layout/skeleton_item_post_list" />
+
+                <include layout="@layout/skeleton_item_post_list" />
+
+            </LinearLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab_posting"
