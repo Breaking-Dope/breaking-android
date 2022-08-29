@@ -10,5 +10,5 @@ data class DetailUser(
     @SerializedName("realName") val realName: String,
     @SerializedName("role") val role: String,
     @SerializedName("statusMsg") val statusMsg: String,
-    @SerializedName("profileImgURL") val profileImgURL: String,
+    @SerializedName("profileImgURL") val profileImgURL: String?,
 ): Serializable
