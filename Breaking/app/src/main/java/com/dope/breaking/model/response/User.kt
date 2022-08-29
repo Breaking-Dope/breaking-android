@@ -28,7 +28,7 @@ data class User(
             println(jsonObject.toString())
             return User(
                 (jsonObject["userId"] as Int).toLong(),
-                jsonObject["profileImgURL"] as String?,
+                if (jsonObject.isNull("profileImgURL")) null else jsonObject["profileImgURL"] as String?,
                 jsonObject["nickname"] as String,
                 jsonObject["email"] as String,
                 jsonObject["role"] as String,

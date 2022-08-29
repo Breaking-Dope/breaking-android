@@ -15,7 +15,7 @@ data class ResponseExistLogin(
         fun convertJsonToObject(jsonObject: JSONObject): ResponseExistLogin {
             return ResponseExistLogin(
                 (jsonObject["userId"] as Int).toLong(),
-                jsonObject["profileImgURL"] as String?,
+                if (jsonObject.isNull("profileImgURL")) null else jsonObject["profileImgURL"] as String?,
                 jsonObject["nickname"] as String,
                 jsonObject["balance"] as Int
             )
