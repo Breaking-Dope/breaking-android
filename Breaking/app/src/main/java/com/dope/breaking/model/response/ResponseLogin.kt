@@ -16,7 +16,7 @@ data class ResponseLogin(
                 jsonObject["fullname"] as String,
                 jsonObject["username"] as String,
                 jsonObject["email"] as String,
-                jsonObject["profileImgURL"] as String?
+                if (jsonObject.isNull("profileImgURL")) null else jsonObject["profileImgURL"] as String?
             )
         }
     }
