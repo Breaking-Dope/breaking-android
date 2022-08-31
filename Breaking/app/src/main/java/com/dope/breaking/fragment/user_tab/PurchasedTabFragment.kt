@@ -1,5 +1,6 @@
 package com.dope.breaking.fragment.user_tab
 
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dope.breaking.R
 import com.dope.breaking.adapter.FeedAdapter
+import com.dope.breaking.board.PostDetailActivity
 import com.dope.breaking.databinding.FragmentPurchasedTabBinding
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.response.ResponseMainFeed
@@ -58,6 +60,11 @@ class PurchasedTabFragment : Fragment() {
             isLoading = true // 로딩 시작 상태
         }, { it ->
             adapter = FeedAdapter(requireContext(), userFeedMutableList) // 우선 어댑터 초기화
+            adapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
+                override fun onClick(v: View, position: Int) {
+                    moveToPostDetailPage(position)
+                }
+            })
             binding.rcvUserPurchased.adapter = adapter // 리사이클러뷰에 적용
 
             if (it.isEmpty()) // 가져온 리스트가 비어있다면
@@ -275,5 +282,17 @@ class PurchasedTabFragment : Fragment() {
                 error(e) // 에러 함수 호출
             }
         }
+    }
+
+    /**
+     * 어댑터에서 아이템 리스트를 클릭했을 때, 해당 postId를 받아와 세부 조회 액티비티로 넘겨주는 함수
+     * @param position(Int): 현재 리스트의 인덱스
+     * @author Tae hyun Park | Seunggun Sin
+     * @since 2022-08-18 | 2022-08-25
+     */
+    private fun moveToPostDetailPage(position: Int) {
+        val intent = Intent(context, PostDetailActivity::class.java)
+        intent.putExtra("postId", userFeedMutableList[position]!!.postId)
+        startActivity(intent)
     }
 }
