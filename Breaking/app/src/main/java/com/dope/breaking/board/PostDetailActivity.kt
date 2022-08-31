@@ -475,10 +475,9 @@ class PostDetailActivity : AppCompatActivity() {
      * @since 2022-08-31
      */
     private fun showSkeletonView() {
-        binding.rvCommentList.visibility = View.INVISIBLE // 댓글 리스트 invisible
-        binding.viewWholeContentLayout.visibility = View.INVISIBLE // 전체 컨텐츠 invisible
-        binding.viewWholeContentLayout.visibility = View.VISIBLE // 스켈레톤 visible
-        binding.sflPostDetailSkeleton.visibility = View.VISIBLE
+        binding.rvCommentList.visibility = View.GONE // 댓글 리스트 invisible
+        binding.viewWholeContentLayout.visibility = View.GONE // 전체 컨텐츠 invisible
+        binding.sflPostDetailSkeleton.visibility = View.VISIBLE // 스켈레톤 visible
         binding.sflPostDetailSkeleton.startShimmer()
     }
 
