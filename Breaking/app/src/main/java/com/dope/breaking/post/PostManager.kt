@@ -102,7 +102,7 @@ class PostManager {
     suspend fun startGetPostDetail(
         token: String,
         postId: Long
-    ): ResponsePostDetail{
+    ): ResponsePostDetail {
         // Retrofit 서비스 객체 생성
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
@@ -130,7 +130,7 @@ class PostManager {
      * @return List<ResponseMainFeed>: 게시글 데이터 리스트
      * @throws ResponseErrorException: 요청 에러 시 발생
      * @author Seunggun Sin
-     * @since 2022-08-15
+     * @since 2022-08-15 | 2022-08-30
      */
     @Throws(ResponseErrorException::class)
     suspend fun startGetMainFeed(
@@ -149,6 +149,8 @@ class PostManager {
             token,
             lastPostId,
             contentSize,
+            null,
+            null,
             ValueUtil.SORT_OPTIONS[sortIndex],
             ValueUtil.FILTER_SELL_OPTIONS[sellIndex],
             if (startDate == "-") null else startDate + ValueUtil.FILTER_DATE_FORMAT_SUFFIX,
@@ -194,6 +196,110 @@ class PostManager {
         } else {
             throw ResponseErrorException("${resultList.errorBody()?.string()}")
         }
+    }
+
+    /**
+     * 문자열 검색을 통한 피드 리스트 불러오는 요청 (필터 & 정렬 옵션 포함)
+     * @param cursorId(Int): 마지막으로 요청한 리스트에서 마지막 아이템의 게시글 id
+     * @param contentSize(Int): 요청할 게시글 개수(현재 7개)
+     * @param searchContent(String): 문자열 검색을 하고자하는 검색 키워드
+     * @param sortIndex(Int): 정렬 옵션에서 선택한 라디오 버튼 인덱스
+     * @param sellIndex(Int): 필터 옵션에서 판매 제보의 라디오 버튼 인덱스
+     * @param startDate(String): 시작 날짜 (yyyy-MM-dd)
+     * @param endDate(String): 종료 날짜 (yyyy-MM-dd)
+     * @param lastMin(Int): 최근 N분에서 입력한 N 값
+     * @param token(String): 본인의 Jwt 토큰
+     * @return List<ResponseMainFeed>: 게시글 데이터 리스트
+     * @throws ResponseErrorException: 요청 에러 시 발생
+     * @author Seunggun Sin
+     * @since 2022-08-30
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startSearchStringFeed(
+        cursorId: Int,
+        contentSize: Int,
+        searchContent: String,
+        sortIndex: Int,
+        sellIndex: Int,
+        startDate: String,
+        endDate: String,
+        lastMin: Int,
+        token: String
+    ): List<ResponseMainFeed> {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 검색 키워드에서 공백은 +로 대체
+        val replaceSpace = searchContent.replace(" ", "+")
+
+        val response = service.requestGetMainFeed(
+            token,
+            cursorId,
+            contentSize,
+            replaceSpace,
+            null,
+            ValueUtil.SORT_OPTIONS[sortIndex],
+            ValueUtil.FILTER_SELL_OPTIONS[sellIndex],
+            if (startDate == "-") null else startDate + ValueUtil.FILTER_DATE_FORMAT_SUFFIX,
+            if (endDate == "-") null else endDate + ValueUtil.FILTER_DATE_FORMAT_SUFFIX,
+            if (lastMin == -1) null else lastMin
+        ) // 검색 결과에 대한 요청
+
+        if (response.code() in 200..299)
+            return response.body()!!
+        else
+            throw ResponseErrorException("${response.errorBody()?.string()}")
+    }
+
+    /**
+     * 해시태그 검색을 통한 피드 리스트 불러오는 요청 (필터 & 정렬 옵션 포함)
+     * @param cursorId(Int): 마지막으로 요청한 리스트에서 마지막 아이템의 게시글 id
+     * @param contentSize(Int): 요청할 게시글 개수(현재 7개)
+     * @param hashtagContent(String): 해시태그 검색을 하고자하는 검색 키워드
+     * @param sortIndex(Int): 정렬 옵션에서 선택한 라디오 버튼 인덱스
+     * @param sellIndex(Int): 필터 옵션에서 판매 제보의 라디오 버튼 인덱스
+     * @param startDate(String): 시작 날짜 (yyyy-MM-dd)
+     * @param endDate(String): 종료 날짜 (yyyy-MM-dd)
+     * @param lastMin(Int): 최근 N분에서 입력한 N 값
+     * @param token(String): 본인의 Jwt 토큰
+     * @return List<ResponseMainFeed>: 게시글 데이터 리스트
+     * @throws ResponseErrorException: 요청 에러 시 발생
+     * @author Seunggun Sin
+     * @since 2022-08-30
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startSearchHashtagFeed(
+        cursorId: Int,
+        contentSize: Int,
+        hashtagContent: String,
+        sortIndex: Int,
+        sellIndex: Int,
+        startDate: String,
+        endDate: String,
+        lastMin: Int,
+        token: String
+    ): List<ResponseMainFeed> {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 공백과 # 제거
+        val replaceSpace = hashtagContent.replace(" ", "").replace("#", "")
+
+        val response = service.requestGetMainFeed(
+            token,
+            cursorId,
+            contentSize,
+            null,
+            replaceSpace,
+            ValueUtil.SORT_OPTIONS[sortIndex],
+            ValueUtil.FILTER_SELL_OPTIONS[sellIndex],
+            if (startDate == "-") null else startDate + ValueUtil.FILTER_DATE_FORMAT_SUFFIX,
+            if (endDate == "-") null else endDate + ValueUtil.FILTER_DATE_FORMAT_SUFFIX,
+            if (lastMin == -1) null else lastMin
+        ) // 검색 요청에 대한 결과 받기
+
+        if (response.code() in 200..299)
+            return response.body()!!
+        else
+            throw ResponseErrorException("${response.errorBody()?.string()}")
     }
 
     /**
