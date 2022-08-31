@@ -3,6 +3,7 @@ package com.dope.breaking.fragment
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dope.breaking.FeedSearchActivity
 import com.dope.breaking.adapter.FeedAdapter
 import com.dope.breaking.board.PostActivity
 import com.dope.breaking.board.PostDetailActivity
@@ -51,6 +53,11 @@ class NaviHomeFragment : Fragment() {
         // 요청 Jwt 토큰 가져오기
         val token =
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
+        binding.etSearchBar.inputType = InputType.TYPE_NULL
+
+        binding.etSearchBar.setOnClickListener {
+            startActivity(Intent(requireContext(), FeedSearchActivity::class.java))
+        }
 
         // 피드 요청 에러 시 띄워줄 다이얼로그 정의
         val requestErrorDialog =
@@ -261,7 +268,7 @@ class NaviHomeFragment : Fragment() {
                                 binding.tvNoFeedAlert.visibility = View.GONE
                                 binding.rcvMainFeed.visibility = View.VISIBLE
                             }
-                            
+
                             dismissSkeletonView() // 스켈레톤 UI 종료
 
                             // 다시 false 로 변경

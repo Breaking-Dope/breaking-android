@@ -40,7 +40,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.3" />
+        app:layout_constraintWidth_percent="0.29" />
 
     <ImageView
         android:id="@+id/imgv_post_location_icon"
@@ -51,7 +51,7 @@
         app:layout_constraintLeft_toLeftOf="@id/tv_post_title"
         app:layout_constraintTop_toTopOf="@id/tv_post_time"
         app:layout_constraintVertical_bias="0.6"
-        app:layout_constraintWidth_percent="0.045" />
+        app:layout_constraintWidth_percent="0.043" />
 
     <ImageView
         android:id="@+id/imgv_comment"
@@ -78,7 +78,7 @@
         android:paddingBottom="2dp"
         android:text="@string/exclusive_string"
         android:textColor="@color/white"
-        android:textSize="9sp"
+        android:textSize="8.5sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintHorizontal_bias="0"
@@ -102,7 +102,7 @@
         android:paddingBottom="2dp"
         android:text="@string/sold_string"
         android:textColor="@color/white"
-        android:textSize="9sp"
+        android:textSize="8.5sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintHorizontal_bias="1"
@@ -124,7 +124,7 @@
         android:paddingBottom="2dp"
         android:text="@string/is_selling_string"
         android:textColor="@color/breaking_color"
-        android:textSize="9sp"
+        android:textSize="8.5sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/imgv_post_thumbnail"
         app:layout_constraintHorizontal_bias="0"
@@ -139,7 +139,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:textColor="@color/black"
-        android:textSize="10sp"
+        android:textSize="9sp"
         android:textStyle="bold"
         app:layout_constraintHorizontal_bias="0.1"
         app:layout_constraintLeft_toRightOf="@id/tv_split_slash"
@@ -155,7 +155,7 @@
         android:layout_marginEnd="3dp"
         android:text="@string/vertical_divider_string"
         android:textColor="@color/black"
-        android:textSize="10sp"
+        android:textSize="9sp"
         app:layout_constraintBottom_toBottomOf="@id/tv_post_time"
         app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintLeft_toRightOf="@id/tv_post_time"
@@ -203,7 +203,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/breaking_color"
-        android:textSize="10sp"
+        android:textSize="9sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/imgv_post_location_icon"
         app:layout_constraintTop_toBottomOf="@id/tv_post_title"
@@ -214,7 +214,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
-        android:textSize="10sp"
+        android:textSize="9sp"
         app:layout_constraintLeft_toRightOf="@id/tv_split_dot"
         app:layout_constraintTop_toTopOf="@id/tv_post_location" />
 
@@ -236,7 +236,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
-        android:textSize="13sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0"

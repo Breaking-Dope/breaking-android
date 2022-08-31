@@ -63,7 +63,7 @@
     <string name="dot_divider">·</string>
     <string name="filter">필터</string>
     <string name="latest_order">최신순</string>
-    <string name="search_hint_text">제보를 검색하세요.</string>
+    <string name="search_hint_text"> 제보 또는 유저를 검색하세요.</string>
     <string name="post_detail_tool_bar">제보글</string>
     <string name="post_detail_btn_purchase">구매하기</string>
     <string name="post_detail_btn_sold">구매완료</string>
@@ -95,4 +95,8 @@
     <string name="no_purchased">구매한 제보가 없습니다.</string>
     <string name="no_written">작성한 제보가 없습니다.</string>
     <string name="no_bookmarked">북마크한 제보가 없습니다.</string>
+    <string name="search">검색</string>
+    <string name="hashtag_alert">해시태그 검색 시 맨 앞에 #을 붙여주세요. ex) #해시태그</string>
+    <string name="user_alert">유저 검색 시 맨 앞에 @을 붙여주세요. ex) @홍길동</string>
+    <string name="no_search_result">검색결과 없음</string>
 </resources>

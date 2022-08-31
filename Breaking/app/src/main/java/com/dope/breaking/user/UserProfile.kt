@@ -10,6 +10,7 @@ import com.dope.breaking.UserPageActivity
 import com.dope.breaking.exception.MissingJwtTokenException
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.response.DetailUser
+import com.dope.breaking.model.response.ResponseUserSearch
 import com.dope.breaking.model.response.User
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
@@ -131,5 +132,33 @@ class UserProfile(private val activity: Activity) {
         } else {
             throw MissingJwtTokenException("토큰이 없습니다.")
         }
+    }
+
+    /**
+     * 유저 검색을 요청하는 함수
+     * @param cursorId(Int): 마지막으로 요청한 리스트의 마지막 인덱스의 userId
+     * @param contentSize(Int): 가져올 아이템 개수
+     * @param userContent(String): 유저 검색하고자 하는 검색 키워드
+     * @param token(String): 본인의 Jwt 토큰
+     * @return List<ResponseUserSearch>: 유저 검색 응답 DTO 리스트
+     */
+    suspend fun startGetUserSearch(
+        cursorId: Int,
+        contentSize: Int,
+        userContent: String,
+        token: String
+    ): List<ResponseUserSearch> {
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // @ 제거
+        val replacePrefix = userContent.replace("@", "")
+
+        // 응답 받기
+        val response = service.requestUserSearch(token, replacePrefix, cursorId, contentSize)
+
+        if (response.code() in 200..299)
+            return response.body()!!
+        else
+            throw ResponseErrorException("${response.errorBody()!!.string()}")
     }
 }
