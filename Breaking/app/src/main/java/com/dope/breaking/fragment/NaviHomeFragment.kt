@@ -64,7 +64,6 @@ class NaviHomeFragment : Fragment() {
                 adapter.clearList()
                 isObtainedAll = false // 더 이상 얻을 피드가 없는 상태 초기화
             }, {
-
                 if (it.isEmpty()) { // 리스트가 비어있다면
                     // 비어있다면 화면 뿌려주기
                     binding.tvNoFeedAlert.visibility = View.VISIBLE
