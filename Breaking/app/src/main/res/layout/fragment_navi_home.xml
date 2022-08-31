@@ -47,15 +47,17 @@
             app:layout_constraintWidth_percent="0.25" />
 
         <EditText
-            android:id="@+id/search_bar"
+            android:id="@+id/et_search_bar"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/main_search_background"
-            android:hint="@string/search_hint_text"
             android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"
+            android:background="@drawable/main_search_background"
             android:textSize="13sp"
+            android:hint="@string/search"
             app:layout_constraintBottom_toBottomOf="@id/imgv_main_logo"
-            app:layout_constraintHeight_percent="0.04"
+            app:layout_constraintHeight_percent="0.05"
             app:layout_constraintHorizontal_bias="0.85"
             app:layout_constraintLeft_toRightOf="@id/imgv_main_logo"
             app:layout_constraintRight_toRightOf="parent"
@@ -68,9 +70,9 @@
             android:layout_height="wrap_content"
             android:background="@drawable/ic_baseline_search_24"
             android:translationZ="10dp"
-            app:layout_constraintBottom_toBottomOf="@id/search_bar"
-            app:layout_constraintRight_toRightOf="@id/search_bar"
-            app:layout_constraintTop_toTopOf="@id/search_bar" />
+            app:layout_constraintBottom_toBottomOf="@id/et_search_bar"
+            app:layout_constraintRight_toRightOf="@id/et_search_bar"
+            app:layout_constraintTop_toTopOf="@id/et_search_bar" />
 
         <ImageView
             android:id="@+id/imgv_main_logo"
@@ -203,7 +205,7 @@
             android:theme="@style/FormButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.05"
+            app:layout_constraintHeight_percent="0.06"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.98"
