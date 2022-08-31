@@ -154,7 +154,7 @@ class FeedSearchActivity : AppCompatActivity() {
                     (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
 
                 // 가져온 아이템 개수가 가져와야할 아이템 개수보다 적을 경우 스크롤 이벤트 무시
-                if (recyclerView.adapter!!.itemCount < 4) {
+                if (recyclerView.adapter!!.itemCount < ValueUtil.FEED_SIZE) {
                     return
                 }
 
@@ -172,7 +172,7 @@ class FeedSearchActivity : AppCompatActivity() {
                     searchFeed(currentCursor, token, {
                         if (searchState != 2) { // 게시글 검색이라면
                             val list = it as List<ResponseMainFeed> // 데이터 타입 변환
-                            if (list.size < 4) { // 정량으로 가져오는 개수보다 적다면
+                            if (list.size < ValueUtil.FEED_SIZE) { // 정량으로 가져오는 개수보다 적다면
                                 feedAdapter.removeLast() // 로딩 아이템 제거
                                 isObtainedAll = true // 더 이상 받아올 피드가 없다는 상태로 전환
                             } else { // 리스트가 있다면
@@ -180,7 +180,7 @@ class FeedSearchActivity : AppCompatActivity() {
                             }
                         } else { // 유저 검색이라면
                             val list = it as List<ResponseUserSearch> // 데이터 타입 변환
-                            if (list.size < 4) { // 정량으로 가져오는 개수보다 적다면
+                            if (list.size < ValueUtil.FEED_SIZE) { // 정량으로 가져오는 개수보다 적다면
                                 userAdapter.removeLast() // 로딩 아이템 제거
                                 isObtainedAll = true // 더 이상 받아올 피드가 없다는 상태로 전환
                             } else { // 리스트가 있다면
@@ -230,7 +230,7 @@ class FeedSearchActivity : AppCompatActivity() {
             try {
                 val responseList = postManager.startSearchStringFeed(
                     cursorId,
-                    4,
+                    ValueUtil.FEED_SIZE,
                     searchContent,
                     sortDialog.sortIndex,
                     filterDialog.sellState,
@@ -269,7 +269,7 @@ class FeedSearchActivity : AppCompatActivity() {
             try {
                 val responseList = postManager.startSearchHashtagFeed(
                     cursorId,
-                    4,
+                    ValueUtil.FEED_SIZE,
                     hashtagContent,
                     sortDialog.sortIndex,
                     filterDialog.sellState,
@@ -308,7 +308,7 @@ class FeedSearchActivity : AppCompatActivity() {
             try {
                 val responseList = UserProfile(this@FeedSearchActivity)
                     .startGetUserSearch(
-                        cursorId, 4, userContent, token
+                        cursorId, ValueUtil.FEED_SIZE, userContent, token
                     ) // 유저 검색 요청하여 리스트 가져오기
                 last(responseList) // 후처리 함수 호출
             } catch (e: ResponseErrorException) {
