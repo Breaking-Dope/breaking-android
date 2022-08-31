@@ -99,7 +99,7 @@ interface RetrofitService {
     @GET("post/{postId}")
     suspend fun requestPostDetail(
         @Header("authorization") token: String,
-        @Path("postId") postId : Long
+        @Path("postId") postId: Long
     ): Response<ResponsePostDetail>
 
     /**
@@ -167,6 +167,8 @@ interface RetrofitService {
      * @param token(String): Jwt 토큰 - 헤더 (옵션)
      * @param lastPostId(Int): 마지막으로 가져온 post id (필수) (처음 요청 시에는 0 or null)
      * @param contentsSize(Int): 가져올 게시글 개수 (필수)
+     * @param searchContent(String?): 문자열 검색 키워드 (옵션)
+     * @param hashtagContent(String?): 해시태그 검색 키워드 (옵션)
      * @param sortCategory(String?): 정렬 - 정렬 카테고리 (옵션)
      * @param soldOption(String?): 필터 - 판매 상태 (옵션)
      * @param dateFrom(String?): 필터 - 시작 날짜 (옵션)
@@ -180,6 +182,8 @@ interface RetrofitService {
         @Header("authorization") token: String = "",
         @Query("cursor") lastPostId: Int,
         @Query("size") contentsSize: Int,
+        @Query("search") searchContent: String? = null,
+        @Query("hashtag") hashtagContent: String? = null,
         @Query("sort") sortCategory: String? = null,
         @Query("sold-option") soldOption: String? = null,
         @Query("date-from") dateFrom: String? = null,
@@ -207,6 +211,23 @@ interface RetrofitService {
         @Query("size") contentSize: Int,
         @Query("sold-option") soldOption: String
     ): Response<List<ResponseMainFeed>>
+
+    /**
+     * 유저 검색을 하는 요청
+     * @header token(String): 본인의 Jwt 토큰
+     * @query searchUser(String): 유저를 검색하고자 하는 검색 키워드
+     * @query cursor(Int): 마지막으로 요청한 리스트의 마지막 인덱스의 userId
+     * @query size(Int): 가져오고자 하는 아이템 개수
+     * @response ResponseUserSearch 리스트
+     * @author Seunggun Sin
+     */
+    @GET("search/user")
+    suspend fun requestUserSearch(
+        @Header("authorization") token: String = "",
+        @Query("search") searchUser: String,
+        @Query("cursor") cursorId: Int,
+        @Query("size") contentSize: Int
+    ): Response<List<ResponseUserSearch>>
 
     /**
      * 게시글의 북마크를 등록하는 요청
