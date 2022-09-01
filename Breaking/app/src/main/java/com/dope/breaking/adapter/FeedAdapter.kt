@@ -214,7 +214,7 @@ class FeedAdapter(
                 popupWindow.dismiss()
             }
 
-            title.text = item.title
+            title.text = item.title.ifEmpty { "(제목 없음)" }
             likeCount.text = NumberUtil().countNumberFormatter(item.likeCount)
             commentCount.text = NumberUtil().countNumberFormatter(item.commentCount)
             price.text = "${decimalFormat.format(item.price)}원"
@@ -222,7 +222,8 @@ class FeedAdapter(
 
             if (item.postType == "FREE" || item.price == 0) price.text = "무료"
 
-            location.text = item.location.region_2depth_name
+            location.text =
+                item.location.region_1depth_name + " " + item.location.region_2depth_name
             chipSold.visibility = if (item.isSold) View.VISIBLE else View.GONE
             chipUnsold.visibility = if (item.isSold) View.GONE else View.VISIBLE
             nickname.text = if (item.user == null) "익명" else item.user.nickname
