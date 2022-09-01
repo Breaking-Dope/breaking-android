@@ -30,6 +30,7 @@ import com.dope.breaking.util.Utils
 import com.dope.breaking.util.ValueUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.time.LocalDateTime
@@ -55,20 +56,18 @@ class PostDetailActivity : AppCompatActivity() {
         var getPostId = intent.getIntExtra("postId",-1)
         Log.d(TAG,"받아온 postId 값 : $getPostId")
 
-        // 게시글 상세 조회 요청 다이얼 로그 시작
-        val progressDialog = DialogUtil().ProgressDialog(this)
-        progressDialog.showDialog()
-
         // 게시글 상세 조회 요청
-        CoroutineScope(Dispatchers.Main).launch {
-            processPostDetail(
-                JwtTokenUtil(applicationContext).getAccessTokenFromLocal(), // 로컬에서 토큰 가져오기
-                getPostId.toLong()
-            )
-            if (progressDialog.isShowing()) { // 로딩 다이얼로그 종료
-                progressDialog.dismissDialog()
+        processPostDetail(
+            JwtTokenUtil(applicationContext).getAccessTokenFromLocal(), // 로컬에서 토큰 가져오기
+            getPostId.toLong(), {
+                showSkeletonView() // 스켈레톤 UI 시작
+            },{
+                dismissSkeletonView() // 스켈레톤 UI 종료
+                settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
+                Log.d(TAG,"visibility 테스트 : ${binding.tvPostContent.visibility}")
+                Log.d(TAG,"값 테스트 : ${binding.tvPostContent.text}")
             }
-        }
+        )
 
         binding.viewPager.offscreenPageLimit = 1 // 한 페이지에 한 이미지만 보여주도록 설정
         binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){ // viewPager2 페이지 변화 감지
@@ -228,27 +227,30 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-08-15
      */
-    private suspend fun processPostDetail(
+    private fun processPostDetail(
         token: String,
-        postId: Long
+        postId: Long,
+        init: () -> Unit,
+        last: (ResponsePostDetail) -> Unit
     ) {
-        val postManager = PostManager() // 커스텀 게시글 객체 생성
-        try {
-            val responsePostDetail = postManager.startGetPostDetail(
-                token,
-                postId
-            )
-            Log.d(TAG, "요청 성공 시 받아온 게시물 제목 : ${responsePostDetail.title}")
-
-            // 받아온 세부 조회 정보를 view 에 보여주기
-            settingPostDetailView(responsePostDetail)
-        } catch (e: ResponseErrorException) {
-            e.printStackTrace()
-            DialogUtil().SingleDialog(
-                this,
-                "게시글 상세 조회 요청에 문제가 발생하였습니다.",
-                "확인"
-            )
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기화 함수 호출
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val responsePostDetail = postManager.startGetPostDetail(
+                    token,
+                    postId
+                )
+                Log.d(TAG, "요청 성공 시 받아온 게시물 제목 : ${responsePostDetail.title}")
+                last(responsePostDetail) // 후처리 함수 호출
+            } catch (e: ResponseErrorException) {
+                e.printStackTrace()
+                DialogUtil().SingleDialog(
+                    applicationContext,
+                    "게시글 상세 조회 요청에 문제가 발생하였습니다.",
+                    "확인"
+                )
+            }
         }
     }
 
@@ -286,6 +288,8 @@ class PostDetailActivity : AppCompatActivity() {
             // 게시글 작성자의 프로필 이미지
             Glide.with(applicationContext)
                 .load(R.drawable.ic_default_profile_image)
+                .placeholder(R.drawable.ic_default_profile_image)
+                .error(R.drawable.ic_default_profile_image)
                 .circleCrop()
                 .into(binding.ivProfileWriter)
             // 유저 닉네임
@@ -294,6 +298,8 @@ class PostDetailActivity : AppCompatActivity() {
             // 게시글 작성자의 프로필 이미지
             Glide.with(applicationContext)
                 .load(ValueUtil.IMAGE_BASE_URL + responsePostDetail.user?.profileImgUrl)
+                .placeholder(R.drawable.ic_default_profile_image)
+                .error(R.drawable.ic_default_profile_image)
                 .circleCrop()
                 .into(binding.ivProfileWriter)
             // 유저 닉네임
@@ -370,6 +376,7 @@ class PostDetailActivity : AppCompatActivity() {
     private fun setViewHashTag(responsePostDetail: ResponsePostDetail){
         // 해시 태그 리스트 색상 표시
         Log.d(TAG, "해당 게시물의 해시 태그 리스트 : ${responsePostDetail.hashtagList}")
+        Log.d(TAG, "해당 게시물의 전체 컨텐츠 : ${responsePostDetail.content}")
         var spannableString = SpannableString(responsePostDetail.content) // 텍스트 뷰의 특정 문자열 처리를 위한 spannableString 객체 생성
         var startList = ArrayList<Int>()
         for(hashString in responsePostDetail.hashtagList){
@@ -399,6 +406,7 @@ class PostDetailActivity : AppCompatActivity() {
      * @since - 2022-08-25
      */
     private fun setViewMediaList(responsePostDetail: ResponsePostDetail){
+        Log.d(TAG,"미디어 리스트 URL : ${responsePostDetail.mediaList}")
         // 받아온 mediaList 처리
         if(responsePostDetail.mediaList.size == 0){ // 게시물의 이미지가 없다면
             binding.ivPostDetailDefault.visibility = View.VISIBLE // default 이미지 보여주기
@@ -459,5 +467,31 @@ class PostDetailActivity : AppCompatActivity() {
                 return false
             }
         })
+    }
+
+    /**
+     * 스켈레톤 UI를 보여주는 함수 with shimmer effect
+     * @author Seunggun Sin
+     * @since 2022-08-31
+     */
+    private fun showSkeletonView() {
+        binding.rvCommentList.visibility = View.GONE // 댓글 리스트 invisible
+        binding.viewWholeContentLayout.visibility = View.GONE // 전체 컨텐츠 invisible
+        binding.sflPostDetailSkeleton.visibility = View.VISIBLE // 스켈레톤 visible
+        binding.sflPostDetailSkeleton.startShimmer()
+    }
+
+    /**
+     * 스켈레톤 UI를 종료하는 함수
+     * @author Seunggun Sin
+     * @since 2022-08-31
+     */
+    private fun dismissSkeletonView() {
+        binding.sflPostDetailSkeleton.stopShimmer()
+        binding.sflPostDetailSkeleton.visibility = View.GONE // 스켈레톤 gone
+        binding.rvCommentList.visibility = View.VISIBLE      // 댓글 리스트 visible
+        binding.viewWholeContentLayout.visibility = View.VISIBLE // 전체 컨텐츠 visible
+        binding.tvPostContent.visibility = View.VISIBLE
+        binding.tvPostContent.text = "테스트테스트"
     }
 }

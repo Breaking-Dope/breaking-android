@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/test_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_post_detail_default_test"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/ic_default_post_image"
+        android:visibility="visible"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintHeight_percent="0.36"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_profile_writer_test"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:background="@drawable/skeleton_circle_background"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintBottom_toTopOf="@+id/divider1_test"
+        app:layout_constraintHorizontal_bias="0.048"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_post_detail_default_test"
+        app:layout_constraintVertical_bias="0.285"
+        app:layout_constraintWidth_percent="0.18" />
+
+    <TextView
+        android:id="@+id/tv_user_nick_name_test"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text=""
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_profile_writer_test"
+        app:layout_constraintTop_toBottomOf="@+id/iv_profile_writer_test"
+        app:layout_constraintRight_toRightOf="@+id/iv_profile_writer_test"/>
+
+    <TextView
+        android:id="@+id/tv_chip_test"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/skeleton_background"
+        android:ellipsize="end"
+        android:text=""
+        android:textColor="@color/black"
+        android:textSize="17sp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@+id/iv_profile_writer_test"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/iv_profile_writer_test"
+        app:layout_constraintWidth_percent="0.4" />
+
+    <TextView
+        android:id="@+id/tv_title_test"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginRight="10dp"
+        android:ellipsize="end"
+        android:text=""
+        android:textColor="@color/black"
+        android:textSize="17sp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@+id/iv_profile_writer_test"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_chip_test" />
+
+    <ImageView
+        android:id="@+id/iv_location_icon_test"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintLeft_toLeftOf="@id/tv_title_test"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_test"
+        app:layout_constraintWidth_percent="0.045" />
+
+    <TextView
+        android:id="@+id/tv_post_location_test"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text=""
+        android:textColor="@color/breaking_color"
+        android:textSize="12sp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintWidth_percent="0.35"
+        app:layout_constraintTop_toTopOf="@id/iv_location_icon_test"
+        app:layout_constraintBottom_toBottomOf="@id/iv_location_icon_test"
+        app:layout_constraintLeft_toRightOf="@id/iv_location_icon_test" />
+    <TextView
+        android:id="@+id/tv_post_time_test"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintWidth_percent="0.41"
+        android:ellipsize="end"
+        android:text=""
+        android:textSize="12sp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintBottom_toTopOf="@+id/divider1_test"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_location_icon_test"
+        app:layout_constraintTop_toBottomOf="@+id/iv_location_icon_test" />
+
+    <Button
+        android:id="@+id/btn_purchase_test"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintWidth_percent="0.22"
+        app:layout_constraintHeight_percent="0.04"
+        android:background="@drawable/sign_up_user_type_selected"
+        android:text="@string/post_detail_btn_purchase"
+        android:visibility="invisible"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintVertical_bias="1"
+        app:layout_constraintTop_toBottomOf="@id/tv_post_price_test"
+        app:layout_constraintBottom_toTopOf="@id/divider1_test"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/tv_post_price_test"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintWidth_percent="0.3"
+        android:gravity="center"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:text=""
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_test"
+        app:layout_constraintLeft_toLeftOf="@+id/btn_purchase_test"
+        app:layout_constraintBottom_toTopOf="@+id/btn_purchase_test"
+        app:layout_constraintRight_toRightOf="@+id/btn_purchase_test"/>
+
+    <View
+        android:id="@+id/divider1_test"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/gray"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_post_time_test" />
+
+    <TextView
+        android:id="@+id/tv_post_content_test"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="15sp"
+        android:layout_marginTop="7dp"
+        android:padding="10dp"
+        android:ellipsize="end"
+        android:text=""
+        android:lines="10"
+        android:scrollbars="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider1_test" />
+
+    <ImageButton
+        android:id="@+id/ib_post_like_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/ic_post_like"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_user_nick_name_test"
+        app:layout_constraintTop_toBottomOf="@+id/tv_post_content_test" />
+
+    <ImageButton
+        android:id="@+id/ib_post_comment_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_post_comment"
+        android:visibility="invisible"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintTop_toTopOf="@+id/ib_post_like_test"
+        app:layout_constraintBottom_toBottomOf="@+id/ib_post_like_test"
+        app:layout_constraintLeft_toRightOf="@id/ib_post_like_test"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_editor_absoluteY="356dp" />
+
+    <ImageButton
+        android:id="@+id/ib_post_more_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_baseline_more_horiz_24"
+        android:visibility="invisible"
+        app:layout_constraintHorizontal_bias="0.92"
+        app:layout_constraintTop_toTopOf="@+id/ib_post_like_test"
+        app:layout_constraintBottom_toBottomOf="@+id/ib_post_like_test"
+        app:layout_constraintLeft_toRightOf="@id/ib_post_comment_test"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <View
+        android:id="@+id/divider2_test"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/gray"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ib_post_like_test" />
+
+    <ImageView
+        android:id="@+id/iv_comment_writer_profile_test"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:background="@drawable/skeleton_circle_background"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@+id/ib_post_like_test"
+        app:layout_constraintRight_toRightOf="@+id/iv_profile_writer_test"
+        app:layout_constraintTop_toBottomOf="@+id/divider2_test"
+        app:layout_constraintWidth_percent="0.15" />
+
+    <EditText
+        android:id="@+id/et_post_write_test"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:lines="3"
+        android:background="@drawable/skeleton_background"
+        android:scrollbars="vertical"
+        android:maxLength="1000"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_title_test"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2_test"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_comment_writer_profile_test"
+        app:layout_constraintWidth_percent="0.63"
+        app:layout_constraintHeight_percent="0.06"/>
+
+    <TextView
+        android:id="@+id/tv_add_comment_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/post_detail_add_comment"
+        android:textColor="@color/breaking_color"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintTop_toTopOf="@+id/et_post_write_test"
+        app:layout_constraintBottom_toBottomOf="@+id/et_post_write_test"
+        app:layout_constraintLeft_toRightOf="@+id/et_post_write_test"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
