@@ -1,6 +1,7 @@
 package com.dope.breaking
 
 import android.content.Context
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -8,6 +9,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -61,6 +63,8 @@ class FeedSearchActivity : AppCompatActivity() {
             )
         )
 
+        initHashtagExplainSpannable()
+        initUserExplainSpannable()
         // 요청 토큰
         val token = ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this).getAccessTokenFromLocal()
 
@@ -324,7 +328,7 @@ class FeedSearchActivity : AppCompatActivity() {
      * @param init((Any) -> Unit): 응답받고 난 뒤, 호출하여 각 상황에 맞게 처리하는 커스텀 함수
      * @param append(Boolean): 리스트를 덧붙이는 것인지, 초기화하는 것인지 구분
      * @author Seunggun Sin
-     * @since 2022-08-30
+     * @since 2022-08-30 | 2022-09-01
      */
     private fun searchFeed(
         currentCursor: Int,
@@ -366,10 +370,12 @@ class FeedSearchActivity : AppCompatActivity() {
                         spanningSearchResult()
 
                         // 리스트가 비어있다면 비어있는 view 처리
-                        if (it.isEmpty())
-                            binding.tvNoResult.visibility = View.VISIBLE
-                        else
-                            binding.tvNoResult.visibility = View.GONE
+                        if (!append) {
+                            if (it.isEmpty())
+                                binding.tvNoResult.visibility = View.VISIBLE
+                            else
+                                binding.tvNoResult.visibility = View.GONE
+                        }
 
                     }, {
                         it.printStackTrace()
@@ -404,10 +410,12 @@ class FeedSearchActivity : AppCompatActivity() {
                         spanningSearchResult()
 
                         // 리스트가 비어있다면 비어있는 view 처리
-                        if (it.isEmpty())
-                            binding.tvNoResult.visibility = View.VISIBLE
-                        else
-                            binding.tvNoResult.visibility = View.GONE
+                        if (!append) {
+                            if (it.isEmpty())
+                                binding.tvNoResult.visibility = View.VISIBLE
+                            else
+                                binding.tvNoResult.visibility = View.GONE
+                        }
 
                     }, {
                         it.printStackTrace()
@@ -443,10 +451,12 @@ class FeedSearchActivity : AppCompatActivity() {
                         spanningSearchResult()
 
                         // 리스트가 비어있다면 비어있는 view 처리
-                        if (it.isEmpty())
-                            binding.tvNoResult.visibility = View.VISIBLE
-                        else
-                            binding.tvNoResult.visibility = View.GONE
+                        if (!append) {
+                            if (it.isEmpty())
+                                binding.tvNoResult.visibility = View.VISIBLE
+                            else
+                                binding.tvNoResult.visibility = View.GONE
+                        }
                     }, {
                         it.printStackTrace()
                     })
@@ -493,5 +503,100 @@ class FeedSearchActivity : AppCompatActivity() {
         ) // 검색 키워드만 지정한 색깔로 처리
 
         binding.tvSearchResult.text = spannableString
+    }
+
+    /**
+     * 해시태그 검색 설명에 대한 초기 spannable 처리
+     * @author Seunggun Sin
+     * @since 2022-09-01
+     */
+    private fun initHashtagExplainSpannable() {
+        val tmp = binding.tvAnnounceSearchHashtag.text.toString()
+        val index = tmp.indexOf("#")
+        val spannableString = SpannableString(tmp)
+
+        // 색상 지정
+        spannableString.setSpan(
+            ForegroundColorSpan(getColor(R.color.breaking_color)),
+            index,
+            index + 1,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        // 볼드 처리
+        spannableString.setSpan(
+            StyleSpan(Typeface.BOLD),
+            index,
+            index + 1,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        val target = "#해시태그"
+        val index2 = tmp.indexOf(target)
+
+        // 색상 지정
+        spannableString.setSpan(
+            ForegroundColorSpan(getColor(R.color.breaking_color)),
+            index2,
+            index2 + target.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        // 볼드 처리
+        spannableString.setSpan(
+            StyleSpan(Typeface.BOLD),
+            index2,
+            index2 + target.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        binding.tvAnnounceSearchHashtag.text = spannableString
+    }
+
+    /**
+     * 유저 검색 설명에 대한 초기 spannable 처리
+     * @author Seunggun Sin
+     * @since 2022-09-01
+     */
+    private fun initUserExplainSpannable() {
+        val tmp = binding.tvAnnounceSearchUser.text.toString()
+        val index = tmp.indexOf("@")
+        val spannableString = SpannableString(tmp)
+
+        // 색상 지정
+        spannableString.setSpan(
+            ForegroundColorSpan(getColor(R.color.teal_700)),
+            index,
+            index + 1,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        // 볼드 처리
+        spannableString.setSpan(
+            StyleSpan(Typeface.BOLD),
+            index,
+            index + 1,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        val target = "@홍길동"
+        val index2 = tmp.indexOf(target)
+
+        // 색상 지정
+        spannableString.setSpan(
+            ForegroundColorSpan(getColor(R.color.teal_700)),
+            index2,
+            index2 + target.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        // 볼드 처리
+        spannableString.setSpan(
+            StyleSpan(Typeface.BOLD),
+            index2,
+            index2 + target.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        binding.tvAnnounceSearchUser.text = spannableString
     }
 }

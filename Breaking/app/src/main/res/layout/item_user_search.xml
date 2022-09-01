@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         android:background="@drawable/my_profile_edit_profile_btn_background"
         android:text="@string/follow_remove"
-        android:textSize="9sp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.45"
         app:layout_constraintHorizontal_bias="0.975"
