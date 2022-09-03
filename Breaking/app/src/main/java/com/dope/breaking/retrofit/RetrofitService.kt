@@ -2,6 +2,7 @@ package com.dope.breaking.retrofit
 
 import com.dope.breaking.model.FollowData
 import com.dope.breaking.model.request.RequestAmount
+import com.dope.breaking.model.request.RequestComment
 import com.dope.breaking.model.request.RequestGoogleAccessToken
 import com.dope.breaking.model.request.RequestGoogleToken
 import com.dope.breaking.model.request.RequestKakaoToken
@@ -102,6 +103,67 @@ interface RetrofitService {
         @Header("authorization") token: String,
         @Path("postId") postId: Long
     ): Response<ResponsePostDetail>
+
+    /**
+     * 특정 게시글에서 댓글 달기 요청 메소드
+     * @Path - postId(Long) : 게시글 id
+     * @Body - comment(RequestComment) : 댓글 dto body
+     * @response - Unit : 성공 여부의 응답 코드만 받아옴
+     * @author - Tae hyun Park
+     */
+    @POST("post/{postId}/comment")
+    suspend fun requestCommentWrite(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long,
+        @Body comment: RequestComment
+    ): Response<Unit>
+
+    /**
+     * 특정 게시글에서 대댓글 달기 요청 메소드
+     * @Path - commentId(Long) : 대댓글을 달 댓글의 id
+     * @Body - comment(RequestComment) : 댓글 dto body
+     * @response - Unit : 성공 여부의 응답 코드만 받아옴
+     * @author - Tae hyun Park
+     */
+    @POST("post/comment/{commentId}/reply")
+    suspend fun requestNestedCommentWrite(
+        @Header("authorization") token: String,
+        @Path("commentId") commentId: Long,
+        @Body comment: RequestComment
+    ): Response<Unit>
+
+    /**
+     * 해당 게시물의 댓글 리스트를 요청하는 메소드
+     * @param token(String) : jwt 토큰 (옵션)
+     * @Path - postId(Long) : 게시글 id
+     * @param lastCommentId(Int) : 마지막으로 가져온 commentId (처음 요청 시에는 0 or null)
+     * @param contentsSize(Int) : 가져올 댓글 개수 (필수)
+     * @author - Tae hyun Park
+     */
+    @GET("post/{postId}/comment")
+    suspend fun requestCommentList(
+        @Header("authorization") token: String = "",
+        @Path("postId") postId: Long,
+        @Query("cursor") lastCommentId: Int,
+        @Query("size") contentsSize: Int
+    ): Response<List<ResponseComment>>
+
+    /**
+     * 해당 게시물의 대댓글 리스트를 요청하는 메소드
+     * @param token(String) : jwt 토큰 (옵션)
+     * @Path - commentId(Long) : 대댓글을 요청할 댓글의 id
+     * @param lastCommentId(Int) : 마지막으로 가져온 commentId (처음 요청 시에는 0 or null)
+     * @param contentsSize(Int) : 가져올 대댓글 개수 (필수)
+     * @author - Tae hyun Park
+     */
+    @GET("post/comment/{commentId}/reply")
+    suspend fun requestNestedCommentList(
+        @Header("authorization") token: String = "",
+        @Path("commentId") commentId: Long,
+        @Query("cursor") lastCommentId: Int,
+        @Query("size") contentsSize: Int
+    ): Response<List<ResponseComment>>
+
 
     /**
      * 구글 로그인 토큰 검증 요청 메소드

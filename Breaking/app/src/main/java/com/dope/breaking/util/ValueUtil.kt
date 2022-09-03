@@ -24,6 +24,8 @@ class ValueUtil {
         const val VIEW_TYPE_LOADING = 1 // 로딩 아이템에 대한 레이아웃 view type
         const val USER_FEED_SIZE = 6 // 유저 페이지 피드 요청마다 가져올 게시글 개수
         const val TRANSACTION_SIZE = 20 // 입출금 내역 리스트 가져올 개수
+        const val COMMENT_SIZE = 3 // 댓글 요청마다 가져올 댓글 개수
+        const val NESTED_COMMENT_SIZE = 10 // 대댓글 요청마다 가져올 대댓글 개수
 
         val TAB_ICONS = arrayOf(
             R.drawable.ic_baseline_create_24,

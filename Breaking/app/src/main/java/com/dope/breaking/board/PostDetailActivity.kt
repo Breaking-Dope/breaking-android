@@ -11,16 +11,18 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.*
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.PopupWindow
+import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.dope.breaking.R
 import com.dope.breaking.databinding.ActivityPostDetailBinding
 import com.dope.breaking.databinding.CustomPostDetailContentPopupBinding
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.model.response.ResponsePostDetail
 import com.dope.breaking.post.PostManager
@@ -30,7 +32,6 @@ import com.dope.breaking.util.Utils
 import com.dope.breaking.util.ValueUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.time.LocalDateTime
@@ -41,20 +42,33 @@ class PostDetailActivity : AppCompatActivity() {
     private val TAG = "PostDetailActivity.kt"
     private var mbinding : ActivityPostDetailBinding? = null
     private val binding get() = mbinding!!
-    private lateinit var adapter: ImageSliderAdapter // 뷰 페이저 어댑터
+    private lateinit var adapterViewpager: ImageSliderAdapter // 뷰 페이저 어댑터
+    private lateinit var adapterComment: PostCommentAdapter // 댓글 리스트 어댑터
+    private var commentList = mutableListOf<ResponseComment?>() // 댓글 리스트
     private var flagLike = false // 좋아요가 안 눌렸으면 false, 눌렸으면 true (임시)
     private var flagComment = false // 댓글 창을 안 눌렀으면 false, 눌렀으면 true (임시)
+    private var isObtainedAll = false // 모든 댓글 리스트를 받았는지 판단(더 이상 요청할 것이 없는)
+    private var isLoading = false  // 로딩 중 판단
+    private var requestCommentId = -1 // 대댓글 요청 시에 보낼 댓글 id (기본값은 임의로 -1로 설정)
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 댓글 요청 에러 시 띄워줄 다이얼로그 정의
+        val requestErrorDialog =
+            DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인")
+
+        // 요청 Jwt 토큰 가져오기
+        val token =
+            ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal()
+
+        var getPostId = intent.getIntExtra("postId",-1)
+        Log.d(TAG,"받아온 postId 값 : $getPostId")
+
         mbinding = ActivityPostDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settingPostToolBar()  // 툴 바 설정
         allowScrollEditText() // 스크롤 바 중첩 문제 해결
-
-        var getPostId = intent.getIntExtra("postId",-1)
-        Log.d(TAG,"받아온 postId 값 : $getPostId")
 
         // 게시글 상세 조회 요청
         processPostDetail(
@@ -64,8 +78,6 @@ class PostDetailActivity : AppCompatActivity() {
             },{
                 dismissSkeletonView() // 스켈레톤 UI 종료
                 settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
-                Log.d(TAG,"visibility 테스트 : ${binding.tvPostContent.visibility}")
-                Log.d(TAG,"값 테스트 : ${binding.tvPostContent.text}")
             }
         )
 
@@ -99,6 +111,147 @@ class PostDetailActivity : AppCompatActivity() {
                 flagComment = false
             }
         }
+
+        // 댓글 등록 버튼 클릭 시
+        binding.tvAddComment.setOnClickListener {
+            if (binding.etPostWrite.text.isNotEmpty()){
+                // commentId가 -1인지 아닌지 체크하여, -1이 아니면 대댓글 등록 요청
+                if(requestCommentId != -1){ // -1이 아니라면 대댓글 요청
+                    processWriteNestedComment(
+                        token,
+                        requestCommentId.toLong(),
+                        binding.etPostWrite.text.toString(),
+                        Utils.getArrayHashTagWithOutSpace(binding.etPostWrite.text.toString()), // 해시태그 (없으면 빈 리스트로 전달해주는 상황)
+                        {},{
+                            if (it){
+                                Toast.makeText(applicationContext, "답글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
+                                commentList.clear() // 리스트 비우기
+                                binding.etPostWrite.setText("") // 적었던 내용은 지우기
+                                requestCommentId = -1 // 값 다시 초기화
+
+                                // 대댓글 등록 후 댓글 리스트 재갱신
+                                processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+                            }
+                        }
+                    )
+                }else{ // -1이면 일반 댓글 요청
+                    processWriteComment(
+                        token,
+                        getPostId.toLong(),
+                        binding.etPostWrite.text.toString(),
+                        Utils.getArrayHashTagWithOutSpace(binding.etPostWrite.text.toString()), // 해시태그 (없으면 빈 리스트로 전달해주는 상황)
+                        {},{
+                            if (it){ // 댓글 등록이 성공적으로 이루어졌다면
+                                binding.etPostWrite.setText("") // 적었던 내용은 지우기
+                                commentList.clear() // 리스트 비우기
+                                Toast.makeText(applicationContext, "댓글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
+
+                                // 댓글 등록 후 댓글 리스트 재갱신
+                                processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+                            }
+                        }
+                    )
+                }
+            }else{
+                Toast.makeText(applicationContext, "댓글을 입력해주세요!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        /*
+        최초로 댓글 리스트 가져오는 요청
+         */
+        processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+
+        /* 댓글 RecyclerView 스크롤 이벤트 리스너 정의 */
+        binding.rvCommentList.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                // 스크롤하면서 리스트의 가장 마지막 위치에 도달했을 때, 그 인덱스 값 가져오기
+                val lastIndex =
+                    (recyclerView.layoutManager as LinearLayoutManager).findLastCompletelyVisibleItemPosition()
+
+                // 가져온 아이템 사이즈가 가져와야하는 사이즈보다 작은 경우 새로운 요청을 못하게 막기
+                if (recyclerView.adapter!!.itemCount < ValueUtil.COMMENT_SIZE) {
+                    return
+                }
+
+                // 실제 데이터 리스트의 마지막 인덱스와 스크롤 이벤트에 의한 인덱스 값이 같으면서
+                // 스크롤이 드래깅 중이면서
+                // 댓글 리스트 요청이 더 가능하면서
+                // 로딩 중이 아니라면
+                if (lastIndex == recyclerView.adapter!!.itemCount - 1 && newState == 2 && !isObtainedAll && !isLoading) {
+                    processGetCommentList(token, getPostId.toLong(), commentList[lastIndex]!!.commentId, {
+                        adapterComment.addItem(null) // 로딩 창 아이템 추가
+                        isLoading= true // 로딩 시작 상태로 전환
+                    },{
+                        if(it.size < ValueUtil.COMMENT_SIZE){ // 정량으로 가져오는 개수보다 적다면
+                            adapterComment.removeLast() // 로딩 아이템 제거
+                            if (it.isNotEmpty()) // 리스트가 있다면
+                                adapterComment.addItems(it)
+                            isObtainedAll = true // 더 이상 받아올 댓글이 없는 상태
+                        }else{ // 더 요청할 수 있고 받아온 리스트가 있다면
+                            adapterComment.removeLast() // 로딩 아이템 제거
+                            adapterComment.addItems(it) // 받아온 리스트 추가
+                        }
+                        isLoading = false // 로딩 종료 상태로 전환
+                    },{
+                        // BSE451 에러의 경우 더 이상의 받아올 댓글 리스트가 없는 경우 발생
+                        if (it.message!!.contains("BSE451")) {
+                            isObtainedAll = true
+                            adapterComment.removeLast()
+                        }
+                    })
+                }
+            }
+        })
+    }
+
+    /**
+     * @description - 최초 댓글 리스트 불러오기, 댓글/대댓글 작성 후에 리스트를 재갱신하기 위해 재사용되는 메소드
+     * @param - token(String) : 토큰 정보
+     * @param - postId(Long) : 현재 게시물 id
+     * @param - requestErrorDialog(DialogUtil.SingleDialog) : 요청 에러 다이얼로그
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-03
+     */
+    private fun processGetCommentListModule(token: String, postId: Long, requestErrorDialog: DialogUtil.SingleDialog){
+        processGetCommentList(token, postId,0, {
+            isObtainedAll = false
+        }, { it ->
+            commentList.addAll(it) // 어댑터에 넣어줄 댓글 리스트 데이터
+            adapterComment =
+                PostCommentAdapter(applicationContext, commentList, token, binding) // 어댑터 정의
+            adapterComment.setItemReplyClickListener(object : PostCommentAdapter.OnItemClickListener{ // 답글 달기 클릭 리스너 등록
+                override fun onClick(v: View, position: Int) {
+                    Log.d(TAG,"누른 댓글 id 테스트 : ${commentList[position]?.commentId}")
+                    requestCommentId = if(v.findViewById<TextView>(R.id.tv_post_reply).text.equals("답글")) // 댓글 작성 중이 아니면
+                        -1 // 다시 초기화
+                    else
+                        commentList[position]?.commentId!!
+                    Log.d(TAG, "requestCommentId : $requestCommentId")
+                }
+            })
+            if (it.isEmpty()) { // 리스트가 비어있다면
+                binding.tvCommentNone.visibility = View.VISIBLE
+                binding.rvCommentList.visibility = View.GONE
+            } else { // 있다면
+                binding.tvCommentNone.visibility = View.GONE
+                binding.rvCommentList.visibility = View.VISIBLE
+            }
+            // 리스트의 divider 선 추가
+            binding.rvCommentList.addItemDecoration(
+                DividerItemDecoration(
+                    applicationContext,
+                    LinearLayout.VERTICAL
+                )
+            )
+            binding.rvCommentList.adapter = adapterComment // 어댑터 지정
+        },{
+            it.printStackTrace()
+            requestErrorDialog.show()
+        })
     }
 
     /**
@@ -255,6 +408,123 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     /**
+     * @description - 게시글의 댓글 등록 요청 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 댓글을 작성할 게시물 id
+     * @param - content(String) : 댓글 내용
+     * @param - hashTagList(ArrayList<String>) : 댓글의 해시태그 리스트
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-01
+     */
+    private fun processWriteComment(
+        token: String,
+        postId: Long,
+        content: String,
+        hashTagList: ArrayList<String>?,
+        init: () -> Unit,
+        last: (Boolean) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기화 함수 호출
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startRegisterComment(
+                    token,
+                    postId,
+                    content,
+                    hashTagList
+                )
+                if (response) last(response)
+                Log.d(TAG, "댓글 등록 요청 결과 : $response")
+            }catch (e: ResponseErrorException){
+                e.printStackTrace()
+                DialogUtil().SingleDialog(
+                    applicationContext,
+                    "댓글 작성 요청에 문제가 발생하였습니다.",
+                    "확인"
+                )
+            }
+        }
+    }
+
+    /**
+     * @description - 게시글의 대댓글 등록 요청 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - commentId(Long) : 대댓글을 작성할 댓글의 id
+     * @param - content(String) : 대댓글 내용
+     * @param - hashTagList(ArrayList<String>) : 대댓글의 해시태그 리스트
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-02
+     */
+    private fun processWriteNestedComment(
+        token: String,
+        commentId: Long,
+        content: String,
+        hashTagList: ArrayList<String>?,
+        init: () -> Unit,
+        last: (Boolean) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기화 함수 호출
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startRegisterNestedComment(
+                    token,
+                    commentId,
+                    content,
+                    hashTagList
+                )
+                if (response) last(response)
+                Log.d(TAG, "대댓글 등록 요청 결과 : $response")
+            }catch (e: ResponseErrorException){
+                e.printStackTrace()
+                DialogUtil().SingleDialog(
+                    applicationContext,
+                    "대댓글 작성 요청에 문제가 발생하였습니다.",
+                    "확인"
+                )
+            }
+        }
+    }
+
+    /**
+     * @description - 게시물의 댓글 리스트 요청 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 댓글 리스트를 요청할 게시물 id
+     * @param - lastCommentId(Int) : 가장 최근에 요청한 댓글 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-01
+     */
+    private fun processGetCommentList(
+        token: String,
+        postId : Long,
+        lastCommentId : Int,
+        init: () -> Unit,
+        last: (List<ResponseComment>) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기화 함수 호출
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startGetCommentList(
+                    token,
+                    postId,
+                    lastCommentId,
+                    ValueUtil.COMMENT_SIZE,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+                Log.d(TAG, "댓글 리스트 요청 결과 : $response")
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
      * @description - 받아온 상세 조회 정보를 바탕으로 뷰에 보여주기
      * @param - None
      * @return - None
@@ -380,7 +650,6 @@ class PostDetailActivity : AppCompatActivity() {
         var spannableString = SpannableString(responsePostDetail.content) // 텍스트 뷰의 특정 문자열 처리를 위한 spannableString 객체 생성
         var startList = ArrayList<Int>()
         for(hashString in responsePostDetail.hashtagList){
-            Log.d(TAG, "해시 태그 값 : $hashString")
             var start = responsePostDetail.content.indexOf("#$hashString") // 전체 문자열에서 해당 해시태그 문자열과 일치하는 첫 인덱스를 찾아낸다
             for(listIndex in startList){
                 if(start == listIndex)// 중복된 태그가 이미 있다면
@@ -412,10 +681,10 @@ class PostDetailActivity : AppCompatActivity() {
             binding.ivPostDetailDefault.visibility = View.VISIBLE // default 이미지 보여주기
         }else{ // 게시물의 이미지가 있다면
             binding.ivPostDetailDefault.visibility = View.GONE // default 이미지 없애기
-            adapter = ImageSliderAdapter(
+            adapterViewpager = ImageSliderAdapter(
                 this,
                 responsePostDetail.mediaList) // viewPager2 어댑터 세팅
-            binding.viewPager.adapter = adapter
+            binding.viewPager.adapter = adapterViewpager
             setupIndicators(responsePostDetail.mediaList.size) // linearLayout 에 indicators 초기화
         }
     }
@@ -492,6 +761,5 @@ class PostDetailActivity : AppCompatActivity() {
         binding.rvCommentList.visibility = View.VISIBLE      // 댓글 리스트 visible
         binding.viewWholeContentLayout.visibility = View.VISIBLE // 전체 컨텐츠 visible
         binding.tvPostContent.visibility = View.VISIBLE
-        binding.tvPostContent.text = "테스트테스트"
     }
 }
