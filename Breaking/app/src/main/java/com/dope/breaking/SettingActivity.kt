@@ -13,15 +13,27 @@ import com.dope.breaking.util.ValueUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 
 class SettingActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingBinding
+    private val decimalFormat = DecimalFormat("#,###")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingBinding.inflate(layoutInflater)
         binding.tbSetting.setNavigationIcon(R.drawable.ic_baseline_arrow_back_black_24)
+
+        // 보유 금액 값 보여주기
+        binding.tvFinanceValue.text =
+            "${decimalFormat.format(ResponseExistLogin.baseUserInfo!!.balance)}원"
+
         binding.tbSetting.setNavigationOnClickListener {
             finish()
+        }
+
+        // 보유한 금액 레이아웃 클릭 시
+        binding.clFinanceValue.setOnClickListener {
+            startActivity(Intent(this@SettingActivity, FinanceActivity::class.java))
         }
 
         // 로그아웃 클릭 시
@@ -62,5 +74,14 @@ class SettingActivity : AppCompatActivity() {
         intent.flags =
             Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
+    }
+
+    /**
+     * 보유 금액을 업데이트 하기 위한 생명주기 함수 충전, 출금 등으로 인한 계좌 값 반영
+     */
+    override fun onRestart() {
+        super.onRestart()
+        binding.tvFinanceValue.text =
+            "${decimalFormat.format(ResponseExistLogin.baseUserInfo!!.balance)}원"
     }
 }

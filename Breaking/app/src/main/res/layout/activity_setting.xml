@@ -15,32 +15,89 @@
         android:elevation="2dp"
         app:title="설정"
         app:titleTextColor="@color/black" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
         <TextView
-            android:padding="5dp"
-            android:textColor="@color/black"
-            android:id="@+id/tv_account_title"
-            android:textSize="12sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/tv_log_out"
-            app:layout_constraintHorizontal_bias="0.05"
-            app:layout_constraintVertical_bias="0.015"
+            android:id="@+id/tv_finance_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="계정"/>
-        <TextView
+            android:padding="5dp"
+            android:text="@string/transaction"
             android:textColor="@color/black"
-            android:id="@+id/tv_log_out"
-            android:background="@drawable/text_click_background"
-            android:text="로그아웃"
-            android:padding="17dp"
-            app:layout_constraintLeft_toLeftOf="@id/tv_account_title"
-            app:layout_constraintTop_toBottomOf="@id/tv_account_title"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/cl_finance_value"
+            app:layout_constraintHorizontal_bias="0.05"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.015" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_finance_value"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:background="@drawable/text_click_background"
+            android:clickable="true"
+            android:padding="17dp"
+            app:layout_constraintLeft_toLeftOf="@id/tv_finance_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_finance_title">
+
+            <TextView
+                android:id="@+id/tv_finance_prefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/balance"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_finance_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/breaking_color"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/tv_finance_prefix"
+                app:layout_constraintHorizontal_bias="0.15"
+                app:layout_constraintLeft_toRightOf="@id/tv_finance_prefix"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_finance_prefix" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_account_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="@string/account"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/tv_log_out"
+            app:layout_constraintHorizontal_bias="0.05"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.015" />
+
+        <TextView
+            android:id="@+id/tv_log_out"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/text_click_background"
+            android:padding="17dp"
+            android:text="@string/log_out"
+            android:textColor="@color/black"
+            app:layout_constraintLeft_toLeftOf="@id/tv_account_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_account_title" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
