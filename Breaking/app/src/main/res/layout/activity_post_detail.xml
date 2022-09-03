@@ -32,7 +32,8 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -56,7 +57,6 @@
                 android:id="@+id/view_whole_content_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:translationZ="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -68,7 +68,8 @@
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/layout_indicators"/>
 
                 <ImageView
                     android:id="@+id/iv_post_detail_default"
@@ -79,7 +80,8 @@
                     app:layout_constraintHeight_percent="0.36"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/layout_indicators"/>
 
                 <LinearLayout
                     android:id="@+id/layout_indicators"
@@ -91,12 +93,10 @@
                     app:layout_constraintBottom_toBottomOf="@id/view_pager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
-
                 <ImageView
                     android:id="@+id/iv_profile_writer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
                     android:adjustViewBounds="true"
                     android:scaleType="centerCrop"
                     app:layout_constraintBottom_toTopOf="@+id/divider1"
@@ -112,7 +112,7 @@
                     android:id="@+id/tv_user_nick_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    app:layout_constraintVertical_bias="0.1"
                     android:gravity="center"
                     android:text=""
                     android:textSize="12sp"
@@ -120,6 +120,7 @@
                     android:textColor="@color/black"
                     app:layout_constraintLeft_toLeftOf="@+id/iv_profile_writer"
                     app:layout_constraintTop_toBottomOf="@+id/iv_profile_writer"
+                    app:layout_constraintBottom_toBottomOf="@+id/divider1"
                     app:layout_constraintRight_toRightOf="@+id/iv_profile_writer"/>
 
                 <TextView
@@ -232,6 +233,7 @@
                     app:layout_constraintTop_toTopOf="@id/iv_location_icon"
                     app:layout_constraintBottom_toBottomOf="@id/iv_location_icon"
                     app:layout_constraintLeft_toRightOf="@id/iv_location_icon" />
+
                 <TextView
                     android:id="@+id/tv_post_time"
                     android:layout_width="0dp"
@@ -239,7 +241,6 @@
                     android:ellipsize="end"
                     android:text=""
                     android:textSize="11sp"
-                    android:layout_marginTop="5dp"
                     app:layout_constraintVertical_bias="0"
                     app:layout_constraintBottom_toTopOf="@+id/divider1"
                     app:layout_constraintLeft_toLeftOf="@+id/iv_location_icon"
@@ -248,10 +249,9 @@
                 <Button
                     android:id="@+id/btn_purchase"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="5dp"
                     app:layout_constraintWidth_percent="0.2"
-                    app:layout_constraintHeight_percent="0.04"
                     android:background="@drawable/sign_up_user_type_selected"
                     android:text="@string/post_detail_btn_purchase"
                     android:textSize="12sp"
@@ -350,51 +350,18 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/ib_post_like" />
 
-                <ImageView
-                    android:id="@+id/iv_comment_writer_profile"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toTopOf="@+id/rv_comment_list"
-                    app:layout_constraintLeft_toLeftOf="@+id/ib_post_like"
-                    app:layout_constraintRight_toRightOf="@+id/iv_profile_writer"
-                    app:layout_constraintTop_toBottomOf="@+id/divider2"
-                    app:layout_constraintWidth_percent="0.15"
-                    tools:srcCompat="@tools:sample/avatars" />
-
-                <EditText
-                    android:id="@+id/et_post_write"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:hint="@string/post_detail_add_comment_hint"
-                    android:textSize="15sp"
-                    android:lines="3"
-                    android:background="@null"
-                    android:scrollbars="vertical"
-                    android:maxLength="1000"
-                    app:layout_constraintHorizontal_bias="0"
-                    app:layout_constraintLeft_toLeftOf="@+id/tv_title"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/divider2"
-                    app:layout_constraintBottom_toBottomOf="@+id/iv_comment_writer_profile"
-                    app:layout_constraintWidth_percent="0.63" />
-
                 <TextView
-                    android:id="@+id/tv_add_comment"
+                    android:id="@+id/tv_comment_none"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/post_detail_add_comment"
-                    android:textColor="@color/breaking_color"
-                    android:textSize="15sp"
-                    app:layout_constraintHorizontal_bias="0"
-                    app:layout_constraintTop_toTopOf="@+id/et_post_write"
-                    app:layout_constraintBottom_toBottomOf="@+id/et_post_write"
-                    app:layout_constraintLeft_toRightOf="@+id/et_post_write"
-                    app:layout_constraintRight_toRightOf="parent"
-                     />
+                    android:layout_height="0dp"
+                    android:gravity="center"
+                    app:layout_constraintHeight_percent="0.15"
+                    android:text="@string/post_detail_comment_default"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@+id/divider2"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_comment_list"
@@ -402,12 +369,58 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:orientation="vertical"
-                    app:layout_constraintLeft_toLeftOf="@+id/iv_comment_writer_profile"
-                    app:layout_constraintRight_toRightOf="@id/et_post_write"
-                    app:layout_constraintTop_toBottomOf="@+id/iv_comment_writer_profile"
+                    android:backgroundTint="@color/white"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/divider2"
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/linear_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:id="@+id/iv_comment_writer_profile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_weight="0.7"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <EditText
+            android:id="@+id/et_post_write"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_weight="2.5"
+            android:background="@null"
+            android:hint="@string/post_detail_add_comment_hint"
+            android:lines="3"
+            android:maxLength="1000"
+            android:scrollbars="vertical"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tv_add_comment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:text="@string/post_detail_add_comment"
+            android:textColor="@color/breaking_color"
+            android:textSize="15sp" />
+    </LinearLayout>
 </LinearLayout>

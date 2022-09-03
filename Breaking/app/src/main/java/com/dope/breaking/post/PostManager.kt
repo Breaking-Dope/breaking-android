@@ -3,7 +3,9 @@ package com.dope.breaking.post
 import android.graphics.Bitmap
 import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.model.request.RequestComment
 import com.dope.breaking.model.request.RequestPostData
+import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseMainFeed
 import com.dope.breaking.model.response.ResponsePostDetail
 import com.dope.breaking.model.response.ResponsePostUpload
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import kotlin.Throws
 
@@ -114,6 +117,146 @@ class PostManager {
         } else { // 실패했다면
             // 예외 던지기
             throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물에 대해 댓글 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 댓글을 달고자 하는 현재 게시물 id
+     * @param content(String) : 댓글 내용
+     * @param hashTagList(ArrayList<String) : 해시태그 리스트 (옵션)
+     * @author Tae hyun Park
+     * @since 2022-09-01
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startRegisterComment(
+        token: String,
+        postId: Long,
+        content: String,
+        hashTagList : ArrayList<String>?
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 댓글 등록 요청
+        val response = service.requestCommentWrite(
+            token,
+            postId,
+            RequestComment(content, hashTagList)
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물에 대해 대댓글 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param commentId(Long) : 대댓글을 달고자 하는 현재 댓글 id
+     * @param content(String) : 대댓글 내용
+     * @param hashTagList(ArrayList<String) : 해시태그 리스트 (옵션)
+     * @author Tae hyun Park
+     * @since 2022-09-02
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startRegisterNestedComment(
+        token: String,
+        commentId: Long,
+        content: String,
+        hashTagList : ArrayList<String>?
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 대댓글 등록 요청
+        val response = service.requestNestedCommentWrite(
+            token,
+            commentId,
+            RequestComment(content, hashTagList)
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물의 댓글 리스트 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 게시물 id
+     * @param lastCommentId(Int) : 마지막으로 요청한 댓글 id (최초 요청 시, 0 또는 null)
+     * @param contentSize(Int) : 요청할 댓글 개수 (기본 3개)
+     * @author Tae hyun Park
+     * @since 2022-09-01
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startGetCommentList(
+        token: String,
+        postId: Long,
+        lastCommentId: Int,
+        contentSize: Int,
+    ): List<ResponseComment> {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 댓글 리스트 요청
+        val resultList = service.requestCommentList(
+            token,
+            postId,
+            lastCommentId,
+            contentSize
+        )
+
+        if (resultList.code() in 200..299) { // 요청에 성공했다면
+            return resultList.body()!! // 응답 리스트 리턴
+        } else { // 실패했다면
+            throw ResponseErrorException("${resultList.errorBody()?.string()}") // 예외 발생
+        }
+    }
+
+    /**
+     * 게시물의 대댓글 리스트 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param commentId(Long) : 대댓글 리스트를 요청할 댓글 id
+     * @param lastCommentId(Int) : 마지막으로 요청한 대댓글 id (최초 요청 시, 0 또는 null)
+     * @param contentSize(Int) : 요청할 대댓글 개수 (기본 5개)
+     * @author Tae hyun Park
+     * @since 2022-09-02
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startGetNestedCommentList(
+        token: String,
+        commentId: Long,
+        lastCommentId: Int,
+        contentSize: Int,
+    ): List<ResponseComment> {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 대댓글 리스트 요청
+        val resultList = service.requestNestedCommentList(
+            token,
+            commentId,
+            lastCommentId,
+            contentSize
+        )
+
+        if (resultList.code() in 200..299) { // 요청에 성공했다면
+            return resultList.body()!! // 응답 리스트 리턴
+        } else { // 실패했다면
+            throw ResponseErrorException("${resultList.errorBody()?.string()}") // 예외 발생
         }
     }
 
