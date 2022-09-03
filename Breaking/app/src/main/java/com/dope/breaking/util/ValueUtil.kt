@@ -23,12 +23,19 @@ class ValueUtil {
         const val VIEW_TYPE_ITEM = 0 // 일반 아이템에 대한 레이아웃 view type
         const val VIEW_TYPE_LOADING = 1 // 로딩 아이템에 대한 레이아웃 view type
         const val USER_FEED_SIZE = 6 // 유저 페이지 피드 요청마다 가져올 게시글 개수
+        const val TRANSACTION_SIZE = 20 // 입출금 내역 리스트 가져올 개수
 
         val TAB_ICONS = arrayOf(
             R.drawable.ic_baseline_create_24,
             R.drawable.ic_baseline_add_shopping_cart_24,
             R.drawable.ic_baseline_bookmark_border_24
         ) // 게시글 아이콘 리스트
+
+        val FINANCE_TAB_TEXT = arrayOf(
+            "충전하기",
+            "출금하기",
+            "입출금 내역"
+        )
 
         val FILTER_SELL_OPTIONS = arrayOf(
             "all",

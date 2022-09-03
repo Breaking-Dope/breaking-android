@@ -1,6 +1,7 @@
 package com.dope.breaking.retrofit
 
 import com.dope.breaking.model.FollowData
+import com.dope.breaking.model.request.RequestAmount
 import com.dope.breaking.model.request.RequestGoogleAccessToken
 import com.dope.breaking.model.request.RequestGoogleToken
 import com.dope.breaking.model.request.RequestKakaoToken
@@ -254,6 +255,44 @@ interface RetrofitService {
         @Header("authorization") token: String,
         @Path("postId") postId: Int
     ): Response<Unit>
+
+    /**
+     * amount 양 만큼 입금하는 요청
+     * @header token(String): 본인의 Jwt 토큰 (필수)
+     * @body amount(RequestAmount): 입금하고자 하는 수량 (Int)
+     * @author Seunggun Sin
+     */
+    @POST("financial/deposit")
+    suspend fun requestDeposit(
+        @Header("authorization") token: String,
+        @Body amount: RequestAmount
+    ): Response<Unit>
+
+    /**
+     * amount 양 만큼 출금하는 요청
+     * @header token(String): 본인의 Jwt 토큰 (필수)
+     * @body amount(RequestAmount): 출금하고자 하는 수량 (Int)
+     * @author Seunggun Sin
+     */
+    @POST("financial/withdraw")
+    suspend fun requestWithdraw(
+        @Header("authorization") token: String,
+        @Body amount: RequestAmount
+    ): Response<Unit>
+
+    /**
+     * 입출금 내역 리스트를 가져오는 요청
+     * @header token(String): 본인의 Jwt 토큰 (필수)
+     * @query cursor(Int): 마지막으로 요청한 리스트에서 마지막 인덱스 커서
+     * @query size(Int): 리스트에서 가져올 개수
+     * @author Seunggun Sin
+     */
+    @GET("profile/transaction")
+    suspend fun requestTransactionList(
+        @Header("authorization") token: String,
+        @Query("cursor") cursorId: Int,
+        @Query("size") contentSize: Int
+    ): Response<List<ResponseTransaction>>
 
     /**
      * 유저의 고유 id 를 갖고 유저의 프로필 정보를 가져오는 요청 (회원가입이 되어있는 유저가 요청하는 경우)
