@@ -8,6 +8,7 @@
     <item android:state_pressed="false">
         <shape>
             <solid android:color="@color/white" />
+            <stroke android:width="0.03dp" />
         </shape>
     </item>
 </selector>

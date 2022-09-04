@@ -8,7 +8,7 @@ data class ResponseExistLogin(
     @SerializedName("userId") val userId: Long,
     @SerializedName("profileImgURL") val profileImgUrl: String?,
     @SerializedName("nickname") val nickname: String,
-    @SerializedName("balance") val balance: Int
+    @SerializedName("balance") var balance: Int
 ) : Serializable {
     companion object {
         var baseUserInfo: ResponseExistLogin? = null
