@@ -18,12 +18,12 @@ class ValueUtil {
         const val REFRESH_JWT_HEADER_KEY = "authorization-refresh" // refresh token 키 값
         const val JWT_REQUEST_PREFIX = "Bearer " // Jwt 토큰을 헤더에 넣고 요청할 때 필요한 접두사
         const val FILTER_DATE_FORMAT_SUFFIX = "T00:00" // 피드 요청 시 "기간" 필터의 날짜 형식에 대한 접미사
-        const val FEED_SIZE = 10 // 피드 요청마다 가져올 게시글 개수
+        const val FEED_SIZE = 15 // 피드 요청마다 가져올 게시글 개수
         const val FOLLOW_SIZE = 15 // 팔로우 리스트 요청 시 가져올 아이템 개수
         const val VIEW_TYPE_ITEM = 0 // 일반 아이템에 대한 레이아웃 view type
         const val VIEW_TYPE_LOADING = 1 // 로딩 아이템에 대한 레이아웃 view type
-        const val USER_FEED_SIZE = 6 // 유저 페이지 피드 요청마다 가져올 게시글 개수
-        const val TRANSACTION_SIZE = 20 // 입출금 내역 리스트 가져올 개수
+        const val USER_FEED_SIZE = 10 // 유저 페이지 피드 요청마다 가져올 게시글 개수
+        const val TRANSACTION_SIZE = 25 // 입출금 내역 리스트 가져올 개수
         const val COMMENT_SIZE = 3 // 댓글 요청마다 가져올 댓글 개수
         const val NESTED_COMMENT_SIZE = 10 // 대댓글 요청마다 가져올 대댓글 개수
 
