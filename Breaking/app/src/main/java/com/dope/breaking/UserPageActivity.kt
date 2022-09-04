@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -256,11 +257,15 @@ class UserPageActivity : AppCompatActivity() {
     /**
      * 게시글 레이아웃 부분 설정
      * @author Seunggun Sin
-     * @since 2022-07-29
+     * @since 2022-07-29 | 2022-09-04
      */
     private fun setPostLayout(userId: Long) {
         val viewPager = findViewById<ViewPager2>(R.id.view_pager) // ViewPager2 객체
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout) // TabLayout 객체
+
+        viewPager.getChildAt(0).overScrollMode =
+            RecyclerView.OVER_SCROLL_NEVER // viewpager overscroll 이펙트 제거
+
         viewPager.adapter =
             UserViewPagerAdapter(supportFragmentManager, lifecycle, userId) // ViewPager 어댑터 지정
 

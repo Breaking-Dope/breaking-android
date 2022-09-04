@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.dope.breaking.*
@@ -86,7 +87,7 @@ class NaviUserFragment : Fragment() {
      * 이 Fragment 호출 시 초기 화면에 보여줄 View 세팅 함수
      * @param userData(User): 로딩 Fragment 로 부터 받아온 유저 프로필 객체
      * @author Seunggun Sin
-     * @since 2022-07-21 | 2022-07-22
+     * @since 2022-07-21 | 2022-09-04
      */
     private fun initProfileView(userData: User) {
         /*
@@ -115,6 +116,10 @@ class NaviUserFragment : Fragment() {
 
         val viewPager = binding.viewPager // ViewPager2 객체
         val tabLayout = binding.tabLayout // TabLayout 객체
+
+        viewPager.getChildAt(0).overScrollMode =
+            RecyclerView.OVER_SCROLL_NEVER // viewpager overscroll 이펙트 제거
+
         viewPager.adapter =
             UserViewPagerAdapter(
                 parentFragmentManager,
