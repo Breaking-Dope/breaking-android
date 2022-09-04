@@ -223,8 +223,8 @@ class DialogUtil {
                     context,
                     this@FilterOptionDialog,
                     today.get(Calendar.YEAR),
-                    today.get(Calendar.DAY_OF_MONTH),
-                    today.get(Calendar.MONTH)
+                    today.get(Calendar.MONTH) + 1,
+                    today.get(Calendar.DAY_OF_MONTH)
                 ) // DatePicker 객체 생성
                 datePicker.datePicker.maxDate = today.timeInMillis // 최대 선택 가능한 날짜를 오늘로 설정
                 datePicker.show() // DatePicker 실행
@@ -238,8 +238,8 @@ class DialogUtil {
                     context,
                     this@FilterOptionDialog,
                     today.get(Calendar.YEAR),
-                    today.get(Calendar.DAY_OF_MONTH),
-                    today.get(Calendar.MONTH)
+                    today.get(Calendar.MONTH) + 1,
+                    today.get(Calendar.DAY_OF_MONTH)
                 ) // DatePicker 객체 생성
                 datePicker.datePicker.maxDate = today.timeInMillis // 최대 선택 가능한 날짜를 오늘로 설정
                 datePicker.show() // DatePicker 실행

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dope.breaking.FeedSearchActivity
+import com.dope.breaking.R
 import com.dope.breaking.adapter.FeedAdapter
 import com.dope.breaking.board.PostActivity
 import com.dope.breaking.board.PostDetailActivity
@@ -55,13 +56,45 @@ class NaviHomeFragment : Fragment() {
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
         binding.etSearchBar.inputType = InputType.TYPE_NULL
 
+        // 스와이프 리프레시 아이콘 색 변경
+        binding.srlMainFeed.setColorSchemeColors(requireContext().getColor(R.color.breaking_color))
+
+        // 검색 창 클릭 시
         binding.etSearchBar.setOnClickListener {
-            startActivity(Intent(requireContext(), FeedSearchActivity::class.java))
+            startActivity(Intent(requireContext(), FeedSearchActivity::class.java)) // 검색 페이ㅣㅈ로 이동
         }
 
         // 피드 요청 에러 시 띄워줄 다이얼로그 정의
         val requestErrorDialog =
             DialogUtil().SingleDialog(requireContext(), "피드를 가져오는데 문제가 발생하였습니다.", "확인")
+
+        // 스와이프 리프레시 리스너
+        binding.srlMainFeed.setOnRefreshListener {
+            // 리스트 갱신
+            processGetMainFeed(0, token, {
+                showSkeletonView() // 스켈레톤 UI 시작
+                // 리스트 비우기
+                adapter.clearList()
+                isObtainedAll = false // 더 이상 얻을 피드가 없는 상태 초기화
+            }, {
+                if (it.isEmpty()) { // 리스트가 비어있다면
+                    // 비어있다면 화면 뿌려주기
+                    binding.tvNoFeedAlert.visibility = View.VISIBLE
+                    binding.rcvMainFeed.visibility = View.GONE
+                } else { // 아니라면
+                    // 리스트 보여주기
+                    binding.tvNoFeedAlert.visibility = View.GONE
+                    binding.rcvMainFeed.visibility = View.VISIBLE
+                }
+                adapter.addItems(it) // 받아온 리스트 추가하기
+                dismissSkeletonView() // 스켈레톤 UI 종료
+
+                binding.srlMainFeed.isRefreshing = false // 리프레시 종료
+            }, {
+                it.printStackTrace()
+                requestErrorDialog.show()
+            })
+        }
 
         // 필터 다이얼로그 객체 초기화 및 버튼 클릭 이벤트 정의
         filterDialog = DialogUtil().FilterOptionDialog(requireContext()) {

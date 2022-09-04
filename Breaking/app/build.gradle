@@ -94,6 +94,9 @@ dependencies {
     // ViewPager2
     implementation "androidx.viewpager2:viewpager2:1.0.0"
 
+    // SwiperRefreshLayout
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
     // libs 폴더 접근 인식
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation files('libs/libDaumMapAndroid.jar')
