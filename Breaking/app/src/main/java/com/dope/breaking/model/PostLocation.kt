@@ -1,6 +1,7 @@
 package com.dope.breaking.model
 
 import org.json.JSONObject
+import java.io.Serializable
 
 data class PostLocation(
     val address: String,
@@ -8,7 +9,7 @@ data class PostLocation(
     val longitude: Double,
     val region_1depth_name: String,
     val region_2depth_name: String
-) {
+) : Serializable{
     /**
      * 모든 필드 값들을 json 데이터로 변환해주는 메소드
      * @return JSONObject: 모든 필드들을 json 으로 변환한 객체 반환
