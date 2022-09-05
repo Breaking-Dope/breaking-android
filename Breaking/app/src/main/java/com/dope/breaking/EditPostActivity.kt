@@ -22,7 +22,8 @@ import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import com.dope.breaking.databinding.ActivityEditPostBinding
+import androidx.constraintlayout.widget.ConstraintSet
+import com.dope.breaking.databinding.ActivityPostBinding
 import com.dope.breaking.exception.FailedGetLocationException
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.map.KakaoMapActivity
@@ -41,8 +42,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -50,7 +49,7 @@ class EditPostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 TimePickerDialog.OnTimeSetListener {
 
     private val TAG = "EditPostActivity.kt" // Tag Log
-    private var mbinding: ActivityEditPostBinding? = null
+    private var mbinding: ActivityPostBinding? = null
     private val binding get() = mbinding!!
 
     private lateinit var locationActivityResult: ActivityResultLauncher<Intent> // 카카오 맵으로부터 위치를 선택하고 돌아온다면 그 후 처리를 위한 activityResult
@@ -93,7 +92,7 @@ TimePickerDialog.OnTimeSetListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mbinding = ActivityEditPostBinding.inflate(layoutInflater)
+        mbinding = ActivityPostBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val textWatcher = object : TextWatcher { // 제보 가격 입력 필드 실시간 감지 콜백 함수
@@ -127,21 +126,32 @@ TimePickerDialog.OnTimeSetListener {
         clickPostPageButtons() // 제보하기 페이지들의 버튼 이벤트 함수
         setCurrentLocation() // 현재 위치 설정 함수
 
-        // 받아온 인텐트 값을 바탕으로 뷰에 데이터 뿌려주기
+        // 제보하기 페이지를 수정 페이지에 맞게 수정
+        binding.postPageToolBar.title = "수정하기"
+        binding.layoutImageButton.visibility = View.GONE
+        binding.viewRecyclerImage.visibility = View.GONE
+        binding.tvRecyclerImage.visibility = View.VISIBLE
+        binding.btnPostRegisterBtn.text = "수정하기"
+        // TextView visible 처리 후 하위 divider 와 유연하게 연결
+        val constraintLayout = binding.viewRoot
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+        constraintSet.connect(binding.divider1.id, ConstraintSet.TOP, binding.tvRecyclerImage.id, ConstraintSet.BOTTOM)
+        constraintSet.connect(binding.divider1.id, ConstraintSet.LEFT, binding.tvRecyclerImage.id, ConstraintSet.LEFT)
+        constraintSet.connect(binding.divider1.id, ConstraintSet.RIGHT, binding.tvRecyclerImage.id, ConstraintSet.RIGHT)
+        constraintSet.applyTo(constraintLayout)
 
+        // 받아온 인텐트 값을 바탕으로 뷰에 데이터 뿌려주기
         if(intent != null){
             getPostInfo = intent.getSerializableExtra("postInfo") as ResponsePostDetail
             getPostId = intent.getIntExtra("postId",-1)
 
             // 제보 발생 시간 기본 할당
-            var formatter: DateTimeFormatter = if(Utils.checkDate(getPostInfo.createdDate)) // 날짜 형식이 ssssss라면
-                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
-            else // 날짜 형식이 sssss라면
-                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSS")
-
-            val localStartDateTime = LocalDateTime.parse(getPostInfo.createdDate, formatter)
-            eventTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localStartDateTime)
-            binding.tvEventTimeClicked.text = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분").format(localStartDateTime)
+            var postTimeList = getPostInfo.eventDate.split("T").toTypedArray()
+            var postFirstList = postTimeList[0].split("-").toTypedArray()
+            var postSecondList = postTimeList[1].split(":").toTypedArray()
+            binding.tvEventTimeClicked.text = "${postFirstList[0]}년 ${postFirstList[1]}월 ${postFirstList[2]}일 ${postSecondList[0]}시 ${postSecondList[1]}분"
+            eventTime = "${postFirstList[0]}-${postFirstList[1]}-${postFirstList[2]} ${postSecondList[0]}:${postSecondList[1]}:00"
 
             // 위치 주소 보여주기
             binding.tvLocationShow.text = getPostInfo.location.address
@@ -263,7 +273,7 @@ TimePickerDialog.OnTimeSetListener {
         }
 
         // 수정하기 버튼을 누르면
-        binding.btnPostEditBtn.setOnClickListener {
+        binding.btnPostRegisterBtn.setOnClickListener {
             // 해시 태그 값이 있는지 확인, 태그가 없다면 기본 값으로 다시 초기화
             if (binding.etContent.text.toString().indexOf('#') !== -1)
                 hashTagList = Utils.getArrayHashTagWithOutSpace(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
@@ -272,7 +282,7 @@ TimePickerDialog.OnTimeSetListener {
 
             // 필드 검증
             val validationPost = ValidationPost()
-            if (validationPost.startPostEditValidation(binding)) { // 필드 검증이 성공적이라면
+            if (validationPost.startPostValidation(binding)) { // 필드 검증이 성공적이라면
                 // 요청 DTO 생성
                 val requestPostEditData = RequestPostDataModify(
                     binding.etTitle.text.toString(),

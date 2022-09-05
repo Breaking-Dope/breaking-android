@@ -133,6 +133,14 @@ class PostDetailActivity : AppCompatActivity() {
                                 binding.etPostWrite.setText("") // 적었던 내용은 지우기
                                 requestCommentId = -1 // 값 다시 초기화
 
+                                // 게시글 상세 조회 갱신
+                                processPostDetail(
+                                    token,
+                                    getPostId.toLong(), {
+                                    },{
+                                        settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
+                                    }
+                                )
                                 // 대댓글 등록 후 댓글 리스트 재갱신
                                 processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
                             }
@@ -150,6 +158,14 @@ class PostDetailActivity : AppCompatActivity() {
                                 commentList.clear() // 리스트 비우기
                                 Toast.makeText(applicationContext, "댓글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
 
+                                // 게시글 상세 조회 갱신
+                                processPostDetail(
+                                    token,
+                                    getPostId.toLong(), {
+                                    },{
+                                        settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
+                                    }
+                                )
                                 // 댓글 등록 후 댓글 리스트 재갱신
                                 processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
                             }
@@ -232,6 +248,12 @@ class PostDetailActivity : AppCompatActivity() {
                     }
                 }
             }
+    }
+
+    override fun onBackPressed() {
+        intent.putExtra("isRefreshFeed",true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
+        setResult(RESULT_OK, intent)
+        finish() // 다시 세부 조회 페이지로 이동
     }
 
     /**
@@ -420,6 +442,7 @@ class PostDetailActivity : AppCompatActivity() {
      * @since - 2022-08-24
      */
     private fun setupIndicators(count: Int){
+        binding.layoutIndicators.removeAllViews() // 중복 방지를 위해 뷰 비우기
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
@@ -832,7 +855,9 @@ class PostDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> { // 툴 바의 뒤로가기 키가 눌렸을 때 동작
-                finish()
+                intent.putExtra("isRefreshFeed",true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
+                setResult(RESULT_OK, intent)
+                finish() // 다시 세부 조회 페이지로 이동
                 true
             }
         }
