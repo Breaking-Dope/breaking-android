@@ -52,6 +52,8 @@ import com.dope.breaking.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.internal.Util
+import java.io.File
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -92,6 +94,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
     private var postPriceString: String = "" // 제보 가격 콤마 표시를 위한 저장 변수
 
     private var decimalFormat = DecimalFormat("#,###") // 제보 가격 콤마 표시를 위한 포맷
+
+    private lateinit var fileList: ArrayList<File> // 동영상을 담을 file
 
     /* 데이터 피커와 타임 피커에 필요한 전역 변수들로, 년, 월, 일, 시, 분, 초를 포함한다. */
     private var day = 0
@@ -134,6 +138,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         }
 
         uriList = ArrayList<Uri>() // Uri 리스트 초기화
+        fileList = ArrayList<File>() // 파일 리스트 초기화
         postBitmapList = ArrayList<Bitmap>() // 비트맵 리스트 초기화
         fileNameList = ArrayList<String>()  // 미디어 파일명 리스트 초기화
         hashTagList = ArrayList<String>() // 해시 태그 리스트 초기화
@@ -198,6 +203,14 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                                         )!!
                                     )
                                     uriList.add(uri)
+
+                                    fileList.add(
+                                        Utils.getFileFromURI(
+                                            uri!!,
+                                            contentResolver
+                                        )
+                                    )
+
                                     Utils.getBitmapWithGlide(
                                         applicationContext,
                                         uri,
@@ -366,7 +379,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                         requestPostData,
                         postBitmapList,
                         fileNameList,
-                        JwtTokenUtil(applicationContext).getAccessTokenFromLocal() // 로컬에서 토큰 가져오기
+                        JwtTokenUtil(applicationContext).getAccessTokenFromLocal(), // 로컬에서 토큰 가져오기
+                        fileList
                     )
                     if (progressDialog.isShowing()) { // 로딩 다이얼로그 종료
                         progressDialog.dismissDialog()
@@ -390,7 +404,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         inputData: RequestPostData,
         imageData: ArrayList<Bitmap>,
         imageName: ArrayList<String>,
-        token: String
+        token: String,
+        fileList : ArrayList<File>
     ) {
         val postManager = PostManager() // 커스텀 게시글 객체 생성
         try {
@@ -398,7 +413,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                 inputData,
                 imageData,
                 imageName,
-                token
+                token,
+                fileList
             )
             Log.d(TAG, "요청 성공 시 받아온 postId : ${responsePostUpload.postId}")
             Toast.makeText(applicationContext, "게시글이 작성되었습니다.", Toast.LENGTH_SHORT).show()

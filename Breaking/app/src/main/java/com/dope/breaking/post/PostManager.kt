@@ -18,6 +18,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import java.io.ByteArrayOutputStream
+import java.io.File
 import kotlin.Throws
 
 class PostManager {
@@ -38,7 +39,8 @@ class PostManager {
         inputData: RequestPostData,
         imageData: ArrayList<Bitmap>,
         imageName: ArrayList<String>,
-        token: String
+        token: String,
+        fileList: ArrayList<File>
     ): ResponsePostUpload {
         // MultiPart.Body List 선언 및 초기화
         var multipartList = ArrayList<MultipartBody.Part>()
@@ -50,10 +52,17 @@ class PostManager {
         for (i in 0 until imageData.size) {
             if (imageData.size == 0) break // 받아온 미디어가 없으면 반복문 탈출
             // 이미지에 대한 RequestBody 생성 (image/* video/*), 영상의 경우 아직 바이너리로 처리되지 않음.
+
+//            val imageRequestBody =
+//                RequestBody.create(
+//                    MediaType.parse("image/* video/*"),
+//                    convertBitmapToByte(imageData.get(i))
+//                )
+
             val imageRequestBody =
                 RequestBody.create(
                     MediaType.parse("image/* video/*"),
-                    convertBitmapToByte(imageData.get(i))
+                    fileList.get(i)
                 )
             // 이미지에 대한 RequestBody 를 바탕으로 Multi form 데이터 리스트 생성
             multipartList.add(

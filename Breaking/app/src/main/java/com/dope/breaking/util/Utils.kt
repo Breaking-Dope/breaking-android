@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.InputFilter
 import android.util.Log
@@ -16,6 +17,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dope.breaking.databinding.ActivitySignUpBinding
+import java.io.File
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -205,5 +207,24 @@ object Utils { // 컴패니언 객체 (Static)
         var nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME) // 파일명 반환
         cursor!!.moveToFirst() // 커서 위치 이동
         return cursor.getString(nameIndex!!)
+    }
+
+    /**
+     * @description - uri로 선택한 파일에 대한 파일 객체를 얻어오는 함수
+     * @param - Uri, ContentResolver
+     * @return - File
+     * @author - Tae hyun Park
+     * @since - 2022-09-05
+     */
+    internal fun getFileFromURI(uri: Uri, contentResolver: ContentResolver): File { // 추가적인 모듈화 가능할듯?
+        var buildName = Build.MANUFACTURER
+        var filePathColumn = MediaStore.Video.Media.DATA
+        Log.d("TEST","테스트 : $filePathColumn")
+        var cursor = contentResolver.query(uri, null, null, null, null)
+        cursor!!.moveToFirst() // 커서 위치 이동
+        var nameIndex = cursor?.getColumnIndex(filePathColumn) // 파일명 반환
+        var FileString = cursor?.getString(nameIndex!!)
+        var File = File(FileString)
+        return File
     }
 }
