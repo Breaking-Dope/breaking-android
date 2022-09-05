@@ -18,7 +18,6 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import java.io.File
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -210,21 +209,29 @@ object Utils { // 컴패니언 객체 (Static)
     }
 
     /**
-     * @description - uri로 선택한 파일에 대한 파일 객체를 얻어오는 함수
+     * @description - uri 를 통해 선택한 파일 인스턴스를 얻어오는 함수
      * @param - Uri, ContentResolver
      * @return - File
      * @author - Tae hyun Park
      * @since - 2022-09-05
      */
-    internal fun getFileFromURI(uri: Uri, contentResolver: ContentResolver): File { // 추가적인 모듈화 가능할듯?
-        var buildName = Build.MANUFACTURER
-        var filePathColumn = MediaStore.Video.Media.DATA
-        Log.d("TEST","테스트 : $filePathColumn")
-        var cursor = contentResolver.query(uri, null, null, null, null)
+    internal fun getFileFromURI(
+        uri: Uri,
+        contentResolver: ContentResolver
+    ): File {
+        // 이미지/영상에 따라 미디어 타입을 구분
+        var filePathColumn: Array<String> =
+            if (uri.toString().contains("image")) {
+                arrayOf(MediaStore.Video.Media.DATA)
+            } else {
+                arrayOf(MediaStore.Images.Media.DATA)
+            }
+
+        var cursor = contentResolver.query(uri, filePathColumn, null, null, null)
         cursor!!.moveToFirst() // 커서 위치 이동
-        var nameIndex = cursor?.getColumnIndex(filePathColumn) // 파일명 반환
-        var FileString = cursor?.getString(nameIndex!!)
-        var File = File(FileString)
-        return File
+        var nameIndex = cursor?.getColumnIndex(filePathColumn[0]) // 파일명 반환
+        var fileString = cursor?.getString(nameIndex!!)
+        cursor!!.close()
+        return File(fileString)
     }
 }

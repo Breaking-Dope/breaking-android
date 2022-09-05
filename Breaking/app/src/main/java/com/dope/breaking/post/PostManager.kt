@@ -1,6 +1,7 @@
 package com.dope.breaking.post
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.request.RequestComment
@@ -30,18 +31,21 @@ class PostManager {
      * @param inputData(RequestPostData): 제보글 작성 필드에 대한 데이터 클래스 객체
      * @param imageData(Bitmap): 제보 미디어에 대한 bitmap 데이터
      * @param imageName(String): 제보 미디어의 파일 이름
+     * @param fileList(ArrayList<File>) : 이미지/영상 파일
+     * @param uriList(ArrayList<Uri>) : 이미지/영상 uri
      * @throws ResponseErrorException: 정상 응답 (2xx) 이외의 응답이 왔을 때 exception 발생
      * @return ResponsePostUpload: 응답 바디로 오는 postId를 담아주기 위한 클래스 타입
      * @author Tae hyun Park
-     * @since 2022-08-02
+     * @since 2022-08-02 | 2022-09-05
      */
     @Throws(ResponseErrorException::class)
     suspend fun startPostUpload(
         inputData: RequestPostData,
-        imageData: ArrayList<Bitmap>,
+        imageData: ArrayList<Bitmap>, // 필요할 지 미지수
         imageName: ArrayList<String>,
         token: String,
-        fileList: ArrayList<File>
+        fileList: ArrayList<File>,
+        uriList: ArrayList<Uri>
     ): ResponsePostUpload {
         // MultiPart.Body List 선언 및 초기화
         var multipartList = ArrayList<MultipartBody.Part>()
@@ -50,26 +54,26 @@ class PostManager {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
         // 받아온 미디어의 사이즈만큼 반복하여 multipart List 생성
-        for (i in 0 until imageData.size) {
-            if (imageData.size == 0) break // 받아온 미디어가 없으면 반복문 탈출
-            // 이미지에 대한 RequestBody 생성 (image/* video/*), 영상의 경우 아직 바이너리로 처리되지 않음.
-
-//            val imageRequestBody =
-//                RequestBody.create(
-//                    MediaType.parse("image/* video/*"),
-//                    convertBitmapToByte(imageData.get(i))
-//                )
-
-            val imageRequestBody =
+        for (i in 0 until fileList.size) {
+            if (fileList.size == 0) break // 받아온 미디어가 없으면 반복문 탈출
+            // 이미지,영상에 대한 RequestBody 생성 (image/* video/*)
+            val imageRequestBody = if (uriList[i].toString().contains("image")){ // 이미지면 bitmap
                 RequestBody.create(
                     MediaType.parse("image/* video/*"),
-                    fileList.get(i)
+                    convertBitmapToByte(imageData[i])
                 )
+            } else { // 영상이면 file type
+                RequestBody.create(
+                    MediaType.parse("image/* video/*"),
+                    fileList[i]
+                )
+            }
+
             // 이미지에 대한 RequestBody 를 바탕으로 Multi form 데이터 리스트 생성
             multipartList.add(
                 MultipartBody.Part.createFormData(
                     ValueUtil.MULTIPART_POST_KEY,
-                    imageName.get(i),
+                    imageName[i],
                     imageRequestBody
                 )
             )
