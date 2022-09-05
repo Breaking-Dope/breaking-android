@@ -2,6 +2,7 @@ package com.dope.breaking.board
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
@@ -12,13 +13,15 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
-import com.dope.breaking.R
+import com.dope.breaking.*
 import com.dope.breaking.databinding.ActivityPostDetailBinding
 import com.dope.breaking.databinding.CustomPostDetailContentPopupBinding
 import com.dope.breaking.exception.ResponseErrorException
@@ -34,22 +37,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.collections.ArrayList
 
 class PostDetailActivity : AppCompatActivity() {
     private val TAG = "PostDetailActivity.kt"
     private var mbinding : ActivityPostDetailBinding? = null
     private val binding get() = mbinding!!
+    private lateinit var editPostActivityResult: ActivityResultLauncher<Intent> // 게시글 수정 후 그 후 처리를 위한 activityResult
     private lateinit var adapterViewpager: ImageSliderAdapter // 뷰 페이저 어댑터
     private lateinit var adapterComment: PostCommentAdapter // 댓글 리스트 어댑터
+    private lateinit var progressDialog : DialogUtil.ProgressDialog // 요청 로딩 다이얼로그
     private var commentList = mutableListOf<ResponseComment?>() // 댓글 리스트
     private var flagLike = false // 좋아요가 안 눌렸으면 false, 눌렸으면 true (임시)
     private var flagComment = false // 댓글 창을 안 눌렀으면 false, 눌렀으면 true (임시)
     private var isObtainedAll = false // 모든 댓글 리스트를 받았는지 판단(더 이상 요청할 것이 없는)
     private var isLoading = false  // 로딩 중 판단
     private var requestCommentId = -1 // 대댓글 요청 시에 보낼 댓글 id (기본값은 임의로 -1로 설정)
+    private var getPostId = -1 // 게시물 id
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +66,7 @@ class PostDetailActivity : AppCompatActivity() {
         val token =
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal()
 
-        var getPostId = intent.getIntExtra("postId",-1)
+        getPostId = intent.getIntExtra("postId",-1)
         Log.d(TAG,"받아온 postId 값 : $getPostId")
 
         mbinding = ActivityPostDetailBinding.inflate(layoutInflater)
@@ -72,7 +76,7 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 게시글 상세 조회 요청
         processPostDetail(
-            JwtTokenUtil(applicationContext).getAccessTokenFromLocal(), // 로컬에서 토큰 가져오기
+            token,
             getPostId.toLong(), {
                 showSkeletonView() // 스켈레톤 UI 시작
             },{
@@ -129,6 +133,14 @@ class PostDetailActivity : AppCompatActivity() {
                                 binding.etPostWrite.setText("") // 적었던 내용은 지우기
                                 requestCommentId = -1 // 값 다시 초기화
 
+                                // 게시글 상세 조회 갱신
+                                processPostDetail(
+                                    token,
+                                    getPostId.toLong(), {
+                                    },{
+                                        settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
+                                    }
+                                )
                                 // 대댓글 등록 후 댓글 리스트 재갱신
                                 processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
                             }
@@ -146,6 +158,14 @@ class PostDetailActivity : AppCompatActivity() {
                                 commentList.clear() // 리스트 비우기
                                 Toast.makeText(applicationContext, "댓글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
 
+                                // 게시글 상세 조회 갱신
+                                processPostDetail(
+                                    token,
+                                    getPostId.toLong(), {
+                                    },{
+                                        settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
+                                    }
+                                )
                                 // 댓글 등록 후 댓글 리스트 재갱신
                                 processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
                             }
@@ -205,6 +225,35 @@ class PostDetailActivity : AppCompatActivity() {
                 }
             }
         })
+
+        // 게시글 수정 완료 후 다시 상세 페이지로 다시 돌아오면
+        editPostActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    var resultPostId = it.data?.getIntExtra("postId", -1) // 수정이 정상적으로 완료되었다면 기존 게시물과 동일한 id 받아옴
+                    if(resultPostId != -1){ // 수정이 완료되었다면 상세 뷰, 댓글 리스트 재갱신
+                        // 게시글 상세 조회
+                        processPostDetail(
+                            token,
+                            resultPostId!!.toLong(), {
+                                showSkeletonView() // 스켈레톤 UI 시작
+                            },{
+                                dismissSkeletonView() // 스켈레톤 UI 종료
+                                settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
+                            }
+                        )
+                        // 댓글 리스트 갱신
+                        commentList.clear()
+                        processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+                    }
+                }
+            }
+    }
+
+    override fun onBackPressed() {
+        intent.putExtra("isRefreshFeed",true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
+        setResult(RESULT_OK, intent)
+        finish() // 다시 세부 조회 페이지로 이동
     }
 
     /**
@@ -262,11 +311,14 @@ class PostDetailActivity : AppCompatActivity() {
      * @since - 2022-08-24
      */
     private fun setMoreMenuContent(responsePostDetail: ResponsePostDetail){
+        // 게시물 삭제 요청 에러 시 띄워줄 다이얼로그 정의
+        val requestErrorDialog =
+            DialogUtil().SingleDialog(applicationContext, "게시글을 삭제에 문제가 발생하였습니다.", "확인")
+
         val popupInflater =
-            applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBind =
             CustomPostDetailContentPopupBinding.inflate(popupInflater) // 커스텀 팝업 레이아웃 binding inflate
-
         val popupWindow = PopupWindow(
             popupBind.root,
             ViewGroup.LayoutParams.WRAP_CONTENT, // 가로 길이
@@ -275,17 +327,33 @@ class PostDetailActivity : AppCompatActivity() {
         ) // 팝업 윈도우 화면 설정
 
         binding.ibPostMore.setOnClickListener(popupWindow::showAsDropDown) // 더보기 메뉴 클릭 시, 메뉴 view 중심으로 팝업 메뉴 호출
-
-        if(responsePostDetail.user?.userId == ResponseExistLogin.baseUserInfo?.userId){ // 해당 게시글 작성자가 본인이면
-            // 수정 메뉴 활성화
-            popupBind.layoutHorizEdit.visibility = View.VISIBLE
-            // 삭제 메뉴 활성화
-            popupBind.layoutHorizDelete.visibility = View.VISIBLE
-            // 채팅 메뉴 비활성화
-            popupBind.layoutHorizChat.visibility = View.GONE
-            // 차단 메뉴 비활성화
-            popupBind.layoutHorizBan.visibility = View.GONE
+        if(responsePostDetail.user?.userId == ResponseExistLogin.baseUserInfo?.userId || responsePostDetail.isMyPost){ // 해당 게시글 작성자가 본인이면
+            binding.btnPurchase.text = "구매자 목록"
+            if(responsePostDetail.soldCount > 0){ // 게시물이 판매되었다면 수정/삭제가 불가함.
+                // 채팅 메뉴 비활성화
+                popupBind.layoutHorizChat.visibility = View.GONE
+                // 차단 메뉴 비활성화
+                popupBind.layoutHorizBan.visibility = View.GONE
+                // 수정 메뉴 비활성화
+                popupBind.layoutHorizEdit.visibility = View.GONE
+                // 삭제 메뉴 비활성화
+                popupBind.layoutHorizDelete.visibility = View.GONE
+                // 비활성화 메뉴 보이게
+                popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
+            }else{
+                // 채팅 메뉴 비활성화
+                popupBind.layoutHorizChat.visibility = View.GONE
+                // 차단 메뉴 비활성화
+                popupBind.layoutHorizBan.visibility = View.GONE
+                // 수정 메뉴 활성화
+                popupBind.layoutHorizEdit.visibility = View.VISIBLE
+                // 삭제 메뉴 활성화
+                popupBind.layoutHorizDelete.visibility = View.VISIBLE
+                // 비활성화 메뉴 보이게
+                popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
+            }
         }else{ // 다른 사람의 게시물이라면
+            binding.btnPurchase.text = "구매하기"
             // 수정 메뉴 비활성화
             popupBind.layoutHorizEdit.visibility = View.GONE
             // 삭제 메뉴 비활성화
@@ -294,6 +362,8 @@ class PostDetailActivity : AppCompatActivity() {
             popupBind.layoutHorizChat.visibility = View.VISIBLE
             // 차단 메뉴 활성화
             popupBind.layoutHorizBan.visibility = View.VISIBLE
+            // 비활성화 메뉴 안보이게
+            popupBind.layoutHorizDeactivation.visibility = View.GONE
         }
 
         // 채팅 메뉴 클릭 시
@@ -316,13 +386,50 @@ class PostDetailActivity : AppCompatActivity() {
             popupWindow.dismiss()
         }
 
-        // 수정 메뉴 클릭 시
+        // 수정 메뉴 누르면 수정 페이지로 이동
         popupBind.layoutHorizEdit.setOnClickListener {
             popupWindow.dismiss()
+            var intent = Intent(applicationContext, EditPostActivity::class.java)
+            intent.putExtra("postInfo", responsePostDetail) // 수정 전 게시글 정보 전달
+            intent.putExtra("postId",getPostId) // 수정할 게시글 id
+            editPostActivityResult.launch(intent)
         }
 
-        // 삭제 메뉴 클릭 시
+        // 삭제 메뉴 클릭 시 게시글 삭제
         popupBind.layoutHorizDelete.setOnClickListener {
+            // 사용자에게 현재 위치로 선택할 것인지 물어보기
+            DialogUtil().MultipleDialog(
+                this,
+                "게시물을 삭제하시겠습니까?",
+                "예",
+                "아니오",
+                {
+                    // 게시글 삭제 요청 함수 시작
+                    processDeletePost(
+                        ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                        getPostId.toLong(),{
+                            // 게시글 삭제 요청 다이얼 로그 시작
+                            progressDialog = DialogUtil().ProgressDialog(this)
+                            progressDialog.showDialog()
+                        },{
+                            if (progressDialog.isShowing()) // 로딩 다이얼로그 종료
+                                progressDialog.dismissDialog()
+                            if (it){
+                                intent.putExtra("isDeletePost",true)
+                                setResult(RESULT_OK, intent)
+                                finish() // 게시글 세부 조회 페이지 종료, 메인 피드로 화면 돌아감.
+                            }
+                        },{
+                            it.printStackTrace()
+                            requestErrorDialog.show()
+                        }
+                    )
+                },
+                { popupWindow.dismiss() }).show()
+        }
+
+        // 비활성화 메뉴 클릭 시
+        popupBind.layoutHorizDeactivation.setOnClickListener {
             popupWindow.dismiss()
         }
     }
@@ -335,6 +442,7 @@ class PostDetailActivity : AppCompatActivity() {
      * @since - 2022-08-24
      */
     private fun setupIndicators(count: Int){
+        binding.layoutIndicators.removeAllViews() // 중복 방지를 위해 뷰 비우기
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
@@ -394,7 +502,8 @@ class PostDetailActivity : AppCompatActivity() {
                     token,
                     postId
                 )
-                Log.d(TAG, "요청 성공 시 받아온 게시물 제목 : ${responsePostDetail.title}")
+                Log.d(TAG, "요청 성공 시 받아온 게시물 제목 : ${responsePostDetail.title}\n" +
+                        "isMyPost값 : ${responsePostDetail.isMyPost}")
                 last(responsePostDetail) // 후처리 함수 호출
             } catch (e: ResponseErrorException) {
                 e.printStackTrace()
@@ -525,6 +634,37 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     /**
+     * @description - 게시물 삭제 요청 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 삭제를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-05
+     */
+    private fun processDeletePost(
+        token: String,
+        postId : Long,
+        init: () -> Unit,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기화 함수 호출
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startDeletePost(
+                    token,
+                    postId,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+
+    /**
      * @description - 받아온 상세 조회 정보를 바탕으로 뷰에 보여주기
      * @param - None
      * @return - None
@@ -534,10 +674,6 @@ class PostDetailActivity : AppCompatActivity() {
     @SuppressLint("ResourceAsColor")
     private fun settingPostDetailView(responsePostDetail: ResponsePostDetail){
         // 툴 바 수정 버튼 뷰 처리
-        if(responsePostDetail.user?.userId == ResponseExistLogin.baseUserInfo?.userId) // 게시글 작성자가 본인이라면 툴 바의 수정 버튼 활성화
-            binding.postDetailBtnModify.visibility = View.VISIBLE
-        else
-            binding.postDetailBtnModify.visibility = View.GONE
         setViewNickNameProfile(responsePostDetail) // 작성자의 닉네임과 프로필 이미지, 댓글 프로필 이미지
         setViewPostTypeSold(responsePostDetail) // 게시글 타입 (단독, 판매 중, 판매완료)
         setViewPostContents(responsePostDetail) // 게시글의 주요 컨텐츠 (제목, 위치, 시간, 가격, 내용)
@@ -606,7 +742,7 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     /**
-     * @description - 해당 게시글의 상단 박스 영역의 제목, 위치, 시간, 가격, 주요 내용을 보여주는 함수 (게시글 주요 컨텐츠 담당 함수)
+     * @description - 해당 게시글의 상단 박스 영역의 제목, 위치, 시간, 가격, 누적 판매량 등 주요 내용을 보여주는 함수 (게시글 주요 컨텐츠 담당 함수)
      * @param - None
      * @return - None
      * @author - Tae hyun Park
@@ -626,22 +762,34 @@ class PostDetailActivity : AppCompatActivity() {
             val dec = DecimalFormat("#,###")
             binding.tvPostPrice.text = dec.format(responsePostDetail.price) + "원"
         }
-        // 게시글 작성 시간
-        var formatter:DateTimeFormatter = if(Utils.checkDate(responsePostDetail.createdDate)) // 날짜 형식이 ssssss라면
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
-        else // 날짜 형식이 sssss라면
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSS")
+        // 게시글 사건 발생 시간
+        var postTimeList = responsePostDetail.eventDate.split("T").toTypedArray()
+        var postFirstList = postTimeList[0].split("-").toTypedArray()
+        var postSecondList = postTimeList[1].split(":").toTypedArray()
+        binding.tvPostEventTime.text = "발생시간 ${postFirstList[0]}.${postFirstList[1]}.${postFirstList[2]}. ${postSecondList[0]}:${postSecondList[1]}"
 
-        val localStartDateTime = LocalDateTime.parse(responsePostDetail.createdDate, formatter)
-        binding.tvPostTime.text = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분").format(localStartDateTime)
+        // 게시글 작성 시간
+        postTimeList = responsePostDetail.createdDate.split("T").toTypedArray()
+        postFirstList = postTimeList[0].split("-").toTypedArray()
+        postSecondList = postTimeList[1].split(":").toTypedArray()
+        binding.tvPostCreateTime.text = "작성시간 ${postFirstList[0]}.${postFirstList[1]}.${postFirstList[2]}. ${postSecondList[0]}:${postSecondList[1]}"
+
+        // 누적 판매량
+        binding.tvPostSoldCount.text = "누적 판매 ${responsePostDetail.soldCount}"
+        // 좋아요 수
+        binding.tvPostLikeCount.text = responsePostDetail.likeCount.toString()
+        // 댓글 수
+        binding.tvPostCommentCount.text = responsePostDetail.commentCount.toString()
+        // 조회 수
+        binding.tvPostViewCount.text = "· 조회수 ${responsePostDetail.viewCount}"
     }
 
     /**
      * @description - 해당 게시글의 해시태그 리스트를 받아와 본문에서 해시태그를 강조하여 보여주는 함수 (게시글 해시태그 담당 함수)
      * @param - None
-     * @return - None
      * @author - Tae hyun Park
      * @since - 2022-08-25
+     * @return - None
      */
     private fun setViewHashTag(responsePostDetail: ResponsePostDetail){
         // 해시 태그 리스트 색상 표시
@@ -707,7 +855,9 @@ class PostDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> { // 툴 바의 뒤로가기 키가 눌렸을 때 동작
-                finish()
+                intent.putExtra("isRefreshFeed",true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
+                setResult(RESULT_OK, intent)
+                finish() // 다시 세부 조회 페이지로 이동
                 true
             }
         }

@@ -93,7 +93,7 @@ class PostTabFragment : Fragment() {
                     // 스크롤이 드래깅 중이면서
                     // 피드 요청이 더 가능하면서
                     // 로딩 중이 아니라면
-                    if (lastIndex == recyclerView.adapter!!.itemCount - 1 && !isObtainAll && !isLoading) {
+                    if (lastIndex == recyclerView.adapter!!.itemCount - 1 && newState == 2 && !isObtainAll && !isLoading) {
                         processGetUserFeed(
                             userId, // 가져올 대상의 유저 id
                             userFeedMutableList[lastIndex]!!.postId, // 다음 요청에 필요한 마지막 게시글 id

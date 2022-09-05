@@ -43,8 +43,10 @@ class NaviHomeFragment : Fragment() {
     private var isLoading = false  // 로딩 중 판단
     private val postManager = PostManager() // 게시글 기능 관련 클래스 객체 생성
     private var isWritePost = false // 제보하기 페이지에서 제보글 작성을 하고 돌아왔다면 true, 아니라면 false
+    private var isDeletePost = false // 게시글 삭제를 하고 돌아왔다면 true, 아니라면 false
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>> // 위치 권한에 관한 콜백 함수 정의
     private lateinit var isWriteActivityResult: ActivityResultLauncher<Intent> // 게시글 작성을 하고 돌아온다면 그 후 처리를 위한 activityResult
+    private lateinit var isDeleteActivityResult: ActivityResultLauncher<Intent> // 게시글 삭제를 하고 돌아온다면 그 후 처리를 위한 activityResult
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -288,9 +290,6 @@ class NaviHomeFragment : Fragment() {
                             adapter.clearList()
                             isObtainedAll = false
                         }, {
-                            feedList.addAll(it) // 동적 리스트에 가져온 리스트 추가
-                            adapter = FeedAdapter(requireContext(), feedList) // 어댑터 초기화
-
                             if (it.isEmpty()) { // 리스트가 비어있다면
                                 // 비어있다면 화면 뿌려주기
                                 binding.tvNoFeedAlert.visibility = View.VISIBLE
@@ -300,9 +299,8 @@ class NaviHomeFragment : Fragment() {
                                 binding.tvNoFeedAlert.visibility = View.GONE
                                 binding.rcvMainFeed.visibility = View.VISIBLE
                             }
-
+                            adapter.addItems(it)
                             dismissSkeletonView() // 스켈레톤 UI 종료
-
                             // 다시 false 로 변경
                             isWritePost = false
                         }, {
@@ -313,6 +311,40 @@ class NaviHomeFragment : Fragment() {
                 }
             }
 
+        // 게시글 삭제를 하거나, 뒤로가기를 눌러 메인 피드로 돌아온다면
+        isDeleteActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == AppCompatActivity.RESULT_OK) {
+                    isDeletePost = it.data?.getBooleanExtra(
+                        "isDeletePost",
+                        false
+                    ) == true // 제보글을 썼다면 true, 쓰지 않았다면 false
+                    if(isDeletePost || it.data!!.getBooleanExtra("isRefreshFeed", false)){ // 삭제를 하거나, 뒤로 가기를 눌렀을 때 피드 새로고침
+                        // 메인 피드 갱신
+                        processGetMainFeed(0, token, {
+                            showSkeletonView() // 스켈레톤 UI 시작
+                            adapter.clearList()
+                            isObtainedAll = false
+                        }, { it ->
+                            if (it.isEmpty()) { // 리스트가 비어있다면
+                                // 비어있다면 화면 뿌려주기
+                                binding.tvNoFeedAlert.visibility = View.VISIBLE
+                                binding.rcvMainFeed.visibility = View.GONE
+                            } else { // 아니라면
+                                // 리스트 보여주기
+                                binding.tvNoFeedAlert.visibility = View.GONE
+                                binding.rcvMainFeed.visibility = View.VISIBLE
+                            }
+                            adapter.addItems(it)
+                            dismissSkeletonView() // 스켈레톤 UI 종료
+                            isDeletePost = false // 다시 false로 변경
+                        },{
+                            it.printStackTrace()
+                            requestErrorDialog.show()
+                        })
+                    }
+                }
+            }
         return binding.root
     }
 
@@ -386,6 +418,6 @@ class NaviHomeFragment : Fragment() {
         Log.d(TAG, "클릭한 게시물 id : ${feedList[position]!!.postId}")
         val intent = Intent(context, PostDetailActivity::class.java)
         intent.putExtra("postId", feedList[position]!!.postId)
-        startActivity(intent)
+        isDeleteActivityResult.launch(intent)
     }
 }

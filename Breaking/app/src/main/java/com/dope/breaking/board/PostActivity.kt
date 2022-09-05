@@ -144,7 +144,6 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         hashTagList = ArrayList<String>() // 해시 태그 리스트 초기화
         binding.tvEventTimeClicked.text = Utils.getCurrentTime(false) // 현재 시간 출력
         eventTime = Utils.getCurrentTime(true) // 발생 시간 현재 시간으로 기본 할당
-        binding.tvLocationShow.text = "경기도 성남시" // 현재 위치 임시로 할당
         binding.etPostPrice.addTextChangedListener(textWatcher) // 제보 가격 콜백 함수 등록
 
         settingPostToolBar()  // 툴 바 설정

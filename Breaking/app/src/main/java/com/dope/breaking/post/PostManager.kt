@@ -5,6 +5,7 @@ import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.request.RequestComment
 import com.dope.breaking.model.request.RequestPostData
+import com.dope.breaking.model.request.RequestPostDataModify
 import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseMainFeed
 import com.dope.breaking.model.response.ResponsePostDetail
@@ -266,6 +267,68 @@ class PostManager {
             return resultList.body()!! // 응답 리스트 리턴
         } else { // 실패했다면
             throw ResponseErrorException("${resultList.errorBody()?.string()}") // 예외 발생
+        }
+    }
+
+    /**
+     * 게시물 수정 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 수정할 게시글 id
+     * @param postInfo(RequestPostData) : 수정된 게시글 정보 dto
+     * @author Tae hyun Park
+     * @since 2022-09-04
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startEditPost(
+        token: String,
+        postId: Long,
+        postInfo : RequestPostDataModify
+    ): ResponsePostUpload {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 수정 요청
+        val resultList = service.requestPostDetailEdit(
+            token,
+            postId,
+            postInfo
+        )
+
+        if (resultList.code() in 200..299) { // 요청에 성공했다면
+            return resultList.body()!! // 응답 리스트 리턴
+        } else { // 실패했다면
+            throw ResponseErrorException("${resultList.errorBody()?.string()}") // 예외 발생
+        }
+    }
+
+    /**
+     * 게시물 삭제 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 삭제할 게시글 id
+     * @author Tae hyun Park
+     * @since 2022-09-05
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startDeletePost(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 삭제 요청
+        val response = service.requestPostDetailDelete(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
         }
     }
 
