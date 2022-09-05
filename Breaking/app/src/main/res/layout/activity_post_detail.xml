@@ -17,6 +17,7 @@
         app:title="@string/post_detail_tool_bar"
         app:titleTextColor="@color/black">
 
+        <!--
         <TextView
             android:id="@+id/post_detail_btn_modify"
             android:layout_width="wrap_content"
@@ -27,7 +28,7 @@
             android:layout_gravity="right"
             android:visibility="gone"
             android:layout_marginRight="10dp"/>
-
+        -->
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.core.widget.NestedScrollView
@@ -77,7 +78,7 @@
                     android:layout_height="0dp"
                     android:background="@drawable/ic_default_post_image"
                     android:visibility="gone"
-                    app:layout_constraintHeight_percent="0.36"
+                    app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -206,7 +207,7 @@
                     android:ellipsize="end"
                     android:text=""
                     android:textColor="@color/black"
-                    android:textSize="17sp"
+                    android:textSize="15.5sp"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintLeft_toRightOf="@+id/iv_profile_writer"
                     app:layout_constraintRight_toRightOf="parent"
@@ -214,9 +215,10 @@
 
                 <ImageView
                     android:id="@+id/iv_location_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/ic_baseline_location_on_24"
                     app:layout_constraintLeft_toLeftOf="@id/tv_title"
                     app:layout_constraintTop_toBottomOf="@+id/tv_title"
@@ -229,67 +231,100 @@
                     android:layout_marginLeft="5dp"
                     android:text=""
                     android:textColor="@color/breaking_color"
-                    android:textSize="12sp"
+                    android:textSize="11.5sp"
                     app:layout_constraintTop_toTopOf="@id/iv_location_icon"
                     app:layout_constraintBottom_toBottomOf="@id/iv_location_icon"
                     app:layout_constraintLeft_toRightOf="@id/iv_location_icon" />
 
                 <TextView
-                    android:id="@+id/tv_post_time"
+                    android:id="@+id/tv_post_view_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:text=""
+                    android:textColor="@color/black"
+                    android:textSize="11.5sp"
+                    app:layout_constraintTop_toTopOf="@id/iv_location_icon"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_location_icon"
+                    app:layout_constraintLeft_toRightOf="@id/tv_post_location" />
+
+                <TextView
+                    android:id="@+id/tv_post_event_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="end"
+                    android:text=""
+                    android:textSize="11sp"
+                    app:layout_constraintVertical_bias="0.1"
+                    app:layout_constraintBottom_toTopOf="@+id/divider1"
+                    app:layout_constraintLeft_toLeftOf="@+id/iv_location_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_location_icon" />
+
+                <TextView
+                    android:id="@+id/tv_post_create_time"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:text=""
                     android:textSize="11sp"
+                    android:layout_marginTop="4dp"
                     app:layout_constraintVertical_bias="0"
                     app:layout_constraintBottom_toTopOf="@+id/divider1"
-                    app:layout_constraintLeft_toLeftOf="@+id/iv_location_icon"
-                    app:layout_constraintTop_toBottomOf="@+id/iv_location_icon" />
+                    app:layout_constraintLeft_toLeftOf="@+id/tv_post_event_time"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_post_event_time" />
+
 
                 <Button
                     android:id="@+id/btn_purchase"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     app:layout_constraintWidth_percent="0.2"
                     android:background="@drawable/sign_up_user_type_selected"
                     android:text="@string/post_detail_btn_purchase"
                     android:textSize="12sp"
-                    app:layout_constraintHorizontal_bias="0.93"
-                    app:layout_constraintVertical_bias="1"
+                    app:layout_constraintHorizontal_bias="0.9"
+                    app:layout_constraintVertical_bias="0.3"
                     app:layout_constraintTop_toBottomOf="@id/tv_post_price"
                     app:layout_constraintBottom_toTopOf="@id/divider1"
-                    app:layout_constraintLeft_toRightOf="@id/tv_post_time"
-                    app:layout_constraintRight_toRightOf="parent"
-                    />
+                    app:layout_constraintLeft_toRightOf="@id/tv_post_create_time"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_post_sold_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:textSize="11sp"
+                    app:layout_constraintTop_toBottomOf="@id/btn_purchase"
+                    app:layout_constraintLeft_toLeftOf="@+id/btn_purchase"
+                    app:layout_constraintRight_toRightOf="@+id/btn_purchase"/>
 
                 <TextView
                     android:id="@+id/tv_post_price"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintWidth_percent="0.3"
+                    android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
                     android:text=""
                     android:textColor="@color/black"
-                    android:textStyle="bold"
                     android:textSize="12sp"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_title"
+                    android:textStyle="bold"
                     app:layout_constraintLeft_toLeftOf="@+id/btn_purchase"
-                    app:layout_constraintBottom_toTopOf="@+id/btn_purchase"
-                    app:layout_constraintRight_toRightOf="@+id/btn_purchase"/>
+                    app:layout_constraintRight_toRightOf="@+id/btn_purchase"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title"
+                    app:layout_constraintWidth_percent="0.3" />
 
                 <View
                     android:id="@+id/divider1"
                     android:layout_width="0dp"
                     android:layout_height="1dp"
-                    android:layout_marginTop="20dp"
                     android:background="@color/gray"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_post_time" />
+                    app:layout_constraintTop_toBottomOf="@id/tv_post_sold_count" />
 
                 <TextView
                     android:id="@+id/tv_post_content"
@@ -316,17 +351,41 @@
                     app:layout_constraintLeft_toLeftOf="@+id/tv_user_nick_name"
                     app:layout_constraintTop_toBottomOf="@+id/tv_post_content" />
 
+                <TextView
+                    android:id="@+id/tv_post_like_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintHorizontal_bias="0.01"
+                    android:textColor="@color/black"
+                    android:textSize="10sp"
+                    app:layout_constraintTop_toTopOf="@+id/ib_post_like"
+                    app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
+                    app:layout_constraintLeft_toRightOf="@id/ib_post_like"
+                    app:layout_constraintRight_toRightOf="parent" />
+
                 <ImageButton
                     android:id="@+id/ib_post_comment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/ic_post_comment"
-                    app:layout_constraintHorizontal_bias="0.05"
+                    app:layout_constraintHorizontal_bias="0.07"
                     app:layout_constraintTop_toTopOf="@+id/ib_post_like"
                     app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
                     app:layout_constraintLeft_toRightOf="@id/ib_post_like"
                     app:layout_constraintRight_toRightOf="parent"
                     tools:layout_editor_absoluteY="356dp" />
+
+                <TextView
+                    android:id="@+id/tv_post_comment_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    app:layout_constraintHorizontal_bias="0.15"
+                    android:textSize="10sp"
+                    app:layout_constraintTop_toTopOf="@+id/ib_post_like"
+                    app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
+                    app:layout_constraintLeft_toRightOf="@id/ib_post_like"
+                    app:layout_constraintRight_toRightOf="parent" />
 
                 <ImageButton
                     android:id="@+id/ib_post_more"

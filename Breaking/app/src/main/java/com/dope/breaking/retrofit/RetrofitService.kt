@@ -1,11 +1,7 @@
 package com.dope.breaking.retrofit
 
 import com.dope.breaking.model.FollowData
-import com.dope.breaking.model.request.RequestAmount
-import com.dope.breaking.model.request.RequestComment
-import com.dope.breaking.model.request.RequestGoogleAccessToken
-import com.dope.breaking.model.request.RequestGoogleToken
-import com.dope.breaking.model.request.RequestKakaoToken
+import com.dope.breaking.model.request.*
 import com.dope.breaking.model.response.*
 import com.google.gson.JsonElement
 import okhttp3.MultipartBody
@@ -105,6 +101,32 @@ interface RetrofitService {
     ): Response<ResponsePostDetail>
 
     /**
+     * 게시글 정보 수정을 요청하는 메소드
+     * @Path - postId(Long) : 게시글 id
+     * @Body - postInfo(RequestPostData) : 수정할 게시글 정보
+     * @response - ResponsePostUpload : 수정이 완료된 게시글의 id dto
+     * @author - Tae hyun Park
+     */
+    @PUT("post/{postId}")
+    suspend fun requestPostDetailEdit(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long,
+        @Body postInfo: RequestPostDataModify
+    ): Response<ResponsePostUpload>
+
+    /**
+     * 게시글 삭제를 요청하는 메소드
+     * @Path - postId(Long) : 게시글 id
+     * @response - Response<Unit> : 기본 응답 코드
+     * @author - Tae hyun Park
+     */
+    @DELETE("post/{postId}")
+    suspend fun requestPostDetailDelete(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
+
+    /**
      * 특정 게시글에서 댓글 달기 요청 메소드
      * @Path - postId(Long) : 게시글 id
      * @Body - comment(RequestComment) : 댓글 dto body
@@ -163,6 +185,7 @@ interface RetrofitService {
         @Query("cursor") lastCommentId: Int,
         @Query("size") contentsSize: Int
     ): Response<List<ResponseComment>>
+
 
 
     /**

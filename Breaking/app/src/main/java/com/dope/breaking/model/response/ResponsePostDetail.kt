@@ -1,7 +1,10 @@
 package com.dope.breaking.model.response
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.dope.breaking.model.PostLocation
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class ResponsePostDetail(
     @SerializedName("isLiked") val isLiked: Boolean,
@@ -27,4 +30,4 @@ data class ResponsePostDetail(
     @SerializedName("isMyPost") val isMyPost: Boolean,
     @SerializedName("likeCount") val likeCount: Long,
     @SerializedName("commentCount") val commentCount: Long,
-)
+) : Serializable

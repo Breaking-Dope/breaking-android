@@ -55,6 +55,7 @@
     <string name="post_register_profile_type_public">공개</string>
     <string name="post_register_profile_type_secret">비공개</string>
     <string name="post_register_btn">제보하기</string>
+    <string name="post_edit_btn">수정하기</string>
     <string name="follow_remove">삭제</string>
     <string name="is_selling_string">판매중</string>
     <string name="exclusive_string">단독</string>
