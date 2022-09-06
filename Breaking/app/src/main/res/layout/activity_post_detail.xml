@@ -355,12 +355,12 @@
                     android:id="@+id/tv_post_like_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintHorizontal_bias="0.01"
+                    app:layout_constraintHorizontal_bias="0"
                     android:textColor="@color/black"
                     android:textSize="10sp"
                     app:layout_constraintTop_toTopOf="@+id/ib_post_like"
                     app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
-                    app:layout_constraintLeft_toRightOf="@id/ib_post_like"
+                    app:layout_constraintLeft_toLeftOf="@id/tv_post_comment_count"
                     app:layout_constraintRight_toRightOf="parent" />
 
                 <ImageButton
@@ -368,23 +368,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/ic_post_comment"
-                    app:layout_constraintHorizontal_bias="0.07"
-                    app:layout_constraintTop_toTopOf="@+id/ib_post_like"
-                    app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
-                    app:layout_constraintLeft_toRightOf="@id/ib_post_like"
-                    app:layout_constraintRight_toRightOf="parent"
-                    tools:layout_editor_absoluteY="356dp" />
+                    android:layout_marginTop="5dp"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintTop_toBottomOf="@+id/ib_post_like"
+                    app:layout_constraintLeft_toLeftOf="@id/ib_post_like"
+                    app:layout_constraintRight_toRightOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_post_comment_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
-                    app:layout_constraintHorizontal_bias="0.15"
+                    app:layout_constraintHorizontal_bias="0.01"
                     android:textSize="10sp"
-                    app:layout_constraintTop_toTopOf="@+id/ib_post_like"
-                    app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
-                    app:layout_constraintLeft_toRightOf="@id/ib_post_like"
+                    app:layout_constraintTop_toTopOf="@+id/ib_post_comment"
+                    app:layout_constraintBottom_toBottomOf="@+id/ib_post_comment"
+                    app:layout_constraintLeft_toRightOf="@id/ib_post_comment"
                     app:layout_constraintRight_toRightOf="parent" />
 
                 <ImageButton
@@ -407,7 +406,7 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/ib_post_like" />
+                    app:layout_constraintTop_toBottomOf="@id/ib_post_comment" />
 
                 <TextView
                     android:id="@+id/tv_comment_none"
