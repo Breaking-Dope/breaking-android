@@ -16,13 +16,18 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Breaking"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".board.PostLikeActivity"
+            android:exported="false" />
         <activity
             android:name=".EditPostActivity"
             android:exported="false" />
