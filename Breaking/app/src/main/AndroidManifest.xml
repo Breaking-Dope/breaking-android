@@ -14,6 +14,8 @@
     <application
         android:name=".GlobalApplication"
         android:allowBackup="false"
+        android:hardwareAccelerated="false"
+        android:largeHeap="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"

@@ -255,14 +255,20 @@ class PostDetailActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         // 소리 줄이기 (영상 미디어, 임시 방편)
         /*
+        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audio.setStreamVolume(
             AudioManager.STREAM_MUSIC,
             audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)*0,
             AudioManager.FLAG_PLAY_SOUND
         )*/
+        adapterViewpager.onDetach(ItemSliderBinding.inflate(layoutInflater)) // 자원 해제
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        adapterViewpager.onDetach(ItemSliderBinding.inflate(layoutInflater)) // 자원 해제
     }
 
     override fun onBackPressed() {

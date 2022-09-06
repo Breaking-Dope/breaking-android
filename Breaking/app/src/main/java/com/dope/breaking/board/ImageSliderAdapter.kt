@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.dope.breaking.R
+import com.dope.breaking.databinding.ItemSliderBinding
 import com.dope.breaking.util.ValueUtil
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -19,22 +20,30 @@ import com.google.android.exoplayer2.ui.PlayerView
 
 class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String?>) : RecyclerView.Adapter<ImageSliderAdapter.ViewHolder>() {
 
+    var mStoredPlayers = ArrayList<SimpleExoPlayer>()
+
     // 아이템이 정상적으로 존재한다면 보여줄 바인딩 function 정의
-    class ViewHolder(view: View?) : RecyclerView.ViewHolder(view!!){
+    inner class ViewHolder(view: View?) : RecyclerView.ViewHolder(view!!){
         val mImageView = view?.findViewById<ImageView>(R.id.image_slider)
         val videoView = view?.findViewById<PlayerView>(R.id.video_player_view)
 
         fun bindSlider(mediaURL: String?, context: Context){
             Log.d("ImageSliderAdapter.kt", "받아온 미디어 URL : "+ValueUtil.IMAGE_BASE_URL + mediaURL)
 
+
             if (mediaURL!!.split(".")[1] == "mp4"){ // 영상이면
                 videoView?.visibility = View.VISIBLE // 비디오뷰 나타내기
                 mImageView?.visibility = View.GONE // 이미지 숨기기
-                val simpleExoPlayer = SimpleExoPlayer.Builder(context).build()
+                var simpleExoPlayer = SimpleExoPlayer.Builder(context).build()
+
+                mStoredPlayers.add(simpleExoPlayer)
+
+                /*
                 videoView?.player = simpleExoPlayer
                 simpleExoPlayer.addMediaItem(MediaItem.fromUri(Uri.parse(ValueUtil.IMAGE_BASE_URL + mediaURL)))
                 simpleExoPlayer.prepare()
                 simpleExoPlayer.playWhenReady = false // 자동 재생 false
+                */
             }else{ // 이미지면
                 videoView?.visibility = View.GONE // 비디오뷰 숨기기
                 mImageView?.visibility = View.VISIBLE // 이미지 나타나기
@@ -60,9 +69,36 @@ class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String
         return sliderMedia.size
     }
 
+    override fun onViewAttachedToWindow(holder: ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        val adapterPosition = holder.bindingAdapterPosition
+        val player: SimpleExoPlayer = mStoredPlayers[adapterPosition]
+        player.setMediaItem(MediaItem.fromUri(Uri.parse(ValueUtil.IMAGE_BASE_URL + sliderMedia[adapterPosition])))
+        player.prepare()
+        player.playWhenReady = false
+        holder.videoView?.player = player
+    }
+
     override fun onViewDetachedFromWindow(holder: ViewHolder) {
         super.onViewDetachedFromWindow(holder)
         holder.videoView?.player?.release()
+    }
+
+    /**
+     *
+     */
+    fun onDetach(binding: ItemSliderBinding) {
+        // Uri만큼 돌면서
+        // 자원 해제
+        //var simpleExoPlayer = SimpleExoPlayer.Builder(context).build()
+        //binding.videoPlayerView.player = simpleExoPlayer
+        for(i in 0 until sliderMedia.size){
+            //binding.videoPlayerView.player?.pause()
+            //binding.videoPlayerView.player?.clearMediaItems()
+            binding.videoPlayerView.player?.playWhenReady = false
+            binding.videoPlayerView.player?.release()
+            //binding.videoPlayerView.player?.stop()
+        }
     }
 
 }
