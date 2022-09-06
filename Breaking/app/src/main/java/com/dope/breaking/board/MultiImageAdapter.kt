@@ -13,8 +13,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dope.breaking.R
 import com.dope.breaking.databinding.ActivityPostBinding
+import java.io.File
 
-class MultiImageAdapter(var list: ArrayList<Uri>, var fileNameList:ArrayList<String>, var postBitmapList:ArrayList<Bitmap>, var context: Context, var binding: ActivityPostBinding) : RecyclerView.Adapter<MultiImageAdapter.ViewHolder>() {
+class MultiImageAdapter(var list: ArrayList<Uri>, var fileNameList:ArrayList<String>, var postBitmapList:ArrayList<Bitmap>, var fileList:ArrayList<File>,var context: Context, var binding: ActivityPostBinding) : RecyclerView.Adapter<MultiImageAdapter.ViewHolder>() {
 
     class ViewHolder(view: View?) : RecyclerView.ViewHolder(view!!){
         // 데이터가 바인딩 당할 Item XML 내부의 elements 들 정의
@@ -60,6 +61,7 @@ class MultiImageAdapter(var list: ArrayList<Uri>, var fileNameList:ArrayList<Str
             list.removeAt(position)
             fileNameList.removeAt(position)
             postBitmapList.removeAt(position)
+            fileList.removeAt(position)
             notifyDataSetChanged() // 변경된 아이템 갱신 처리
         }
     }

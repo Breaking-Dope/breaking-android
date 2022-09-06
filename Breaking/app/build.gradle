@@ -97,6 +97,11 @@ dependencies {
     // SwiperRefreshLayout
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
+    // ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.15.1'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.15.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
+
     // libs 폴더 접근 인식
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation files('libs/libDaumMapAndroid.jar')

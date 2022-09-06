@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.InputFilter
 import android.util.Log
@@ -16,7 +17,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dope.breaking.databinding.ActivitySignUpBinding
-import java.lang.Exception
+import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -205,5 +206,32 @@ object Utils { // 컴패니언 객체 (Static)
         var nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME) // 파일명 반환
         cursor!!.moveToFirst() // 커서 위치 이동
         return cursor.getString(nameIndex!!)
+    }
+
+    /**
+     * @description - uri 를 통해 선택한 파일 인스턴스를 얻어오는 함수
+     * @param - Uri, ContentResolver
+     * @return - File
+     * @author - Tae hyun Park
+     * @since - 2022-09-05
+     */
+    internal fun getFileFromURI(
+        uri: Uri,
+        contentResolver: ContentResolver
+    ): File {
+        // 이미지/영상에 따라 미디어 타입을 구분
+        var filePathColumn: Array<String> =
+            if (uri.toString().contains("image")) {
+                arrayOf(MediaStore.Video.Media.DATA)
+            } else {
+                arrayOf(MediaStore.Images.Media.DATA)
+            }
+
+        var cursor = contentResolver.query(uri, filePathColumn, null, null, null)
+        cursor!!.moveToFirst() // 커서 위치 이동
+        var nameIndex = cursor?.getColumnIndex(filePathColumn[0]) // 파일명 반환
+        var fileString = cursor?.getString(nameIndex!!)
+        cursor!!.close()
+        return File(fileString)
     }
 }

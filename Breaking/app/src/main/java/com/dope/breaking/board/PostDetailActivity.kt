@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.media.AudioManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Spannable
@@ -24,6 +25,7 @@ import com.bumptech.glide.Glide
 import com.dope.breaking.*
 import com.dope.breaking.databinding.ActivityPostDetailBinding
 import com.dope.breaking.databinding.CustomPostDetailContentPopupBinding
+import com.dope.breaking.databinding.ItemSliderBinding
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseExistLogin
@@ -33,6 +35,7 @@ import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils
 import com.dope.breaking.util.ValueUtil
+import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -248,6 +251,18 @@ class PostDetailActivity : AppCompatActivity() {
                     }
                 }
             }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        // 소리 줄이기 (영상 미디어, 임시 방편)
+        /*
+        audio.setStreamVolume(
+            AudioManager.STREAM_MUSIC,
+            audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)*0,
+            AudioManager.FLAG_PLAY_SOUND
+        )*/
     }
 
     override fun onBackPressed() {

@@ -42,16 +42,17 @@ import com.dope.breaking.exception.FailedGetLocationException
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.map.KakaoMapActivity
 import com.dope.breaking.model.LocationList
-import com.dope.breaking.model.request.RequestPostData
 import com.dope.breaking.model.PostLocation
-import com.dope.breaking.post.ValidationPost
+import com.dope.breaking.model.request.RequestPostData
 import com.dope.breaking.post.PostManager
+import com.dope.breaking.post.ValidationPost
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -92,6 +93,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
     private var postPriceString: String = "" // 제보 가격 콤마 표시를 위한 저장 변수
 
     private var decimalFormat = DecimalFormat("#,###") // 제보 가격 콤마 표시를 위한 포맷
+
+    private lateinit var fileList: ArrayList<File> // 동영상을 담을 file
 
     /* 데이터 피커와 타임 피커에 필요한 전역 변수들로, 년, 월, 일, 시, 분, 초를 포함한다. */
     private var day = 0
@@ -134,6 +137,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         }
 
         uriList = ArrayList<Uri>() // Uri 리스트 초기화
+        fileList = ArrayList<File>() // 파일 리스트 초기화
         postBitmapList = ArrayList<Bitmap>() // 비트맵 리스트 초기화
         fileNameList = ArrayList<String>()  // 미디어 파일명 리스트 초기화
         hashTagList = ArrayList<String>() // 해시 태그 리스트 초기화
@@ -163,6 +167,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                                     uriList,
                                     fileNameList,
                                     postBitmapList,
+                                    fileList,
                                     applicationContext,
                                     binding
                                 )
@@ -182,14 +187,14 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
 
                         } else { // 여러 장 선택을 지원하는 기기에서 이미지&영상을 한 장 혹은 여러 장 선택한 경우
                             var clipData = it.data?.clipData
-                            if ((clipData!!.itemCount + uriList.size) <= 20) { // 내가 올려놓은 사진들의 개수와 갤러리에서 추가적으로 선택한 사진 개수의 합이 10장을 초과하지 않아야 저장 O
+                            if ((clipData!!.itemCount + uriList.size) <= 20) { // 내가 올려놓은 미디어의 개수와 갤러리에서 추가적으로 선택한 미디어 개수의 합이 10장을 초과하지 않아야 저장 O
                                 changeUploadImageColors(
                                     clipData!!.itemCount,
                                     uriList.size
-                                ) // 최대 개수면 사진 카운트 텍스트 색상 변경
+                                ) // 최대 개수면 미디어 카운트 텍스트 색상 변경
                                 for (i in 0 until clipData.itemCount) {   // 선택한 미디어 파일의 개수만큼 반복문
                                     var uri =
-                                        clipData.getItemAt(i).uri // 해당 인덱스의 선택한 이미지의 uri를 가져오기
+                                        clipData.getItemAt(i).uri // 해당 인덱스의 선택한 이미지/영상의 uri를 가져오기
                                     fileNameList.add(
                                         Utils.getFileNameFromURI(
                                             uri!!,
@@ -197,6 +202,12 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                                         )!!
                                     )
                                     uriList.add(uri)
+                                    fileList.add( // 서버로 보낼 이미지/동영상 파일 리스트에 추가
+                                        Utils.getFileFromURI(
+                                            uri!!,
+                                            contentResolver
+                                        )
+                                    )
                                     Utils.getBitmapWithGlide(
                                         applicationContext,
                                         uri,
@@ -207,6 +218,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                                     uriList,
                                     fileNameList,
                                     postBitmapList,
+                                    fileList,
                                     applicationContext,
                                     binding
                                 )
@@ -325,8 +337,6 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
 
         // 제보하기 버튼을 누르면
         binding.btnPostRegisterBtn.setOnClickListener {
-            // 미디어 파일 선택 안하면, 기본 이미지 넣어주도록 처리 필요 (해당 코드 삭제됨)
-
             // 해시 태그 값이 있는지 확인, 태그가 없다면 기본 값으로 다시 초기화
             if (binding.etContent.text.toString().indexOf('#') !== -1) {
                 hashTagList = Utils.getArrayHashTagWithOutSpace(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
@@ -365,7 +375,9 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                         requestPostData,
                         postBitmapList,
                         fileNameList,
-                        JwtTokenUtil(applicationContext).getAccessTokenFromLocal() // 로컬에서 토큰 가져오기
+                        JwtTokenUtil(applicationContext).getAccessTokenFromLocal(), // 로컬에서 토큰 가져오기
+                        fileList,
+                        uriList
                     )
                     if (progressDialog.isShowing()) { // 로딩 다이얼로그 종료
                         progressDialog.dismissDialog()
@@ -381,15 +393,19 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
      * @param - imageData(ArrayList<Bitmap>) : 미디어 비트맵 리스트
      * @param - imageName(ArrayList<String>) : 미디어 파일명 리스트
      * @param - token(String) : JWT 토큰
+     * @param - fileList(ArrayList<File>) : 이미지/영상 파일
+     * @param - uriList(ArrayList<Uri>) : 이미지/영상 uri
      * @return - None
      * @author - Tae hyun Park
-     * @since - 2022-08-02
+     * @since - 2022-08-02 | 2022-09-05
      */
     private suspend fun processPost(
         inputData: RequestPostData,
         imageData: ArrayList<Bitmap>,
         imageName: ArrayList<String>,
-        token: String
+        token: String,
+        fileList : ArrayList<File>,
+        uriList : ArrayList<Uri>
     ) {
         val postManager = PostManager() // 커스텀 게시글 객체 생성
         try {
@@ -397,7 +413,9 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
                 inputData,
                 imageData,
                 imageName,
-                token
+                token,
+                fileList,
+                uriList
             )
             Log.d(TAG, "요청 성공 시 받아온 postId : ${responsePostUpload.postId}")
             Toast.makeText(applicationContext, "게시글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
@@ -413,7 +431,6 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
             )
         }
     }
-
     /**
      * @description - 제보 페이지에서 기본값으로 현재 자신의 위치를 설정하는 함수, 위도 경도와 주소를 받아오고, locationData 에 할당하는 함수
      * @param - None
