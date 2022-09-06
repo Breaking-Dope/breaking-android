@@ -3,7 +3,6 @@ package com.dope.breaking.board
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.media.AudioManager
 import androidx.appcompat.app.AppCompatActivity
@@ -25,8 +24,8 @@ import com.bumptech.glide.Glide
 import com.dope.breaking.*
 import com.dope.breaking.databinding.ActivityPostDetailBinding
 import com.dope.breaking.databinding.CustomPostDetailContentPopupBinding
-import com.dope.breaking.databinding.ItemSliderBinding
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.model.FollowData
 import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.model.response.ResponsePostDetail
@@ -35,7 +34,6 @@ import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils
 import com.dope.breaking.util.ValueUtil
-import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,10 +47,11 @@ class PostDetailActivity : AppCompatActivity() {
     private lateinit var editPostActivityResult: ActivityResultLauncher<Intent> // 게시글 수정 후 그 후 처리를 위한 activityResult
     private lateinit var adapterViewpager: ImageSliderAdapter // 뷰 페이저 어댑터
     private lateinit var adapterComment: PostCommentAdapter // 댓글 리스트 어댑터
-    private lateinit var progressDialog : DialogUtil.ProgressDialog // 요청 로딩 다이얼로그
+    private lateinit var progressDialog: DialogUtil.ProgressDialog // 요청 로딩 다이얼로그
     private var commentList = mutableListOf<ResponseComment?>() // 댓글 리스트
-    private var flagLike = false // 좋아요가 안 눌렸으면 false, 눌렸으면 true (임시)
-    private var flagComment = false // 댓글 창을 안 눌렀으면 false, 눌렀으면 true (임시)
+    private var likeList = mutableListOf<FollowData?>() // 좋아요 한 유저 목록 저장하는 리스트
+    private var flagLike = false // 좋아요가 안 눌렸으면 false, 눌렸으면 true
+    private var flagComment = false // 댓글 창을 안 눌렀으면 false, 눌렀으면 true
     private var isObtainedAll = false // 모든 댓글 리스트를 받았는지 판단(더 이상 요청할 것이 없는)
     private var isLoading = false  // 로딩 중 판단
     private var requestCommentId = -1 // 대댓글 요청 시에 보낼 댓글 id (기본값은 임의로 -1로 설정)
@@ -65,19 +64,35 @@ class PostDetailActivity : AppCompatActivity() {
         val requestErrorDialog =
             DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인")
 
+        // 좋아요 리스트 요청 에러 시 띄워줄 다이얼로그 정의
+        val requestLikeErrorDialog =
+            DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인")
+
         // 요청 Jwt 토큰 가져오기
         val token =
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal()
 
         getPostId = intent.getIntExtra("postId",-1)
         Log.d(TAG,"받아온 postId 값 : $getPostId")
-
         mbinding = ActivityPostDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settingPostToolBar()  // 툴 바 설정
         allowScrollEditText() // 스크롤 바 중첩 문제 해결
 
-        // 게시글 상세 조회 요청
+        /* 최초로 좋아요 리스트 요청 */
+        processGetPostLikeList(
+            token,
+            getPostId.toLong(),
+            0,{likeList.clear()},{
+                likeList.addAll(it)
+                Log.d(TAG,"좋아요 목록 리스트 테스트(최초) : ${likeList.size}")
+            },{
+                it.printStackTrace()
+                requestLikeErrorDialog.show()
+            }
+        )
+
+        /* 최초로 게시글 상세 조회 요청 */
         processPostDetail(
             token,
             getPostId.toLong(), {
@@ -97,27 +112,45 @@ class PostDetailActivity : AppCompatActivity() {
             }
         })
 
-        // 좋아요 클릭 시 토글
+        // 좋아요 클릭 리스너
         binding.ibPostLike.setOnClickListener {
-            if (!flagLike) {
-                binding.ibPostLike.backgroundTintList = ColorStateList.valueOf(Color.BLUE)
-                flagLike = true
-            } else {
-                binding.ibPostLike.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
-                flagLike = false
+            if (!flagLike) { // 좋아요를 하지 않은 상태에서 누른다면 좋아요 요청
+                processPostLike(
+                    token,
+                    getPostId.toLong(),
+                    { // 요청 성공 시
+                        flagLike = true
+                        refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                    },{
+                        if (it.message!! == "BSE458"){ // 이미 좋아요를 선택했다면
+                            refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                        }
+                    }
+                )
+            } else { // 좋아요를 한 상태에서 누른다면 좋아요 취소 요청
+                processCancelPostLike(
+                    token,
+                    getPostId.toLong(),
+                    { // 요청 성공 시
+                        flagLike = false
+                        refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                    },{
+                        if (it.message == "BSE459"){ // 이미 좋아요를 선택하지 않았다면
+                            refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                        }
+                    }
+                )
             }
         }
 
-        // 댓글 클릭 시 토글
-        binding.ibPostComment.setOnClickListener {
-            if (!flagComment) {
-                binding.ibPostComment.backgroundTintList = ColorStateList.valueOf(Color.BLUE)
-                flagComment = true
-            } else {
-                binding.ibPostComment.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
-                flagComment = false
-            }
+        // 좋아요 텍스트 뷰를 클릭 시 좋아요 목록 액티비티로 이동
+        binding.tvPostLikeCount.setOnClickListener {
+            var intent = Intent(this, PostLikeActivity::class.java)
+            intent.putExtra("postId",getPostId)
+            startActivity(intent)
         }
+
+        // 댓글 클릭 시 토글
 
         // 댓글 등록 버튼 클릭 시
         binding.tvAddComment.setOnClickListener {
@@ -132,20 +165,9 @@ class PostDetailActivity : AppCompatActivity() {
                         {},{
                             if (it){
                                 Toast.makeText(applicationContext, "답글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
-                                commentList.clear() // 리스트 비우기
                                 binding.etPostWrite.setText("") // 적었던 내용은 지우기
                                 requestCommentId = -1 // 값 다시 초기화
-
-                                // 게시글 상세 조회 갱신
-                                processPostDetail(
-                                    token,
-                                    getPostId.toLong(), {
-                                    },{
-                                        settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
-                                    }
-                                )
-                                // 대댓글 등록 후 댓글 리스트 재갱신
-                                processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+                                refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
                             }
                         }
                     )
@@ -158,19 +180,8 @@ class PostDetailActivity : AppCompatActivity() {
                         {},{
                             if (it){ // 댓글 등록이 성공적으로 이루어졌다면
                                 binding.etPostWrite.setText("") // 적었던 내용은 지우기
-                                commentList.clear() // 리스트 비우기
                                 Toast.makeText(applicationContext, "댓글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
-
-                                // 게시글 상세 조회 갱신
-                                processPostDetail(
-                                    token,
-                                    getPostId.toLong(), {
-                                    },{
-                                        settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
-                                    }
-                                )
-                                // 댓글 등록 후 댓글 리스트 재갱신
-                                processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+                                refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
                             }
                         }
                     )
@@ -183,7 +194,7 @@ class PostDetailActivity : AppCompatActivity() {
         /*
         최초로 댓글 리스트 가져오는 요청
          */
-        processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+        processGetCommentListModule(token, getPostId.toLong(),true, requestErrorDialog)
 
         /* 댓글 RecyclerView 스크롤 이벤트 리스너 정의 */
         binding.rvCommentList.addOnScrollListener(object : RecyclerView.OnScrollListener(){
@@ -234,20 +245,8 @@ class PostDetailActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == RESULT_OK) {
                     var resultPostId = it.data?.getIntExtra("postId", -1) // 수정이 정상적으로 완료되었다면 기존 게시물과 동일한 id 받아옴
-                    if(resultPostId != -1){ // 수정이 완료되었다면 상세 뷰, 댓글 리스트 재갱신
-                        // 게시글 상세 조회
-                        processPostDetail(
-                            token,
-                            resultPostId!!.toLong(), {
-                                showSkeletonView() // 스켈레톤 UI 시작
-                            },{
-                                dismissSkeletonView() // 스켈레톤 UI 종료
-                                settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
-                            }
-                        )
-                        // 댓글 리스트 갱신
-                        commentList.clear()
-                        processGetCommentListModule(token, getPostId.toLong(), requestErrorDialog)
+                    if(resultPostId != -1){ // 수정이 완료되었다면 상세 뷰, 댓글 리스트, 좋아요 목록 재갱신
+                        refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
                     }
                 }
             }
@@ -275,12 +274,13 @@ class PostDetailActivity : AppCompatActivity() {
      * @description - 최초 댓글 리스트 불러오기, 댓글/대댓글 작성 후에 리스트를 재갱신하기 위해 재사용되는 메소드
      * @param - token(String) : 토큰 정보
      * @param - postId(Long) : 현재 게시물 id
-     * @param - requestErrorDialog(DialogUtil.SingleDialog) : 요청 에러 다이얼로그
+     * @param - isStart(Boolean) : 최초냐 아니냐를 구분
+     * @param - requestErrorDialog(DialogUtil.SingleDialog) : 댓글 리스트 요청 에러 다이얼로그
      * @return - None
      * @author - Tae hyun Park
      * @since - 2022-09-03
      */
-    private fun processGetCommentListModule(token: String, postId: Long, requestErrorDialog: DialogUtil.SingleDialog){
+    private fun processGetCommentListModule(token: String, postId: Long, isStart:Boolean, requestErrorDialog: DialogUtil.SingleDialog){
         processGetCommentList(token, postId,0, {
             isObtainedAll = false
         }, { it ->
@@ -304,18 +304,59 @@ class PostDetailActivity : AppCompatActivity() {
                 binding.tvCommentNone.visibility = View.GONE
                 binding.rvCommentList.visibility = View.VISIBLE
             }
-            // 리스트의 divider 선 추가
-            binding.rvCommentList.addItemDecoration(
-                DividerItemDecoration(
-                    applicationContext,
-                    LinearLayout.VERTICAL
+            if (isStart){
+                // 리스트의 divider 선 추가
+                binding.rvCommentList.addItemDecoration(
+                    DividerItemDecoration(
+                        applicationContext,
+                        LinearLayout.VERTICAL
+                    )
                 )
-            )
+            }
             binding.rvCommentList.adapter = adapterComment // 어댑터 지정
         },{
             it.printStackTrace()
             requestErrorDialog.show()
         })
+    }
+
+    /**
+     * @description - 최초 댓글 리스트 불러오기, 댓글/대댓글 작성 등의 작업 후 게시글 정보를 재갱신하기 위해 재사용되는 메소드
+     * @param - token(String) : 토큰 정보
+     * @param - postId(Long) : 현재 게시물 id
+     * @param - requestErrorDialog(DialogUtil.SingleDialog) : 댓글 리스트 요청 에러 다이얼로그
+     * @param - requestLikeErrorDialog(DialogUtil.SingleDialog) : 좋아요 리스트 요청 에러 다이얼로그
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-06 | 2022-09-07
+     */
+    private fun refreshPostData(token: String, postId: Long, requestErrorDialog: DialogUtil.SingleDialog, requestLikeErrorDialog: DialogUtil.SingleDialog ){
+        // 좋아요 목록 갱신
+        processGetPostLikeList(
+            token,
+            getPostId.toLong(),
+            0,{
+                likeList.clear()
+            },{
+                if (it.isNotEmpty()){
+                    likeList.addAll(it)
+                }
+                // 게시글 상세 조회
+                processPostDetail(
+                    token,
+                    postId, {
+                    },{
+                        settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
+                    }
+                )
+                // 댓글 리스트 갱신
+                commentList.clear()
+                processGetCommentListModule(token, getPostId.toLong(),false, requestErrorDialog)
+            },{
+                it.printStackTrace()
+                requestLikeErrorDialog.show()
+            }
+        )
     }
 
     /**
@@ -678,6 +719,98 @@ class PostDetailActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * @description - 게시글의 좋아요 요청 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 좋아요 할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-06
+     */
+    private fun processPostLike(
+        token: String,
+        postId: Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startPostLike(
+                    token,
+                    postId,
+                )
+                if (response) last(response)
+                Log.d(TAG, "좋아요 요청 결과 : $response")
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
+     * @description - 게시글의 좋아요 취소 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 좋아요 할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-06
+     */
+    private fun processCancelPostLike(
+        token: String,
+        postId: Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startCancelPostLike(
+                    token,
+                    postId,
+                )
+                if (response) last(response)
+                Log.d(TAG, "좋아요 취소 요청 결과 : $response")
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
+     * @description - 게시물 좋아요 리스트 요청 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 좋아요 리스트를 요청할 게시물 id
+     * @param - lastUserId(Int) : 가장 최근에 요청한 유저 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-06
+     */
+    private fun processGetPostLikeList(
+        token: String,
+        postId : Long,
+        lastUserId : Int,
+        init: () -> Unit,
+        last: (List<FollowData>) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기화 함수 호출
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startGetPostLikeList(
+                    token,
+                    postId,
+                    lastUserId,
+                    ValueUtil.LIKE_SIZE,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+                Log.d(TAG, "좋아요 리스트 요청 결과 : $response")
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
 
     /**
      * @description - 받아온 상세 조회 정보를 바탕으로 뷰에 보여주기
@@ -688,7 +821,7 @@ class PostDetailActivity : AppCompatActivity() {
      */
     @SuppressLint("ResourceAsColor")
     private fun settingPostDetailView(responsePostDetail: ResponsePostDetail){
-        // 툴 바 수정 버튼 뷰 처리
+        flagLike = responsePostDetail.isLiked // 뷰 갱신마다 좋아요 여부를 가져옴
         setViewNickNameProfile(responsePostDetail) // 작성자의 닉네임과 프로필 이미지, 댓글 프로필 이미지
         setViewPostTypeSold(responsePostDetail) // 게시글 타입 (단독, 판매 중, 판매완료)
         setViewPostContents(responsePostDetail) // 게시글의 주요 컨텐츠 (제목, 위치, 시간, 가격, 내용)
@@ -757,7 +890,7 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     /**
-     * @description - 해당 게시글의 상단 박스 영역의 제목, 위치, 시간, 가격, 누적 판매량 등 주요 내용을 보여주는 함수 (게시글 주요 컨텐츠 담당 함수)
+     * @description - 해당 게시글의 상단 박스 영역의 제목, 위치, 시간, 가격, 누적 판매량, 좋아요 등 주요 내용을 보여주는 함수 (게시글 주요 컨텐츠 담당 함수)
      * @param - None
      * @return - None
      * @author - Tae hyun Park
@@ -792,7 +925,19 @@ class PostDetailActivity : AppCompatActivity() {
         // 누적 판매량
         binding.tvPostSoldCount.text = "누적 판매 ${responsePostDetail.soldCount}"
         // 좋아요 수
-        binding.tvPostLikeCount.text = responsePostDetail.likeCount.toString()
+        if (responsePostDetail.isLiked) // 내가 좋아요를 했다면
+            binding.ibPostLike.background = ContextCompat.getDrawable(this,R.drawable.ic_post_like_after)
+        else
+            binding.ibPostLike.background = ContextCompat.getDrawable(this,R.drawable.ic_post_like)
+
+        // 1개면 누가 좋아하는지 표시,  2개 이상이면 ~님 외 1명으로 텍스트 표시
+        if (likeList.size == 1)
+            binding.tvPostLikeCount.text = "${likeList[0]?.nickname}님이 좋아합니다."
+        else if(likeList.size > 1)
+            binding.tvPostLikeCount.text = "${likeList[0]?.nickname}님 외 ${likeList.size-1}명"
+        else
+            binding.tvPostLikeCount.text = "좋아요를 눌러보세요."
+
         // 댓글 수
         binding.tvPostCommentCount.text = responsePostDetail.commentCount.toString()
         // 조회 수

@@ -186,7 +186,45 @@ interface RetrofitService {
         @Query("size") contentsSize: Int
     ): Response<List<ResponseComment>>
 
+    /**
+     * 해당 게시물의 좋아요를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path  - postId(Long) : 좋아요를 요청할 게시글 id
+     * @author - Tae hyun Park
+     */
+    @POST("post/{postId}/like")
+    suspend fun requestPostLike(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
 
+    /**
+     * 해당 게시물의 좋아요 취소를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path  - postId(Long) : 취소를 요청할 게시글 id
+     * @author - Tae hyun Park
+     */
+    @DELETE("post/{postId}/like")
+    suspend fun requestCancelPostLike(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
+
+    /**
+     * 해당 게시물의 좋아요 한 유저 리스트를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path  - postId(Long) : 유저 리스트를 요청할 게시글 id
+     * @param lastUserId(Int) : 마지막으로 가져온 userId (처음 요청 시에는 0 or null)
+     * @param contentsSize(Int) : 가져올 유저 개수 (필수)
+     * @author - Tae hyun Park
+     */
+    @GET("post/{postId}/like-list")
+    suspend fun requestPostLikeList(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long,
+        @Query("cursor") lastUserId: Int,
+        @Query("size") contentsSize: Int
+    ): Response<List<FollowData>>
 
     /**
      * 구글 로그인 토큰 검증 요청 메소드
