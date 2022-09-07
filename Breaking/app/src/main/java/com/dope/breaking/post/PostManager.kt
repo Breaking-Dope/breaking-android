@@ -4,17 +4,17 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.model.FollowData
 import com.dope.breaking.model.request.RequestComment
 import com.dope.breaking.model.request.RequestPostData
 import com.dope.breaking.model.request.RequestPostDataModify
-import com.dope.breaking.model.response.ResponseComment
-import com.dope.breaking.model.response.ResponseMainFeed
-import com.dope.breaking.model.response.ResponsePostDetail
-import com.dope.breaking.model.response.ResponsePostUpload
+import com.dope.breaking.model.response.*
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import com.dope.breaking.util.ValueUtil
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -333,6 +333,114 @@ class PostManager {
         } else {
             Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
             throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물에 좋아요 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 좋아요 하고자 하는 게시물 id
+     * @author Tae hyun Park
+     * @since 2022-09-06
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostLike(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 좋아요 요청
+        val response = service.requestPostLike(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE458"){
+                throw ResponseErrorException("BSE458")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
+    }
+
+    /**
+     * 게시물에 좋아요 취소 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 좋아요 취소하고자 하는 게시물 id
+     * @author Tae hyun Park
+     * @since 2022-09-06
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startCancelPostLike(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 좋아요 취소 요청
+        val response = service.requestCancelPostLike(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE459"){
+                throw ResponseErrorException("BSE459")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
+    }
+
+    /**
+     * 게시물의 좋아요 리스트 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 좋아요 리스트를 요청할 게시물 id
+     * @param lastUserId(Int) : 마지막으로 요청한 유저 id (최초 요청 시, 0 또는 null)
+     * @param contentSize(Int) : 요청할 좋아요 리스트 개수 (기본 5개)
+     * @author Tae hyun Park
+     * @since 2022-09-06
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startGetPostLikeList(
+        token: String,
+        postId: Long,
+        lastUserId: Int,
+        contentSize: Int,
+    ): List<FollowData> {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 좋아요 리스트 요청
+        val resultList = service.requestPostLikeList(
+            token,
+            postId,
+            lastUserId,
+            contentSize
+        )
+
+        if (resultList.code() in 200..299) { // 요청에 성공했다면
+            return resultList.body()!! // 응답 리스트 리턴
+        } else { // 실패했다면
+            throw ResponseErrorException("${resultList.errorBody()?.string()}") // 예외 발생
         }
     }
 
