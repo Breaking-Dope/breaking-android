@@ -2,6 +2,7 @@ package com.dope.breaking.adapter
 
 import android.content.Context
 import android.graphics.Typeface
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -116,9 +117,10 @@ class FeedAdapter(
         private val title = itemView.findViewById<TextView>(R.id.tv_post_title)
         private val likeCount = itemView.findViewById<TextView>(R.id.tv_post_like_count)
         private val price = itemView.findViewById<TextView>(R.id.tv_post_price)
-        private val chipExclusive = itemView.findViewById<TextView>(R.id.tv_chip_exclusive)
-        private val chipSold = itemView.findViewById<TextView>(R.id.tv_chip_sold)
-        private val chipUnsold = itemView.findViewById<TextView>(R.id.tv_chip_unsold)
+        private val chipExclusive = itemView.findViewById<TextView>(R.id.tv_chip_exclusive_main)
+        private val chipSold = itemView.findViewById<TextView>(R.id.tv_chip_sold_main)
+        private val chipUnsold = itemView.findViewById<TextView>(R.id.tv_chip_unsold_main)
+        private val chipSoldStop = itemView.findViewById<TextView>(R.id.tv_chip_sold_stop_main)
         private val nickname = itemView.findViewById<TextView>(R.id.tv_post_nickname)
         private val date = itemView.findViewById<TextView>(R.id.tv_post_time)
         private val location = itemView.findViewById<TextView>(R.id.tv_post_location)
@@ -218,14 +220,39 @@ class FeedAdapter(
             likeCount.text = NumberUtil().countNumberFormatter(item.likeCount)
             commentCount.text = NumberUtil().countNumberFormatter(item.commentCount)
             price.text = "${decimalFormat.format(item.price)}원"
-            chipExclusive.visibility = if (item.postType == "EXCLUSIVE") View.VISIBLE else View.GONE
+
+            // chip 초기화
+            chipExclusive.visibility = View.GONE
+            chipSold.visibility = View.GONE
+            chipUnsold.visibility = View.GONE
+            chipSoldStop.visibility = View.GONE
+
+            // 게시글 타입 (단독, 판매완료, 판매중)
+            if(item.postType != "EXCLUSIVE") { // 단독 제보가 아니라면
+                chipExclusive.visibility = View.GONE // 단독 제보 비활성화
+                chipSold.visibility = View.GONE // 판매 완료 다시 비활성화
+            }else
+                chipExclusive.visibility = View.VISIBLE // 단독 제보 다시 활성화
+
+            if(item.isSold && item.postType == "EXCLUSIVE"){ // 단독 제보이고, 적어도 하나가 팔렸다면 판매 완료로 간주
+                chipExclusive.visibility = View.VISIBLE // 단독 제보 활성화
+                chipSold.visibility = View.VISIBLE // 판매 완료 다시 활성화
+                chipUnsold.visibility = View.GONE // 판매 중 비활성화
+            }else{ // 판매완료가 아니라면 판매중, 판매중지로 간주
+                chipSold.visibility = View.GONE // 판매 완료 다시 비활성화
+                if (!item.isPurchasable){ // 판매 중지라면
+                    chipSoldStop.visibility = View.VISIBLE // 판매 중지 활성화
+                    chipUnsold.visibility = View.GONE // 판매 중 비활성화
+                }else{ // 판매 중
+                    chipSoldStop.visibility = View.GONE // 판매 중지 비활성화
+                    chipUnsold.visibility = View.VISIBLE // 판매 중 다시 활성화
+                }
+            }
 
             if (item.postType == "FREE" || item.price == 0) price.text = "무료"
 
             location.text =
                 item.location.region_1depth_name + " " + item.location.region_2depth_name
-            chipSold.visibility = if (item.isSold) View.VISIBLE else View.GONE
-            chipUnsold.visibility = if (item.isSold) View.GONE else View.VISIBLE
             nickname.text = if (item.user == null) "익명" else item.user.nickname
             date.text = DateUtil().getTimeDiff(item.createdDate)
         }

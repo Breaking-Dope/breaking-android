@@ -227,6 +227,58 @@ interface RetrofitService {
     ): Response<List<FollowData>>
 
     /**
+     * 해당 제보 게시물을 구매 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - postId(Long) : 구매 요청할 게시물 id
+     * @author - Tae hyun Park
+     */
+    @POST("post/{postId}/purchase")
+    suspend fun requestPostPurchase(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
+
+    /**
+     * 해당 게시물을 구매한 유저 리스트를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path  - postId(Long) : 유저 리스트를 요청할 게시글 id
+     * @param lastUserId(Int) : 마지막으로 가져온 userId (처음 요청 시에는 0 or null)
+     * @param contentsSize(Int) : 가져올 유저 개수 (필수)
+     * @author - Tae hyun Park
+     */
+    @GET("post/{postId}/buy-list")
+    suspend fun requestPostPurchaseList(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long,
+        @Query("cursor") lastUserId: Int,
+        @Query("size") contentsSize: Int
+    ): Response<List<FollowData>>
+
+    /**
+     * 해당 제보 게시물의 구매 비활성화를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - postId(Long) : 비활성화 요청할 게시물 id
+     * @author - Tae hyun Park
+     */
+    @DELETE("post/{postId}/activate-purchase")
+    suspend fun requestPostDeactivate(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
+
+    /**
+     * 해당 제보 게시물의 구매 활성화를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - postId(Long) : 활성화 요청할 게시물 id
+     * @author - Tae hyun Park
+     */
+    @POST("post/{postId}/activate-purchase")
+    suspend fun requestPostActivate(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
+
+    /**
      * 구글 로그인 토큰 검증 요청 메소드
      * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
      * @request RequestGoogleToken

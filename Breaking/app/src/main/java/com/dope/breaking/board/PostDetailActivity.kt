@@ -1,8 +1,10 @@
 package com.dope.breaking.board
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.media.AudioManager
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +32,7 @@ import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.model.response.ResponsePostDetail
 import com.dope.breaking.post.PostManager
+import com.dope.breaking.user.UserProfile
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.JwtTokenUtil
 import com.dope.breaking.util.Utils
@@ -51,11 +54,16 @@ class PostDetailActivity : AppCompatActivity() {
     private var commentList = mutableListOf<ResponseComment?>() // 댓글 리스트
     private var likeList = mutableListOf<FollowData?>() // 좋아요 한 유저 목록 저장하는 리스트
     private var flagLike = false // 좋아요가 안 눌렸으면 false, 눌렸으면 true
-    private var flagComment = false // 댓글 창을 안 눌렀으면 false, 눌렀으면 true
     private var isObtainedAll = false // 모든 댓글 리스트를 받았는지 판단(더 이상 요청할 것이 없는)
+    private var isPurchased = false // 해당 게시물을 내가 구매했는지
+    private var isPurchasable = false // 해당 게시물이 활성화(true)인지, 비활성화(false)인지
+    private var isSold = false // 해당 게시물이 1개 이상 팔렸는지
+    private var isMyPost = false // 해당 게시물의 작성자가 나인지
+    private var postType = "" // 해당 게시물의 타입
     private var isLoading = false  // 로딩 중 판단
     private var requestCommentId = -1 // 대댓글 요청 시에 보낼 댓글 id (기본값은 임의로 -1로 설정)
     private var getPostId = -1 // 게시물 id
+    private var userId = -1 // 게시물을 작성한 유저 id
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,6 +120,14 @@ class PostDetailActivity : AppCompatActivity() {
             }
         })
 
+        binding.ivProfileWriter.setOnClickListener { // 프로필 이미지 클릭 시 유저 프로필로 이동
+            UserProfile(this).moveToUserPage(userId.toLong())
+        }
+
+        binding.tvUserNickName.setOnClickListener { // 프로필 닉네임 클릭 시 유저 프로필로 이동
+            UserProfile(this).moveToUserPage(userId.toLong())
+        }
+
         // 좋아요 클릭 리스너
         binding.ibPostLike.setOnClickListener {
             if (!flagLike) { // 좋아요를 하지 않은 상태에서 누른다면 좋아요 요청
@@ -145,12 +161,51 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 좋아요 텍스트 뷰를 클릭 시 좋아요 목록 액티비티로 이동
         binding.tvPostLikeCount.setOnClickListener {
-            var intent = Intent(this, PostLikeActivity::class.java)
+            var intent = Intent(this, PostLikeListActivity::class.java)
             intent.putExtra("postId",getPostId)
             startActivity(intent)
         }
 
-        // 댓글 클릭 시 토글
+        // 게시글 구매하기 버튼 클릭 시
+        binding.btnPurchase.setOnClickListener {
+            if (isMyPost){ // 내 게시물이라면 구매자 목록 요청
+                var intent = Intent(this, PostPurchaseListActivity::class.java)
+                intent.putExtra("postId",getPostId)
+                startActivity(intent)
+            }else{
+                if(isPurchased){  // 내가 구매를 한 상태이면 미디어 파일 다운로드 요청
+                    /* 구현 예정 */
+                }else{
+                    if(isPurchasable && !(postType == "EXCLUSIVE" && isSold)){ // 구매 가능하다면 구매하기 요청
+                        DialogUtil().MultipleDialog(
+                            this,
+                            "제보를 구매하시겠습니까?",
+                            "예",
+                            "아니오",
+                            {   // 제보 구매 요청 함수 시작
+                                processPurchasePost(
+                                    token,
+                                    getPostId.toLong(),{
+                                        // 제보 구매 요청 다이얼 로그 시작
+                                        progressDialog = DialogUtil().ProgressDialog(this)
+                                        progressDialog.showDialog()
+                                    },{
+                                        if (progressDialog.isShowing()) // 로딩 다이얼로그 종료
+                                            progressDialog.dismissDialog()
+                                        if (it){
+                                            Log.d(TAG,"게시물 구매 완료")
+                                            refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog) // 게시물 갱신
+                                        }
+                                    },{
+                                        it.printStackTrace()
+                                        requestErrorDialog.show()
+                                    }
+                                )
+                            }, {}).show()
+                    }
+                }
+            }
+        }
 
         // 댓글 등록 버튼 클릭 시
         binding.tvAddComment.setOnClickListener {
@@ -164,8 +219,8 @@ class PostDetailActivity : AppCompatActivity() {
                         Utils.getArrayHashTagWithOutSpace(binding.etPostWrite.text.toString()), // 해시태그 (없으면 빈 리스트로 전달해주는 상황)
                         {},{
                             if (it){
-                                Toast.makeText(applicationContext, "답글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
                                 binding.etPostWrite.setText("") // 적었던 내용은 지우기
+                                Toast.makeText(applicationContext, "답글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
                                 requestCommentId = -1 // 값 다시 초기화
                                 refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
                             }
@@ -286,7 +341,7 @@ class PostDetailActivity : AppCompatActivity() {
         }, { it ->
             commentList.addAll(it) // 어댑터에 넣어줄 댓글 리스트 데이터
             adapterComment =
-                PostCommentAdapter(applicationContext, commentList, token, binding) // 어댑터 정의
+                PostCommentAdapter(this, commentList, token, binding) // 어댑터 정의
             adapterComment.setItemReplyClickListener(object : PostCommentAdapter.OnItemClickListener{ // 답글 달기 클릭 리스너 등록
                 override fun onClick(v: View, position: Int) {
                     Log.d(TAG,"누른 댓글 id 테스트 : ${commentList[position]?.commentId}")
@@ -369,8 +424,7 @@ class PostDetailActivity : AppCompatActivity() {
     private fun setMoreMenuContent(responsePostDetail: ResponsePostDetail){
         // 게시물 삭제 요청 에러 시 띄워줄 다이얼로그 정의
         val requestErrorDialog =
-            DialogUtil().SingleDialog(applicationContext, "게시글을 삭제에 문제가 발생하였습니다.", "확인")
-
+            DialogUtil().SingleDialog(applicationContext, "게시글 삭제에 문제가 발생하였습니다.", "확인")
         val popupInflater =
             getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBind =
@@ -385,7 +439,7 @@ class PostDetailActivity : AppCompatActivity() {
         binding.ibPostMore.setOnClickListener(popupWindow::showAsDropDown) // 더보기 메뉴 클릭 시, 메뉴 view 중심으로 팝업 메뉴 호출
         if(responsePostDetail.user?.userId == ResponseExistLogin.baseUserInfo?.userId || responsePostDetail.isMyPost){ // 해당 게시글 작성자가 본인이면
             binding.btnPurchase.text = "구매자 목록"
-            if(responsePostDetail.soldCount > 0){ // 게시물이 판매되었다면 수정/삭제가 불가함.
+            if(responsePostDetail.soldCount > 0){ // 게시물이 판매되었다면 수정/삭제가 불가함, 판매되었는데 단독 제보였던 경우 비활성화/활성화 메뉴 없어져야 함.
                 // 채팅 메뉴 비활성화
                 popupBind.layoutHorizChat.visibility = View.GONE
                 // 차단 메뉴 비활성화
@@ -394,8 +448,10 @@ class PostDetailActivity : AppCompatActivity() {
                 popupBind.layoutHorizEdit.visibility = View.GONE
                 // 삭제 메뉴 비활성화
                 popupBind.layoutHorizDelete.visibility = View.GONE
-                // 비활성화 메뉴 보이게
-                popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
+                if(responsePostDetail.postType == "EXCLUSIVE")
+                    popupBind.layoutHorizDeactivation.visibility = View.GONE
+                else
+                    popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
             }else{
                 // 채팅 메뉴 비활성화
                 popupBind.layoutHorizChat.visibility = View.GONE
@@ -405,11 +461,39 @@ class PostDetailActivity : AppCompatActivity() {
                 popupBind.layoutHorizEdit.visibility = View.VISIBLE
                 // 삭제 메뉴 활성화
                 popupBind.layoutHorizDelete.visibility = View.VISIBLE
-                // 비활성화 메뉴 보이게
-                popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
+                if(responsePostDetail.postType == "EXCLUSIVE" && responsePostDetail.isSold){ // 판매완료면 비활성화/활성화 불가능
+                    popupBind.layoutHorizDeactivation.visibility = View.GONE
+                }else{
+                    popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
+                }
+            }
+            if (responsePostDetail.isPurchasable){
+                popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_deactivate)
+                popupBind.tvPopupDeactivation.text = "비활성화"
+            }else{
+                popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_activate)
+                popupBind.tvPopupDeactivation.text = "활성화"
             }
         }else{ // 다른 사람의 게시물이라면
-            binding.btnPurchase.text = "구매하기"
+
+            // 내가 구매를 한 상태이면 무조건 다운로드 버튼으로 표시 (내가 구매를 한게 아니라, 판매 완료된 게시물들 말하는 듯)
+            if(responsePostDetail.isPurchased){
+                binding.btnPurchase.text = "다운로드"
+            }else{
+                // 구매를 하지 않았고, !isPurchasable(판매중지) 상태라면 판매 중지로
+                if(!responsePostDetail.isPurchasable){
+                    binding.btnPurchase.text = "판매 중지"
+                    binding.btnPurchase.setTextColor(Color.WHITE)
+                    binding.btnPurchase.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.breaking_gray))
+                }else if(responsePostDetail.postType == "EXCLUSIVE" && responsePostDetail.isSold){ // 판매완료면
+                    binding.btnPurchase.text = "판매 완료"
+                    binding.btnPurchase.setTextColor(Color.WHITE)
+                    binding.btnPurchase.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.breaking_gray))
+                }else{
+                    binding.btnPurchase.text = "구매하기"
+                }
+            }
+
             // 수정 메뉴 비활성화
             popupBind.layoutHorizEdit.visibility = View.GONE
             // 삭제 메뉴 비활성화
@@ -453,7 +537,6 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 삭제 메뉴 클릭 시 게시글 삭제
         popupBind.layoutHorizDelete.setOnClickListener {
-            // 사용자에게 현재 위치로 선택할 것인지 물어보기
             DialogUtil().MultipleDialog(
                 this,
                 "게시물을 삭제하시겠습니까?",
@@ -484,9 +567,58 @@ class PostDetailActivity : AppCompatActivity() {
                 { popupWindow.dismiss() }).show()
         }
 
-        // 비활성화 메뉴 클릭 시
+        // 비활성화&활성화 메뉴 클릭 시
         popupBind.layoutHorizDeactivation.setOnClickListener {
-            popupWindow.dismiss()
+            if(responsePostDetail.isPurchasable){ // 비활성화 요청
+                processDeactivatePost(
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                    getPostId.toLong(),{
+                        if (it){
+                            responsePostDetail.isPurchasable = false
+                            popupBind.tvPopupDeactivation.text = "활성화"
+                            popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_activate)
+                            binding.tvChipSoldStop.visibility = View.VISIBLE
+                            binding.tvChipUnsold.visibility = View.GONE
+                        }
+                    },{
+                        if (it.message == "BSE453"){ // 이미 비활성화가 되었다면 새로고침
+                            responsePostDetail.isPurchasable = false
+                            popupBind.tvPopupDeactivation.text = "활성화"
+                            popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_activate)
+                            refreshPostData(
+                                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                                getPostId.toLong(),
+                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
+                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                        }
+                    }
+                )
+            }else{ // 활성화 요청
+                processActivatePost(
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                    getPostId.toLong(),{
+                        if (it){
+                            Log.d(TAG,"활성화 완료")
+                            responsePostDetail.isPurchasable = true
+                            popupBind.tvPopupDeactivation.text = "비활성화"
+                            popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_deactivate)
+                            binding.tvChipSoldStop.visibility = View.GONE
+                            binding.tvChipUnsold.visibility = View.VISIBLE
+                        }
+                    },{
+                        if (it.message == "BSE454"){ // 이미 활성화가 되었다면 새로고침
+                            responsePostDetail.isPurchasable = true
+                            popupBind.tvPopupDeactivation.text = "비활성화"
+                            popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_deactivate)
+                            refreshPostData(
+                                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                                getPostId.toLong(),
+                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
+                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                        }
+                    }
+                )
+            }
         }
     }
 
@@ -813,6 +945,92 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     /**
+     * @description - 게시물 구매 요청 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 구매를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-07
+     */
+    private fun processPurchasePost(
+        token: String,
+        postId : Long,
+        init: () -> Unit,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            init() // 초기화 함수 호출
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startPostPurchase(
+                    token,
+                    postId,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
+     * @description - 게시물 구매 비활성화 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 비활성화를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-07
+     */
+    private fun processDeactivatePost(
+        token: String,
+        postId : Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startPostDeactivate(
+                    token,
+                    postId,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
+     * @description - 게시물 구매 활성화 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 활성화를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-07
+     */
+    private fun processActivatePost(
+        token: String,
+        postId : Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startPostActivate(
+                    token,
+                    postId,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
      * @description - 받아온 상세 조회 정보를 바탕으로 뷰에 보여주기
      * @param - None
      * @return - None
@@ -821,6 +1039,12 @@ class PostDetailActivity : AppCompatActivity() {
      */
     @SuppressLint("ResourceAsColor")
     private fun settingPostDetailView(responsePostDetail: ResponsePostDetail){
+        userId = responsePostDetail.user?.userId!!.toInt() // 유저 id저장
+        isPurchased = responsePostDetail.isPurchased // 뷰 갱신마다 내가 구매했는지 여부 가져옴
+        isPurchasable = responsePostDetail.isPurchasable // 뷰 갱신마다 내가 구매할 수 있는 지의 여부를 가져옴
+        isSold = responsePostDetail.isSold // 뷰 갱신마다 판매 여부를 가져옴
+        isMyPost = responsePostDetail.isMyPost // 뷰 갱신마다 내 게시물인지 확인
+        postType = responsePostDetail.postType // 뷰 갱신마다 게시물 타입 가져옴
         flagLike = responsePostDetail.isLiked // 뷰 갱신마다 좋아요 여부를 가져옴
         setViewNickNameProfile(responsePostDetail) // 작성자의 닉네임과 프로필 이미지, 댓글 프로필 이미지
         setViewPostTypeSold(responsePostDetail) // 게시글 타입 (단독, 판매 중, 판매완료)
@@ -878,15 +1102,23 @@ class PostDetailActivity : AppCompatActivity() {
         if(responsePostDetail.postType != "EXCLUSIVE") // 단독 제보가 아니라면
             binding.tvChipExclusive.visibility = View.GONE // 단독 제보 비활성화
         else
-            binding.tvChipExclusive.visibility = View.VISIBLE // 다시 활성화
+            binding.tvChipExclusive.visibility = View.VISIBLE // 단독 제보 다시 활성화
 
-        if(responsePostDetail.isSold){ // 판매 완료라면
+        if(responsePostDetail.isSold && responsePostDetail.postType == "EXCLUSIVE"){ // 단독 제보이고, 적어도 하나가 팔렸다면 판매 완료로 간주
+            binding.tvChipExclusive.visibility = View.VISIBLE // 단독 제보 활성화
             binding.tvChipSold.visibility = View.VISIBLE // 판매 완료 다시 활성화
             binding.tvChipUnsold.visibility = View.GONE // 판매 중 비활성화
         }else{
-            binding.tvChipUnsold.visibility = View.VISIBLE // 판매 중 다시 활성화
-            binding.tvChipSold.visibility = View.GONE // 판매 완료 비활성화
+            binding.tvChipSold.visibility = View.GONE // 판매 완료 다시 비활성화
+            if (!responsePostDetail.isPurchasable){ // 판매 중지라면
+                binding.tvChipSoldStop.visibility = View.VISIBLE // 판매 중지 활성화
+                binding.tvChipUnsold.visibility = View.GONE // 판매 중 비활성화
+            }else{ // 판매 중
+                binding.tvChipSoldStop.visibility = View.GONE // 판매 중지 비활성화
+                binding.tvChipUnsold.visibility = View.VISIBLE // 판매 중 다시 활성화
+            }
         }
+
     }
 
     /**

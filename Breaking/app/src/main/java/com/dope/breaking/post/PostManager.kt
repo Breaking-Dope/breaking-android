@@ -445,6 +445,145 @@ class PostManager {
     }
 
     /**
+     * 게시물 구매 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 구매하고자 하는 게시물 id
+     * @author Tae hyun Park
+     * @since 2022-09-07
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostPurchase(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 구매 요청
+        val response = service.requestPostPurchase(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물 구매 리스트 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 구매 리스트를 얻고자 하는 게시물 id
+     * @param lastUserId(Int) : 마지막으로 요청한 유저 id (최초 요청 시, 0 또는 null)
+     * @param contentSize(Int) : 요청할 구매자 리스트 개수 (기본 5개)
+     * @author Tae hyun Park
+     * @since 2022-09-07
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startGetPostPurchase(
+        token: String,
+        postId: Long,
+        lastUserId: Int,
+        contentSize: Int,
+    ): List<FollowData> {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 구매 리스트 요청
+        val resultList = service.requestPostPurchaseList(
+            token,
+            postId,
+            lastUserId,
+            contentSize
+        )
+
+        if (resultList.code() in 200..299) { // 요청에 성공했다면
+            return resultList.body()!! // 응답 리스트 리턴
+        } else { // 실패했다면
+            throw ResponseErrorException("${resultList.errorBody()?.string()}") // 예외 발생
+        }
+    }
+
+    /**
+     * 게시물 구매 비활성화 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 비활성화하고자 하는 게시물 id
+     * @author Tae hyun Park
+     * @since 2022-09-07
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostDeactivate(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 구매 비활성화 요청
+        val response = service.requestPostDeactivate(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE453"){
+                throw ResponseErrorException("BSE453")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
+    }
+
+    /**
+     * 게시물 구매 활성화 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 활성화하고자 하는 게시물 id
+     * @author Tae hyun Park
+     * @since 2022-09-07
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostActivate(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 구매 활성화 요청
+        val response = service.requestPostActivate(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE454"){
+                throw ResponseErrorException("BSE454")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
+    }
+
+    /**
      * 메인 피드 요청을 통해 리스트를 가져옴 (필터 & 정렬 옵션 포함)
      * @param lastPostId(Int): 마지막으로 요청한 마지막 게시글 id (최초 요청 시, 0 또는 null)
      * @param contentSize(Int): 요청할 게시글 개수(현재 10개)

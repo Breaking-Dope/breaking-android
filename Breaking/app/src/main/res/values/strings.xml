@@ -60,6 +60,7 @@
     <string name="is_selling_string">판매중</string>
     <string name="exclusive_string">단독</string>
     <string name="sold_string">판매완료</string>
+    <string name="sold_stop_string">판매중지</string>
     <string name="vertical_divider_string">|</string>
     <string name="dot_divider">·</string>
     <string name="filter">필터</string>

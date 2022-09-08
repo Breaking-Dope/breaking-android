@@ -9,7 +9,8 @@ import java.io.Serializable
 data class ResponsePostDetail(
     @SerializedName("isLiked") val isLiked: Boolean,
     @SerializedName("isBookmarked") val isBookmarked: Boolean,
-    @SerializedName("isPurchased") val isPurchasable: Boolean,
+    @SerializedName("isPurchased") val isPurchased: Boolean,
+    @SerializedName("isPurchasable") var isPurchasable: Boolean,
     @SerializedName("user") val user: ResponsePostWriter?,
     @SerializedName("title") val title: String,
     @SerializedName("content") val content: String,
