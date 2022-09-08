@@ -279,6 +279,30 @@ interface RetrofitService {
     ): Response<Unit>
 
     /**
+     * 해당 제보 게시물의 숨기기를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - postId(Long) : 숨기기 요청할 게시물 id
+     * @author - Tae hyun Park
+     */
+    @POST("post/{postId}/hide")
+    suspend fun requestPostHide(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
+
+    /**
+     * 해당 제보 게시물의 숨기기 취소를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - postId(Long) : 숨기기 취소 요청할 게시물 id
+     * @author - Tae hyun Park
+     */
+    @DELETE("post/{postId}/hide")
+    suspend fun requestPostUnHide(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long
+    ): Response<Unit>
+
+    /**
      * 구글 로그인 토큰 검증 요청 메소드
      * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
      * @request RequestGoogleToken

@@ -584,6 +584,80 @@ class PostManager {
     }
 
     /**
+     * 게시물 숨기기 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 숨기고자 하는 게시물 id
+     * @author Tae hyun Park
+     * @since 2022-09-08
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostHide(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 숨기기 요청
+        val response = service.requestPostHide(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE441"){
+                throw ResponseErrorException("BSE441")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
+    }
+
+    /**
+     * 게시물 숨기기 취소 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 숨김 취소하고자 하는 게시물 id
+     * @author Tae hyun Park
+     * @since 2022-09-08
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostUnHide(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 숨기기 취소 요청
+        val response = service.requestPostUnHide(
+            token,
+            postId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE442"){
+                throw ResponseErrorException("BSE442")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
+    }
+
+    /**
      * 메인 피드 요청을 통해 리스트를 가져옴 (필터 & 정렬 옵션 포함)
      * @param lastPostId(Int): 마지막으로 요청한 마지막 게시글 id (최초 요청 시, 0 또는 null)
      * @param contentSize(Int): 요청할 게시글 개수(현재 10개)
@@ -773,14 +847,28 @@ class PostManager {
      * @param postId(Int): 등록하고자 하는 게시글 id
      * @param token(String): 본인의 Jwt 토큰
      * @return Boolean: 북마크 등록 성공 시 true, 실패 시 false
-     * @author Seunggun Sin
-     * @since 2022-08-19
+     * @author Seunggun Sin | Tae hyun Park
+     * @since 2022-08-19 | 2022-09-08
      */
     suspend fun startRegisterBookmark(postId: Int, token: String): Boolean {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
         val response = service.requestBookmark(token, postId)
-        return response.code() in 200..299
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE456"){
+                throw ResponseErrorException("BSE456")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
     }
 
     /**
@@ -788,14 +876,27 @@ class PostManager {
      * @param postId(Int): 해제하고자 하는 게시글 id
      * @param token(String): 본인의 Jwt 토큰
      * @return Boolean: 북마크 해제 성공 시 true, 실패 시 false
-     * @author Seunggun Sin
-     * @since 2022-08-19
+     * @author Seunggun Sin | Tae hyun Park
+     * @since 2022-08-19 | 2022-09-08
      */
     suspend fun startUnRegisterBookmark(postId: Int, token: String): Boolean {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
 
         val response = service.requestUnBookmark(token, postId)
-        return response.code() in 200..299
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            var errorString = response.errorBody()?.string()!!
+            var jsonObject: JsonObject =
+                JsonParser.parseString(errorString).asJsonObject
+            if(jsonObject.get("code").toString().replace("\"", "") == "BSE457"){
+                throw ResponseErrorException("BSE457")
+            }else{
+                throw ResponseErrorException(errorString)
+            }
+        }
     }
 
     /**
