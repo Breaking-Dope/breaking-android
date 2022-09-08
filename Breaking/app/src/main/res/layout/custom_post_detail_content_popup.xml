@@ -178,9 +178,10 @@
             app:layout_constraintWidth_percent="1">
 
             <ImageView
+                android:id="@+id/imgv_popup_deactivation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/ic_post_activation" />
+                android:background="@drawable/ic_post_deactivate" />
 
             <TextView
                 android:id="@+id/tv_popup_deactivation"
