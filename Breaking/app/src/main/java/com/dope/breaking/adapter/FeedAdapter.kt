@@ -121,6 +121,7 @@ class FeedAdapter(
         private val chipSold = itemView.findViewById<TextView>(R.id.tv_chip_sold_main)
         private val chipUnsold = itemView.findViewById<TextView>(R.id.tv_chip_unsold_main)
         private val chipSoldStop = itemView.findViewById<TextView>(R.id.tv_chip_sold_stop_main)
+        private val chipHidden = itemView.findViewById<TextView>(R.id.tv_chip_hidden_main)
         private val nickname = itemView.findViewById<TextView>(R.id.tv_post_nickname)
         private val date = itemView.findViewById<TextView>(R.id.tv_post_time)
         private val location = itemView.findViewById<TextView>(R.id.tv_post_location)
@@ -248,6 +249,11 @@ class FeedAdapter(
                     chipUnsold.visibility = View.VISIBLE // 판매 중 다시 활성화
                 }
             }
+
+            if(item.isHidden) // 숨겨진 게시물이면 태그 보여주기
+                chipHidden.visibility = View.VISIBLE
+            else
+                chipHidden.visibility = View.GONE
 
             if (item.postType == "FREE" || item.price == 0) price.text = "무료"
 

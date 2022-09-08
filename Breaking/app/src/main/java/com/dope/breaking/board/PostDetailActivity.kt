@@ -439,7 +439,7 @@ class PostDetailActivity : AppCompatActivity() {
         binding.ibPostMore.setOnClickListener(popupWindow::showAsDropDown) // 더보기 메뉴 클릭 시, 메뉴 view 중심으로 팝업 메뉴 호출
         if(responsePostDetail.user?.userId == ResponseExistLogin.baseUserInfo?.userId || responsePostDetail.isMyPost){ // 해당 게시글 작성자가 본인이면
             binding.btnPurchase.text = "구매자 목록"
-            if(responsePostDetail.soldCount > 0){ // 게시물이 판매되었다면 수정/삭제가 불가함, 판매되었는데 단독 제보였던 경우 비활성화/활성화 메뉴 없어져야 함.
+            if(responsePostDetail.soldCount > 0){ // 게시물이 판매되었다면 수정/삭제가 불가함, 판매되었는데 단독 제보였던 경우 비활성화/활성화 메뉴까지 없어져야 함.
                 // 채팅 메뉴 비활성화
                 popupBind.layoutHorizChat.visibility = View.GONE
                 // 차단 메뉴 비활성화
@@ -467,12 +467,21 @@ class PostDetailActivity : AppCompatActivity() {
                     popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
                 }
             }
+            popupBind.layoutHorizHide.visibility = View.VISIBLE // 숨김 메뉴 활성화
             if (responsePostDetail.isPurchasable){
                 popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_deactivate)
                 popupBind.tvPopupDeactivation.text = "비활성화"
             }else{
                 popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_activate)
                 popupBind.tvPopupDeactivation.text = "활성화"
+            }
+            Log.d(TAG,"해당 제보의 숨김 상태 : ${responsePostDetail.isHidden}")
+            if(!responsePostDetail.isHidden) { // 숨기기 off 상태면
+                popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_hide)
+                popupBind.tvPopupHide.text = "숨기기"
+            } else {
+                popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_unhide)
+                popupBind.tvPopupHide.text = "보이기"
             }
         }else{ // 다른 사람의 게시물이라면
 
@@ -498,13 +507,20 @@ class PostDetailActivity : AppCompatActivity() {
             popupBind.layoutHorizEdit.visibility = View.GONE
             // 삭제 메뉴 비활성화
             popupBind.layoutHorizDelete.visibility = View.GONE
-            // 채팅 메뉴 활성화
-            popupBind.layoutHorizChat.visibility = View.VISIBLE
-            // 차단 메뉴 활성화
-            popupBind.layoutHorizBan.visibility = View.VISIBLE
-            // 비활성화 메뉴 안보이게
+            // 채팅 메뉴 활성화 (구현X)
+            popupBind.layoutHorizChat.visibility = View.GONE
+            // 차단 메뉴 활성화 (구현X)
+            popupBind.layoutHorizBan.visibility = View.GONE
+            // 구매 비활성화 메뉴 비활성화
             popupBind.layoutHorizDeactivation.visibility = View.GONE
+            // 숨기기 메뉴 비활성화
+            popupBind.layoutHorizHide.visibility = View.GONE
         }
+
+        if(!responsePostDetail.isBookmarked) // 북마크 off 상태면
+            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
+        else
+            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
 
         // 채팅 메뉴 클릭 시
         popupBind.layoutHorizChat.setOnClickListener {
@@ -518,7 +534,104 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 북마크 메뉴 클릭 시
         popupBind.layoutHorizBookmark.setOnClickListener {
-            popupWindow.dismiss()
+            if(!responsePostDetail.isBookmarked){ // 북마크 요청
+                processBookmarkPost(
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                    getPostId.toLong(),{
+                        if (it){
+                            Log.d(TAG,"북마크 설정 완료")
+                            responsePostDetail.isBookmarked = true
+                            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
+                        }
+                    },{
+                        if (it.message == "BSE456"){ // 이미 비활성화가 되었다면 새로고침
+                            responsePostDetail.isBookmarked = true
+                            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
+                            refreshPostData(
+                                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                                getPostId.toLong(),
+                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
+                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                        }
+                    }
+                )
+            }else{ // 북마크 해제 요청
+                processUnBookmarkPost(
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                    getPostId.toLong(),{
+                        if (it){
+                            Log.d(TAG,"북마크 해제 완료")
+                            responsePostDetail.isBookmarked = false
+                            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
+                        }
+                    },{
+                        if (it.message == "BSE457"){ // 이미 북마크가 해제 되었다면 새로고침
+                            responsePostDetail.isBookmarked = false
+                            popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
+                            refreshPostData(
+                                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                                getPostId.toLong(),
+                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
+                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                        }
+                    }
+                )
+            }
+        }
+
+        // 게시물 숨기기 클릭 시
+        popupBind.layoutHorizHide.setOnClickListener {
+            if(!responsePostDetail.isHidden){ // 숨기기 요청
+                processHidePost(
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                    getPostId.toLong(),{
+                        if (it){
+                            Log.d(TAG,"숨기기 설정 완료")
+                            binding.tvChipHidden.visibility = View.VISIBLE
+                            responsePostDetail.isHidden = true
+                            popupBind.tvPopupHide.text = "보이기"
+                            popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_unhide)
+                        }
+                    },{
+                        if (it.message == "BSE441"){ // 이미 숨기기가 되었다면 새로고침
+                            binding.tvChipHidden.visibility = View.VISIBLE
+                            responsePostDetail.isHidden = true
+                            popupBind.tvPopupHide.text = "보이기"
+                            popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_unhide)
+                            refreshPostData(
+                                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                                getPostId.toLong(),
+                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
+                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                        }
+                    }
+                )
+            }else{ // 숨기기 해제 요청
+                processUnHidePost(
+                    ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                    getPostId.toLong(),{
+                        if (it){
+                            Log.d(TAG,"숨기기 해제 완료")
+                            binding.tvChipHidden.visibility = View.GONE
+                            responsePostDetail.isHidden = false
+                            popupBind.tvPopupHide.text = "숨기기"
+                            popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_hide)
+                        }
+                    },{
+                        if (it.message == "BSE442"){ // 이미 숨기기가 해제 되었다면 새로고침
+                            binding.tvChipHidden.visibility = View.GONE
+                            responsePostDetail.isHidden = false
+                            popupBind.tvPopupHide.text = "숨기기"
+                            popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_hide)
+                            refreshPostData(
+                                ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
+                                getPostId.toLong(),
+                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
+                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                        }
+                    }
+                )
+            }
         }
 
         // 공유 메뉴 클릭 시
@@ -1031,6 +1144,118 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     /**
+     * @description - 게시물 북마크 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 북마크를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-08
+     */
+    private fun processBookmarkPost(
+        token: String,
+        postId : Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startRegisterBookmark(
+                    postId.toInt(),
+                    token
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
+     * @description - 게시물 북마크 해제 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 북마크 해제를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-08
+     */
+    private fun processUnBookmarkPost(
+        token: String,
+        postId : Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startUnRegisterBookmark(
+                    postId.toInt(),
+                    token
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
+     * @description - 게시물 숨기기 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 숨기기를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-08
+     */
+    private fun processHidePost(
+        token: String,
+        postId : Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startPostHide(
+                    token,
+                    postId,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
+     * @description - 게시물 숨기기 취소 함수를 호출하는 메소드
+     * @param - token(String) : JWT 토큰
+     * @param - postId(Long) : 숨기기 취소를 요청할 게시물 id
+     * @return - None
+     * @author - Tae hyun Park
+     * @since - 2022-09-08
+     */
+    private fun processUnHidePost(
+        token: String,
+        postId : Long,
+        last: (Boolean) -> Unit,
+        error: (ResponseErrorException) -> Unit
+    ){
+        CoroutineScope(Dispatchers.Main).launch {
+            val postManager = PostManager() // 커스텀 게시글 객체 생성
+            try {
+                val response = postManager.startPostUnHide(
+                    token,
+                    postId,
+                )
+                last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
+            }catch (e: ResponseErrorException){
+                error(e)
+            }
+        }
+    }
+
+    /**
      * @description - 받아온 상세 조회 정보를 바탕으로 뷰에 보여주기
      * @param - None
      * @return - None
@@ -1118,7 +1343,10 @@ class PostDetailActivity : AppCompatActivity() {
                 binding.tvChipUnsold.visibility = View.VISIBLE // 판매 중 다시 활성화
             }
         }
-
+        if(responsePostDetail.isHidden) // 숨김 처리된 게시물이면 숨김 태그 표시
+            binding.tvChipHidden.visibility = View.VISIBLE
+        else
+            binding.tvChipHidden.visibility = View.GONE
     }
 
     /**

@@ -1,14 +1,12 @@
 package com.dope.breaking.model.response
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.dope.breaking.model.PostLocation
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 data class ResponsePostDetail(
     @SerializedName("isLiked") val isLiked: Boolean,
-    @SerializedName("isBookmarked") val isBookmarked: Boolean,
+    @SerializedName("isBookmarked") var isBookmarked: Boolean,
     @SerializedName("isPurchased") val isPurchased: Boolean,
     @SerializedName("isPurchasable") var isPurchasable: Boolean,
     @SerializedName("user") val user: ResponsePostWriter?,
@@ -27,7 +25,7 @@ data class ResponsePostDetail(
     @SerializedName("soldCount") val soldCount: Long,
     @SerializedName("isAnonymous") val isAnonymous: Boolean,
     @SerializedName("isSold") val isSold: Boolean,
-    @SerializedName("isHidden") val isHidden: Boolean,
+    @SerializedName("isHidden") var isHidden: Boolean,
     @SerializedName("isMyPost") val isMyPost: Boolean,
     @SerializedName("likeCount") val likeCount: Long,
     @SerializedName("commentCount") val commentCount: Long,

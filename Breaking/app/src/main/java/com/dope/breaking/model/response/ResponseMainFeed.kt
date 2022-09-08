@@ -21,4 +21,5 @@ data class ResponseMainFeed(
     @SerializedName("isMyPost") val isMyPost: Boolean,
     @SerializedName("isLiked") val isLiked: Boolean,
     @SerializedName("isBookmarked") var isBookmarked: Boolean,
+    @SerializedName("isHidden") var isHidden: Boolean
 )
