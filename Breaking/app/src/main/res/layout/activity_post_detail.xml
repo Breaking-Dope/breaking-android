@@ -196,6 +196,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/chip_post_sold_background"
                     android:gravity="center"
+                    android:layout_marginEnd="6dp"
                     android:paddingStart="8dp"
                     android:paddingTop="2dp"
                     android:paddingEnd="8dp"
@@ -207,8 +208,29 @@
                     android:visibility="gone"
                     app:layout_constraintHorizontal_bias="0"
                     app:layout_constraintLeft_toRightOf="@id/tv_chip_unsold"
+                    app:layout_constraintRight_toLeftOf="@id/tv_chip_hidden"
+                    app:layout_constraintTop_toTopOf="@id/iv_profile_writer" />
+
+                <TextView
+                    android:id="@+id/tv_chip_hidden"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/chip_post_hidden_background"
+                    android:gravity="center"
+                    android:paddingStart="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="2dp"
+                    android:text="@string/sold_hidden_string"
+                    android:textColor="@color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintLeft_toRightOf="@id/tv_chip_sold_stop"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="@id/iv_profile_writer" />
+
 
                 <View
                     android:id="@+id/divider_post_type"
