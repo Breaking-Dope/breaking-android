@@ -1,5 +1,6 @@
 package com.dope.breaking.board
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.text.Spannable
@@ -22,6 +23,7 @@ import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponsePostDetail
 import com.dope.breaking.post.PostManager
+import com.dope.breaking.user.UserProfile
 import com.dope.breaking.util.DateUtil
 import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.Utils
@@ -59,8 +61,15 @@ class PostCommentAdapter (
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ItemViewHolder)
+        if (holder is ItemViewHolder) {
             holder.bind(data[position]!!)
+            holder.commentProfile.setOnClickListener { // 댓글 프로필 클릭 시 이동
+                UserProfile(context as Activity).moveToUserPage(data[position]!!.user.userId)
+            }
+            holder.commentNickname.setOnClickListener { // 댓글 닉네임 클릭 시 이동
+                UserProfile(context as Activity).moveToUserPage(data[position]!!.user.userId)
+            }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -68,8 +77,8 @@ class PostCommentAdapter (
     }
 
     inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view){
-        private val commentProfile = itemView.findViewById<ImageView>(R.id.iv_comment_profile)
-        private val commentNickname = itemView.findViewById<TextView>(R.id.tv_comment_nickname)
+        val commentProfile = itemView.findViewById<ImageView>(R.id.iv_comment_profile)
+        val commentNickname = itemView.findViewById<TextView>(R.id.tv_comment_nickname)
         private val commentContent = itemView.findViewById<TextView>(R.id.tv_comment_content)
         private val commentButtonLike = itemView.findViewById<ImageButton>(R.id.ib_post_like)
         private val commentCountLike = itemView.findViewById<TextView>(R.id.tv_post_like_count)
