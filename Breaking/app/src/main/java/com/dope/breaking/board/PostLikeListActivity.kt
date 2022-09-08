@@ -25,7 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PostLikeActivity : AppCompatActivity() {
+class PostLikeListActivity : AppCompatActivity() {
     private val TAG = "PostLikeActivity.kt"
     private var mbinding : ActivityFollowBinding? = null
     private val binding get() = mbinding!!
@@ -118,7 +118,7 @@ class PostLikeActivity : AppCompatActivity() {
                                 },
                                 {
                                     DialogUtil().SingleDialog(
-                                        this@PostLikeActivity,
+                                        this@PostLikeListActivity,
                                         "요청에 문제가 발생하였습니다.",
                                         "확인"
                                     ).show()
@@ -130,7 +130,7 @@ class PostLikeActivity : AppCompatActivity() {
                 isLoading = false // 로딩 종료
             },{
                 DialogUtil().SingleDialog(
-                    this@PostLikeActivity,
+                    this@PostLikeListActivity,
                     "요청에 문제가 발생하였습니다.",
                     "확인"
                 ).show()
