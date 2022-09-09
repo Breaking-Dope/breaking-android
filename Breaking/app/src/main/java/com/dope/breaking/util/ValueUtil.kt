@@ -26,6 +26,8 @@ class ValueUtil {
         const val TRANSACTION_SIZE = 25 // 입출금 내역 리스트 가져올 개수
         const val COMMENT_SIZE = 3 // 댓글 요청마다 가져올 댓글 개수
         const val NESTED_COMMENT_SIZE = 10 // 대댓글 요청마다 가져올 대댓글 개수
+        const val LIKE_SIZE = 10 // 좋아요 리스트 요청마다 가져올 유저 개수
+        const val PURCHASE_SIZE = 10 // 좋아요 리스트 요청마다 가져올 유저 개수
 
         val TAB_ICONS = arrayOf(
             R.drawable.ic_baseline_create_24,

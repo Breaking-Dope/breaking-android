@@ -10,6 +10,7 @@
     <color name="gray">#EBE4E4</color>
     <color name="real_gray">#cccccc</color>
     <color name="light_gray">#eeeeee</color>
+    <color name="breaking_gray">#BABABA</color>
     <color name="breaking_color">#014D91</color>
     <color name="breaking_drawer_color">#2D375B</color>
     <color name="breaking_bottom_clicked_color">#FF9800</color>
@@ -22,11 +23,13 @@
     <color name="sign_up_input_error_text_color">#FF0000</color>
     <color name="main_post_button_color">#EFF9FF</color>
     <color name="post_upload_count_color">#7A7777</color>
+    <color name="post_detail_purchase_color">#CCDDEA</color>
     <color name="kakao_container">#FEE500</color>
     <color name="google_container">#FFFFFF</color>
     <color name="follow_list_background_color">#F3F7FA</color>
     <color name="page_number_enable_false_color">#C8C3C3</color>
     <color name="post_chip_exclusive_color">#777777</color>
     <color name="post_chip_sold_color">#B48F8F</color>
+    <color name="post_chip_hidden_color">#6527D3</color>
     <color name="search_background_color">#F4F4F4</color>
 </resources>

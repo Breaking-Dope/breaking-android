@@ -1,5 +1,6 @@
 package com.dope.breaking.board
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.text.Spannable
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dope.breaking.R
 import com.dope.breaking.model.response.ResponseComment
+import com.dope.breaking.user.UserProfile
 import com.dope.breaking.util.DateUtil
 import com.dope.breaking.util.Utils
 import com.dope.breaking.util.ValueUtil
@@ -33,8 +35,15 @@ class PostNestedCommentAdapter (
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ItemViewHolder)
+        if (holder is ItemViewHolder) {
             holder.bind(data[position]!!)
+            holder.commentProfile.setOnClickListener { // 답글 프로필 클릭 시 이동
+                UserProfile(context as Activity).moveToUserPage(data[position]!!.user.userId)
+            }
+            holder.commentNickname.setOnClickListener { // 답글 닉네임 클릭 시 이동
+                UserProfile(context as Activity).moveToUserPage(data[position]!!.user.userId)
+            }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -42,8 +51,8 @@ class PostNestedCommentAdapter (
     }
 
     inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view){
-        private val commentProfile = itemView.findViewById<ImageView>(R.id.iv_comment_profile_nested)
-        private val commentNickname = itemView.findViewById<TextView>(R.id.tv_comment_nickname_nested)
+        val commentProfile = itemView.findViewById<ImageView>(R.id.iv_comment_profile_nested)
+        val commentNickname = itemView.findViewById<TextView>(R.id.tv_comment_nickname_nested)
         private val commentContent = itemView.findViewById<TextView>(R.id.tv_comment_content_nested)
         private val commentButtonLike = itemView.findViewById<ImageButton>(R.id.ib_post_like_nested)
         private val commentCountLike = itemView.findViewById<TextView>(R.id.tv_post_like_count_nested)
