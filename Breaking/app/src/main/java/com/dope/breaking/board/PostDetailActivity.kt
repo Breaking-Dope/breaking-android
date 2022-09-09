@@ -57,6 +57,7 @@ class PostDetailActivity : AppCompatActivity() {
     private var isLoading = false  // 로딩 중 판단
     private var requestCommentId = -1 // 대댓글 요청 시에 보낼 댓글 id (기본값은 임의로 -1로 설정)
     private var getPostId = -1 // 게시물 id
+    private var mediaList = ArrayList<String?>() // ImageSliderAdapter 에 사용할 미디어 리스트
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +65,9 @@ class PostDetailActivity : AppCompatActivity() {
         // 댓글 요청 에러 시 띄워줄 다이얼로그 정의
         val requestErrorDialog =
             DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인")
+
+        // 미디어 리스트 정의
+        adapterViewpager = ImageSliderAdapter(this, mediaList)
 
         // 요청 Jwt 토큰 가져오기
         val token =
@@ -255,20 +259,12 @@ class PostDetailActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        // 소리 줄이기 (영상 미디어, 임시 방편)
-        /*
-        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audio.setStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)*0,
-            AudioManager.FLAG_PLAY_SOUND
-        )*/
-        adapterViewpager.onDetach(ItemSliderBinding.inflate(layoutInflater)) // 자원 해제
+        adapterViewpager.onPause() // 영상 일시정지
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        adapterViewpager.onDetach(ItemSliderBinding.inflate(layoutInflater)) // 자원 해제
+        adapterViewpager.onDetach() // 영상 제거
     }
 
     override fun onBackPressed() {
@@ -841,19 +837,17 @@ class PostDetailActivity : AppCompatActivity() {
      * @param - None
      * @return - None
      * @author - Tae hyun Park
-     * @since - 2022-08-25
+     * @since - 2022-08-25 | 2022-09-09
      */
     private fun setViewMediaList(responsePostDetail: ResponsePostDetail){
-        Log.d(TAG,"미디어 리스트 URL : ${responsePostDetail.mediaList}")
         // 받아온 mediaList 처리
         if(responsePostDetail.mediaList.size == 0){ // 게시물의 이미지가 없다면
             binding.ivPostDetailDefault.visibility = View.VISIBLE // default 이미지 보여주기
-        }else{ // 게시물의 이미지가 있다면
+        }else{ // 게시물의 이미지/영상이 하나 이상 있다면
             binding.ivPostDetailDefault.visibility = View.GONE // default 이미지 없애기
-            adapterViewpager = ImageSliderAdapter(
-                this,
-                responsePostDetail.mediaList) // viewPager2 어댑터 세팅
-            binding.viewPager.adapter = adapterViewpager
+            mediaList = responsePostDetail.mediaList // 미디어 가져오기
+            adapterViewpager.addItems(mediaList) // 어댑터에 미디어 리스트 추가
+            binding.viewPager.adapter = adapterViewpager // 리사이클러뷰와 연결
             setupIndicators(responsePostDetail.mediaList.size) // linearLayout 에 indicators 초기화
         }
     }
