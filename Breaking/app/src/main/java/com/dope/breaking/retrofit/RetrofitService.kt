@@ -303,6 +303,56 @@ interface RetrofitService {
     ): Response<Unit>
 
     /**
+     * 해당 제보 게시물의 특정 댓글/대댓글 좋아요를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - commentId(Long) : 좋아요 요청할 댓글/대댓글 id
+     * @author - Tae hyun Park
+     */
+    @POST("post/comment/{commentId}/like")
+    suspend fun requestPostCommentLike(
+        @Header("authorization") token: String,
+        @Path("commentId") commentId: Long
+    ): Response<Unit>
+
+    /**
+     * 해당 제보 게시물의 특정 댓글/대댓글 좋아요 취소를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - commentId(Long) : 좋아요 취소 요청할 댓글/대댓글 id
+     * @author - Tae hyun Park
+     */
+    @DELETE("post/comment/{commentId}/like")
+    suspend fun requestPostCommentUnLike(
+        @Header("authorization") token: String,
+        @Path("commentId") commentId: Long
+    ): Response<Unit>
+
+    /**
+     * 제보 게시물의 댓글/대댓글 수정을 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - commentId(Long) : 수정을 요청할 댓글/대댓글 id
+     * @Body - comment(RequestComment) : 수정할 댓글/대댓글 정보
+     * @author - Tae hyun Park
+     */
+    @PUT("post/comment/{commentId}")
+    suspend fun requestPostCommentEdit(
+        @Header("authorization") token: String,
+        @Path("commentId") commentId: Long,
+        @Body comment: RequestComment
+    ): Response<Unit>
+
+    /**
+     * 제보 게시물의 댓글/대댓글 삭제를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - commentId(Long) : 삭제를 요청할 댓글/대댓글 id
+     * @author - Tae hyun Park
+     */
+    @DELETE("post/comment/{commentId}")
+    suspend fun requestPostCommentDelete(
+        @Header("authorization") token: String,
+        @Path("commentId") commentId: Long,
+    ): Response<Unit>
+
+    /**
      * 구글 로그인 토큰 검증 요청 메소드
      * @param userAgent: 안드로이드 플랫폼 user-agent 헤더 값
      * @request RequestGoogleToken

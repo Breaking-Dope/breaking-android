@@ -658,6 +658,133 @@ class PostManager {
     }
 
     /**
+     * 게시물 댓글/대댓글 좋아요 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param commentId(Long) : 좋아요 하고자 하는 댓글/대댓글 id
+     * @author Tae hyun Park
+     * @since 2022-09-10
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostCommentLike(
+        token: String,
+        commentId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 댓글/대댓글 좋아요 요청
+        val response = service.requestPostCommentLike(
+            token,
+            commentId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물 댓글/대댓글 좋아요 취소 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param commentId(Long) : 좋아요 취소하고자 하는 댓글/대댓글 id
+     * @author Tae hyun Park
+     * @since 2022-09-10
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostCommentUnLike(
+        token: String,
+        commentId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 댓글/대댓글 좋아요 취소 요청
+        val response = service.requestPostCommentUnLike(
+            token,
+            commentId,
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물 댓글/대댓글 수정 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param commentId(Long) : 수정하고자 하는 댓글/대댓글 id
+     * @param commentInfo(RequestComment) : 수정 정보
+     * @author Tae hyun Park
+     * @since 2022-09-10
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostCommentEdit(
+        token: String,
+        commentId: Long,
+        commentInfo: RequestComment
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 댓글/대댓글 수정 요청
+        val response = service.requestPostCommentEdit(
+            token,
+            commentId,
+            commentInfo
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물 댓글/대댓글 삭제 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param commentId(Long) : 삭제하고자 하는 댓글/대댓글 id
+     * @author Tae hyun Park
+     * @since 2022-09-10
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startPostCommentDelete(
+        token: String,
+        commentId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 댓글/대댓글 삭제 요청
+        val response = service.requestPostCommentDelete(
+            token,
+            commentId
+        )
+
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"요청 성공")
+            return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
      * 메인 피드 요청을 통해 리스트를 가져옴 (필터 & 정렬 옵션 포함)
      * @param lastPostId(Int): 마지막으로 요청한 마지막 게시글 id (최초 요청 시, 0 또는 null)
      * @param contentSize(Int): 요청할 게시글 개수(현재 10개)
