@@ -1,7 +1,6 @@
 package com.dope.breaking.board
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -58,6 +57,7 @@ class PostDetailActivity : AppCompatActivity() {
     private var isPurchased = false // 해당 게시물을 내가 구매했는지
     private var isPurchasable = false // 해당 게시물이 활성화(true)인지, 비활성화(false)인지
     private var isSold = false // 해당 게시물이 1개 이상 팔렸는지
+    private var isContentButtonPressed = false // 게시물
     private var isMyPost = false // 해당 게시물의 작성자가 나인지
     private var postType = "" // 해당 게시물의 타입
     private var isLoading = false  // 로딩 중 판단
@@ -130,6 +130,16 @@ class PostDetailActivity : AppCompatActivity() {
 
         binding.tvUserNickName.setOnClickListener { // 프로필 닉네임 클릭 시 유저 프로필로 이동
             UserProfile(this).moveToUserPage(userId.toLong())
+        }
+
+        binding.tvPostContent.setOnClickListener {
+            if (!isContentButtonPressed){ // 제보 컨텐츠의 본문을 더 봐야 한다면
+                binding.tvPostContent.maxLines = 20 // 다 보이게 (20줄로 기본 설정)
+                isContentButtonPressed = true
+            } else{
+                binding.tvPostContent.maxLines = 10 // 다시 10줄로 설정
+                isContentButtonPressed = false
+            }
         }
 
         // 좋아요 클릭 리스너
@@ -343,7 +353,7 @@ class PostDetailActivity : AppCompatActivity() {
         }, { it ->
             commentList.addAll(it) // 어댑터에 넣어줄 댓글 리스트 데이터
             adapterComment =
-                PostCommentAdapter(this, commentList, token, binding) // 어댑터 정의
+                PostCommentAdapter(this, commentList, token, getPostId.toLong(), binding) // 어댑터 정의
             adapterComment.setItemReplyClickListener(object : PostCommentAdapter.OnItemClickListener{ // 답글 달기 클릭 리스너 등록
                 override fun onClick(v: View, position: Int) {
                     Log.d(TAG,"누른 댓글 id 테스트 : ${commentList[position]?.commentId}")

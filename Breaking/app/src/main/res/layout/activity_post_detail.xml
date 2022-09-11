@@ -384,6 +384,7 @@
                     android:ellipsize="end"
                     android:text=""
                     android:lines="10"
+                    android:maxLines="10"
                     android:scrollbars="vertical"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
