@@ -1,6 +1,7 @@
 package com.dope.breaking
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dope.breaking.adapter.FeedAdapter
 import com.dope.breaking.adapter.UserSearchAdapter
+import com.dope.breaking.board.PostDetailActivity
 import com.dope.breaking.databinding.ActivityFeedSearchBinding
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.response.ResponseMainFeed
@@ -53,6 +55,12 @@ class FeedSearchActivity : AppCompatActivity() {
         binding = ActivityFeedSearchBinding.inflate(layoutInflater)
 
         feedAdapter = FeedAdapter(this, feedList) // 피드 어댑터
+        // 피드 아이템 클릭 이벤트
+        feedAdapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
+            override fun onClick(v: View, position: Int) {
+                moveToPostDetailPage(position) // 세부 조회 페이지로 이동
+            }
+        })
         userAdapter = UserSearchAdapter(this, userList) // 유저 검색 어댑터
 
         // 리사이클러뷰 divider 지정
@@ -598,5 +606,17 @@ class FeedSearchActivity : AppCompatActivity() {
         )
 
         binding.tvAnnounceSearchUser.text = spannableString
+    }
+
+    /**
+     * 어댑터에서 아이템 리스트를 클릭했을 때, 해당 postId를 받아와 세부 조회 액티비티로 넘겨주는 함수
+     * @param position(Int): 현재 리스트의 인덱스
+     * @author Seunggun Sin
+     * @since 2022-09-12
+     */
+    private fun moveToPostDetailPage(position: Int) {
+        val intent = Intent(this, PostDetailActivity::class.java)
+        intent.putExtra("postId", feedList[position]!!.postId)
+        startActivity(intent)
     }
 }
