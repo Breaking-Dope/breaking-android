@@ -25,9 +25,9 @@
             android:layout_height="0dp"
             android:background="@drawable/my_profile_edit_profile_btn_background"
             android:text="@string/edit_profile"
-            android:textSize="10sp"
+            android:textSize="11sp"
             app:layout_constraintBottom_toBottomOf="@id/img_view_my_page_profile"
-            app:layout_constraintHeight_percent="0.03"
+            app:layout_constraintHeight_percent="0.033"
             app:layout_constraintLeft_toRightOf="@id/img_view_my_page_profile"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_my_page_status"
@@ -39,6 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@drawable/sign_up_user_type_selected"
+            android:gravity="center"
             android:text="@string/follow"
             android:textColor="@color/sign_up_user_type_text_color"
             android:textSize="11sp"
@@ -48,7 +49,7 @@
             app:layout_constraintLeft_toRightOf="@id/tv_my_page_nickname"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_my_page_nickname"
-            app:layout_constraintWidth_percent="0.15" />
+            app:layout_constraintWidth_percent="0.16" />
 
         <ImageView
             android:id="@+id/img_view_my_page_profile"
@@ -100,7 +101,7 @@
             android:layout_marginTop="18dp"
             android:text="@string/follow"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
@@ -112,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="12sp"
             app:layout_constraintLeft_toLeftOf="@id/tv_follow_title"
             app:layout_constraintRight_toRightOf="@id/tv_follow_title"
             app:layout_constraintTop_toBottomOf="@id/tv_follow_title" />
@@ -124,7 +125,7 @@
             android:layout_marginTop="18dp"
             android:text="@string/follower"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.85"
             app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
@@ -136,7 +137,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="12sp"
             app:layout_constraintLeft_toLeftOf="@id/tv_follower_title"
             app:layout_constraintRight_toRightOf="@id/tv_follower_title"
             app:layout_constraintTop_toBottomOf="@id/tv_follower_title" />
@@ -148,7 +149,7 @@
             android:layout_marginTop="18dp"
             android:text="@string/written_post"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.15"
             app:layout_constraintLeft_toLeftOf="@id/img_view_my_page_profile"
@@ -160,7 +161,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="12sp"
             app:layout_constraintLeft_toLeftOf="@id/tv_post_title"
             app:layout_constraintRight_toRightOf="@id/tv_post_title"
             app:layout_constraintTop_toBottomOf="@id/tv_post_title" />

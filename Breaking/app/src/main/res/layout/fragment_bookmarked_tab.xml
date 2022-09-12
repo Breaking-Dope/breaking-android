@@ -7,11 +7,19 @@
     android:orientation="vertical"
     tools:context=".fragment.user_tab.BookmarkedTabFragment">
 
+    <TextView
+        android:id="@+id/tv_empty_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/no_bookmarked"
+        android:visibility="gone" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="7dp">
+        android:padding="6dp">
 
         <TextView
             android:id="@+id/tv_option_all"
@@ -19,7 +27,7 @@
             android:layout_height="wrap_content"
             android:text="@string/entire_option"
             android:textColor="@color/breaking_bottom_clicked_color"
-            android:textSize="11sp"
+            android:textSize="11.5sp"
             android:textStyle="bold"
             app:layout_constraintHorizontal_bias="0.02"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -32,7 +40,7 @@
             android:layout_height="wrap_content"
             android:text="@string/sold_option"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="11.5sp"
             app:layout_constraintHorizontal_bias="0.17"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -44,7 +52,7 @@
             android:layout_height="wrap_content"
             android:text="@string/unsold_option"
             android:textColor="@color/black"
-            android:textSize="11sp"
+            android:textSize="11.5sp"
             app:layout_constraintHorizontal_bias="0.37"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -52,13 +60,7 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/tv_empty_text"
-        android:gravity="center"
-        android:text="@string/no_bookmarked"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcv_user_bookmarked"
         android:layout_width="match_parent"
