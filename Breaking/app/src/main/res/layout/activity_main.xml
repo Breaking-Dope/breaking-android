@@ -41,18 +41,5 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/view_navigation_drawer"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:itemIconPadding="40dp"
-        app:itemIconSize="25dp"
-        app:itemIconTint="@drawable/bottom_icon_color"
-        app:itemTextColor="@color/white"
-        app:menu="@menu/navi_drawer_menu"
-        android:alpha="0.93"
-        android:backgroundTint="@color/breaking_drawer_color" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

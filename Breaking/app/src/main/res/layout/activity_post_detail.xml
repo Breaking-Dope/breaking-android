@@ -475,6 +475,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:orientation="vertical"
+                    android:overScrollMode="never"
                     android:backgroundTint="@color/white"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -493,15 +494,15 @@
         android:layout_weight="0"
         android:orientation="horizontal"
         android:layout_gravity="bottom"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="3dp">
 
         <ImageView
             android:id="@+id/iv_comment_writer_profile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_weight="0.7"
+            android:layout_weight="0.65"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             tools:srcCompat="@tools:sample/avatars" />
@@ -517,7 +518,7 @@
             android:lines="3"
             android:maxLength="1000"
             android:scrollbars="vertical"
-            android:textSize="15sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_add_comment"
@@ -527,6 +528,6 @@
             android:layout_weight="1"
             android:text="@string/post_detail_add_comment"
             android:textColor="@color/breaking_color"
-            android:textSize="15sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 </LinearLayout>
