@@ -22,6 +22,7 @@ import com.dope.breaking.board.PostActivity
 import com.dope.breaking.board.PostDetailActivity
 import com.dope.breaking.databinding.FragmentNaviHomeBinding
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.model.response.ResponseMainFeed
 import com.dope.breaking.post.PostManager
 import com.dope.breaking.util.DialogUtil
@@ -58,6 +59,8 @@ class NaviHomeFragment : Fragment() {
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(requireContext()).getAccessTokenFromLocal()
         binding.etSearchBar.inputType = InputType.TYPE_NULL
 
+        binding.fabPosting.visibility =
+            if (ResponseExistLogin.baseUserInfo == null) View.GONE else View.VISIBLE
         // 스와이프 리프레시 아이콘 색 변경
         binding.srlMainFeed.setColorSchemeColors(requireContext().getColor(R.color.breaking_color))
 
@@ -319,7 +322,11 @@ class NaviHomeFragment : Fragment() {
                         "isDeletePost",
                         false
                     ) == true // 제보글을 썼다면 true, 쓰지 않았다면 false
-                    if(isDeletePost || it.data!!.getBooleanExtra("isRefreshFeed", false)){ // 삭제를 하거나, 뒤로 가기를 눌렀을 때 피드 새로고침
+                    if (isDeletePost || it.data!!.getBooleanExtra(
+                            "isRefreshFeed",
+                            false
+                        )
+                    ) { // 삭제를 하거나, 뒤로 가기를 눌렀을 때 피드 새로고침
                         // 메인 피드 갱신
                         processGetMainFeed(0, token, {
                             showSkeletonView() // 스켈레톤 UI 시작
@@ -338,7 +345,7 @@ class NaviHomeFragment : Fragment() {
                             adapter.addItems(it)
                             dismissSkeletonView() // 스켈레톤 UI 종료
                             isDeletePost = false // 다시 false로 변경
-                        },{
+                        }, {
                             it.printStackTrace()
                             requestErrorDialog.show()
                         })

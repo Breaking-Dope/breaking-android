@@ -1,6 +1,7 @@
 package com.dope.breaking.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,7 +14,9 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.dope.breaking.R
+import com.dope.breaking.SignInActivity
 import com.dope.breaking.databinding.CustomMainFeedPopupBinding
+import com.dope.breaking.model.response.ResponseExistLogin
 import com.dope.breaking.model.response.ResponseMainFeed
 import com.dope.breaking.post.PostManager
 import com.dope.breaking.util.*
@@ -182,6 +185,18 @@ class FeedAdapter(
 
             // 북마크 메뉴 클릭 시
             popupBind.layoutHorizBookmark.setOnClickListener {
+                if (ResponseExistLogin.baseUserInfo == null) {
+                    DialogUtil().MultipleDialog(
+                        context,
+                        "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                        "취소",
+                        "이동",
+                        {},
+                        {
+                            context.startActivity(Intent(context, SignInActivity::class.java))
+                        }).show()
+                    return@setOnClickListener
+                }
                 val postManager = PostManager()
                 val token =
                     ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(context).getAccessTokenFromLocal()
@@ -229,28 +244,28 @@ class FeedAdapter(
             chipSoldStop.visibility = View.GONE
 
             // 게시글 타입 (단독, 판매완료, 판매중)
-            if(item.postType != "EXCLUSIVE") { // 단독 제보가 아니라면
+            if (item.postType != "EXCLUSIVE") { // 단독 제보가 아니라면
                 chipExclusive.visibility = View.GONE // 단독 제보 비활성화
                 chipSold.visibility = View.GONE // 판매 완료 다시 비활성화
-            }else
+            } else
                 chipExclusive.visibility = View.VISIBLE // 단독 제보 다시 활성화
 
-            if(item.isSold && item.postType == "EXCLUSIVE"){ // 단독 제보이고, 적어도 하나가 팔렸다면 판매 완료로 간주
+            if (item.isSold && item.postType == "EXCLUSIVE") { // 단독 제보이고, 적어도 하나가 팔렸다면 판매 완료로 간주
                 chipExclusive.visibility = View.VISIBLE // 단독 제보 활성화
                 chipSold.visibility = View.VISIBLE // 판매 완료 다시 활성화
                 chipUnsold.visibility = View.GONE // 판매 중 비활성화
-            }else{ // 판매완료가 아니라면 판매중, 판매중지로 간주
+            } else { // 판매완료가 아니라면 판매중, 판매중지로 간주
                 chipSold.visibility = View.GONE // 판매 완료 다시 비활성화
-                if (!item.isPurchasable){ // 판매 중지라면
+                if (!item.isPurchasable) { // 판매 중지라면
                     chipSoldStop.visibility = View.VISIBLE // 판매 중지 활성화
                     chipUnsold.visibility = View.GONE // 판매 중 비활성화
-                }else{ // 판매 중
+                } else { // 판매 중
                     chipSoldStop.visibility = View.GONE // 판매 중지 비활성화
                     chipUnsold.visibility = View.VISIBLE // 판매 중 다시 활성화
                 }
             }
 
-            if(item.isHidden) // 숨겨진 게시물이면 태그 보여주기
+            if (item.isHidden) // 숨겨진 게시물이면 태그 보여주기
                 chipHidden.visibility = View.VISIBLE
             else
                 chipHidden.visibility = View.GONE

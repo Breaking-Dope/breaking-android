@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.exception.UnLoginAccessException
 import com.dope.breaking.model.FollowData
 import com.dope.breaking.model.request.RequestComment
 import com.dope.breaking.model.request.RequestPostData
@@ -18,6 +19,7 @@ import com.google.gson.JsonParser
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONObject
 import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -57,7 +59,7 @@ class PostManager {
         for (i in 0 until fileList.size) {
             if (fileList.size == 0) break // 받아온 미디어가 없으면 반복문 탈출
             // 이미지,영상에 대한 RequestBody 생성 (image/* video/*)
-            val imageRequestBody = if (uriList[i].toString().contains("image")){ // 이미지면 bitmap
+            val imageRequestBody = if (uriList[i].toString().contains("image")) { // 이미지면 bitmap
                 RequestBody.create(
                     MediaType.parse("image/* video/*"),
                     convertBitmapToByte(imageData[i])
@@ -140,15 +142,15 @@ class PostManager {
      * @param postId(Long) : 댓글을 달고자 하는 현재 게시물 id
      * @param content(String) : 댓글 내용
      * @param hashTagList(ArrayList<String) : 해시태그 리스트 (옵션)
-     * @author Tae hyun Park
-     * @since 2022-09-01
+     * @author Tae hyun Park | Seunggun Sin
+     * @since 2022-09-01 | 2022-09-14
      */
     @Throws(ResponseErrorException::class)
     suspend fun startRegisterComment(
         token: String,
         postId: Long,
         content: String,
-        hashTagList : ArrayList<String>?
+        hashTagList: ArrayList<String>?
     ): Boolean {
         // Retrofit 서비스 객체 생성
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
@@ -162,11 +164,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
-            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -176,15 +183,15 @@ class PostManager {
      * @param commentId(Long) : 대댓글을 달고자 하는 현재 댓글 id
      * @param content(String) : 대댓글 내용
      * @param hashTagList(ArrayList<String) : 해시태그 리스트 (옵션)
-     * @author Tae hyun Park
-     * @since 2022-09-02
+     * @author Tae hyun Park | Seunggun Sin
+     * @since 2022-09-02 | 2022-09-14
      */
     @Throws(ResponseErrorException::class)
     suspend fun startRegisterNestedComment(
         token: String,
         commentId: Long,
         content: String,
-        hashTagList : ArrayList<String>?
+        hashTagList: ArrayList<String>?
     ): Boolean {
         // Retrofit 서비스 객체 생성
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
@@ -198,11 +205,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
-            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -286,7 +298,7 @@ class PostManager {
     suspend fun startEditPost(
         token: String,
         postId: Long,
-        postInfo : RequestPostDataModify
+        postInfo: RequestPostDataModify
     ): ResponsePostUpload {
         // Retrofit 서비스 객체 생성
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
@@ -328,7 +340,7 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
             Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
@@ -340,8 +352,8 @@ class PostManager {
      * 게시물에 좋아요 요청을 보내기 위한 메소드
      * @param token(String) : jwt token 값
      * @param postId(Long) : 좋아요 하고자 하는 게시물 id
-     * @author Tae hyun Park
-     * @since 2022-09-06
+     * @author Tae hyun Park | Seunggun Sin
+     * @since 2022-09-06 | 2022-09-14
      */
     @Throws(ResponseErrorException::class)
     suspend fun startPostLike(
@@ -359,17 +371,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            var errorString = response.errorBody()?.string()!!
-            var jsonObject: JsonObject =
-                JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE458"){
-                throw ResponseErrorException("BSE458")
-            }else{
-                throw ResponseErrorException(errorString)
-            }
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -377,8 +388,8 @@ class PostManager {
      * 게시물에 좋아요 취소 요청을 보내기 위한 메소드
      * @param token(String) : jwt token 값
      * @param postId(Long) : 좋아요 취소하고자 하는 게시물 id
-     * @author Tae hyun Park
-     * @since 2022-09-06
+     * @author Tae hyun Park | Seunggun Sin
+     * @since 2022-09-06 | 2022-09-14
      */
     @Throws(ResponseErrorException::class)
     suspend fun startCancelPostLike(
@@ -396,17 +407,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            var errorString = response.errorBody()?.string()!!
-            var jsonObject: JsonObject =
-                JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE459"){
-                throw ResponseErrorException("BSE459")
-            }else{
-                throw ResponseErrorException(errorString)
-            }
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -448,8 +458,8 @@ class PostManager {
      * 게시물 구매 요청을 보내기 위한 메소드
      * @param token(String) : jwt token 값
      * @param postId(Long) : 구매하고자 하는 게시물 id
-     * @author Tae hyun Park
-     * @since 2022-09-07
+     * @author Tae hyun Park | Seunggun
+     * @since 2022-09-07 | 2022-09-14
      */
     @Throws(ResponseErrorException::class)
     suspend fun startPostPurchase(
@@ -467,11 +477,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
-            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -532,15 +547,15 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
             var errorString = response.errorBody()?.string()!!
             var jsonObject: JsonObject =
                 JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE453"){
+            if (jsonObject.get("code").toString().replace("\"", "") == "BSE453") {
                 throw ResponseErrorException("BSE453")
-            }else{
+            } else {
                 throw ResponseErrorException(errorString)
             }
         }
@@ -569,15 +584,15 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
             var errorString = response.errorBody()?.string()!!
             var jsonObject: JsonObject =
                 JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE454"){
+            if (jsonObject.get("code").toString().replace("\"", "") == "BSE454") {
                 throw ResponseErrorException("BSE454")
-            }else{
+            } else {
                 throw ResponseErrorException(errorString)
             }
         }
@@ -606,15 +621,15 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
             var errorString = response.errorBody()?.string()!!
             var jsonObject: JsonObject =
                 JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE441"){
+            if (jsonObject.get("code").toString().replace("\"", "") == "BSE441") {
                 throw ResponseErrorException("BSE441")
-            }else{
+            } else {
                 throw ResponseErrorException(errorString)
             }
         }
@@ -643,15 +658,15 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
             var errorString = response.errorBody()?.string()!!
             var jsonObject: JsonObject =
                 JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE442"){
+            if (jsonObject.get("code").toString().replace("\"", "") == "BSE442") {
                 throw ResponseErrorException("BSE442")
-            }else{
+            } else {
                 throw ResponseErrorException(errorString)
             }
         }
@@ -661,8 +676,8 @@ class PostManager {
      * 게시물 댓글/대댓글 좋아요 요청을 보내기 위한 메소드
      * @param token(String) : jwt token 값
      * @param commentId(Long) : 좋아요 하고자 하는 댓글/대댓글 id
-     * @author Tae hyun Park
-     * @since 2022-09-10
+     * @author Tae hyun Park | Seunggun Sin
+     * @since 2022-09-10 | 2022-09-14
      */
     @Throws(ResponseErrorException::class)
     suspend fun startPostCommentLike(
@@ -680,11 +695,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
-            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -711,11 +731,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
-            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -745,7 +770,7 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
             Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
@@ -776,7 +801,7 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
             Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
@@ -975,7 +1000,7 @@ class PostManager {
      * @param token(String): 본인의 Jwt 토큰
      * @return Boolean: 북마크 등록 성공 시 true, 실패 시 false
      * @author Seunggun Sin | Tae hyun Park
-     * @since 2022-08-19 | 2022-09-08
+     * @since 2022-08-19 | 2022-09-14
      */
     suspend fun startRegisterBookmark(postId: Int, token: String): Boolean {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
@@ -984,17 +1009,16 @@ class PostManager {
 
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            var errorString = response.errorBody()?.string()!!
-            var jsonObject: JsonObject =
-                JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE456"){
-                throw ResponseErrorException("BSE456")
-            }else{
-                throw ResponseErrorException(errorString)
-            }
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -1004,7 +1028,7 @@ class PostManager {
      * @param token(String): 본인의 Jwt 토큰
      * @return Boolean: 북마크 해제 성공 시 true, 실패 시 false
      * @author Seunggun Sin | Tae hyun Park
-     * @since 2022-08-19 | 2022-09-08
+     * @since 2022-08-19 | 2022-09-14
      */
     suspend fun startUnRegisterBookmark(postId: Int, token: String): Boolean {
         val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
@@ -1012,17 +1036,16 @@ class PostManager {
         val response = service.requestUnBookmark(token, postId)
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"요청 성공")
+            Log.d(TAG, "요청 성공")
             return response.code() in 200..299
         } else {
-            var errorString = response.errorBody()?.string()!!
-            var jsonObject: JsonObject =
-                JsonParser.parseString(errorString).asJsonObject
-            if(jsonObject.get("code").toString().replace("\"", "") == "BSE457"){
-                throw ResponseErrorException("BSE457")
-            }else{
-                throw ResponseErrorException(errorString)
-            }
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 

@@ -26,6 +26,8 @@ import com.dope.breaking.*
 import com.dope.breaking.databinding.ActivityPostDetailBinding
 import com.dope.breaking.databinding.CustomPostDetailContentPopupBinding
 import com.dope.breaking.exception.ResponseErrorException
+import com.dope.breaking.exception.UnLoginAccessException
+import com.dope.breaking.fragment.NaviHomeFragment
 import com.dope.breaking.model.FollowData
 import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseExistLogin
@@ -44,7 +46,7 @@ import kotlin.collections.ArrayList
 
 class PostDetailActivity : AppCompatActivity() {
     private val TAG = "PostDetailActivity.kt"
-    private var mbinding : ActivityPostDetailBinding? = null
+    private var mbinding: ActivityPostDetailBinding? = null
     private val binding get() = mbinding!!
     private lateinit var editPostActivityResult: ActivityResultLauncher<Intent> // 게시글 수정 후 그 후 처리를 위한 activityResult
     private lateinit var adapterViewpager: ImageSliderAdapter // 뷰 페이저 어댑터
@@ -75,7 +77,7 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 미디어 리스트 정의
         adapterViewpager = ImageSliderAdapter(this, mediaList)
-        
+
         // 좋아요 리스트 요청 에러 시 띄워줄 다이얼로그 정의
         val requestLikeErrorDialog =
             DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인")
@@ -84,8 +86,8 @@ class PostDetailActivity : AppCompatActivity() {
         val token =
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal()
 
-        getPostId = intent.getIntExtra("postId",-1)
-        Log.d(TAG,"받아온 postId 값 : $getPostId")
+        getPostId = intent.getIntExtra("postId", -1)
+        Log.d(TAG, "받아온 postId 값 : $getPostId")
         mbinding = ActivityPostDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settingPostToolBar()  // 툴 바 설정
@@ -95,10 +97,10 @@ class PostDetailActivity : AppCompatActivity() {
         processGetPostLikeList(
             token,
             getPostId.toLong(),
-            0,{likeList.clear()},{
+            0, { likeList.clear() }, {
                 likeList.addAll(it)
-                Log.d(TAG,"좋아요 목록 리스트 테스트(최초) : ${likeList.size}")
-            },{
+                Log.d(TAG, "좋아요 목록 리스트 테스트(최초) : ${likeList.size}")
+            }, {
                 it.printStackTrace()
                 requestLikeErrorDialog.show()
             }
@@ -109,14 +111,15 @@ class PostDetailActivity : AppCompatActivity() {
             token,
             getPostId.toLong(), {
                 showSkeletonView() // 스켈레톤 UI 시작
-            },{
+            }, {
                 dismissSkeletonView() // 스켈레톤 UI 종료
                 settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
             }
         )
 
         binding.viewPager.offscreenPageLimit = 1 // 한 페이지에 한 이미지만 보여주도록 설정
-        binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){ // viewPager2 페이지 변화 감지
+        binding.viewPager.registerOnPageChangeCallback(object :
+            ViewPager2.OnPageChangeCallback() { // viewPager2 페이지 변화 감지
             @Override
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -133,10 +136,10 @@ class PostDetailActivity : AppCompatActivity() {
         }
 
         binding.tvPostContent.setOnClickListener {
-            if (!isContentButtonPressed){ // 제보 컨텐츠의 본문을 더 봐야 한다면
+            if (!isContentButtonPressed) { // 제보 컨텐츠의 본문을 더 봐야 한다면
                 binding.tvPostContent.maxLines = 20 // 다 보이게 (20줄로 기본 설정)
                 isContentButtonPressed = true
-            } else{
+            } else {
                 binding.tvPostContent.maxLines = 10 // 다시 10줄로 설정
                 isContentButtonPressed = false
             }
@@ -150,10 +153,20 @@ class PostDetailActivity : AppCompatActivity() {
                     getPostId.toLong(),
                     { // 요청 성공 시
                         flagLike = true
-                        refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
-                    },{
-                        if (it.message!! == "BSE458"){ // 이미 좋아요를 선택했다면
-                            refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                        refreshPostData(
+                            token,
+                            getPostId.toLong(),
+                            requestErrorDialog,
+                            requestLikeErrorDialog
+                        )
+                    }, {
+                        if (it.message!! == "BSE458") { // 이미 좋아요를 선택했다면
+                            refreshPostData(
+                                token,
+                                getPostId.toLong(),
+                                requestErrorDialog,
+                                requestLikeErrorDialog
+                            )
                         }
                     }
                 )
@@ -163,10 +176,20 @@ class PostDetailActivity : AppCompatActivity() {
                     getPostId.toLong(),
                     { // 요청 성공 시
                         flagLike = false
-                        refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
-                    },{
-                        if (it.message == "BSE459"){ // 이미 좋아요를 선택하지 않았다면
-                            refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                        refreshPostData(
+                            token,
+                            getPostId.toLong(),
+                            requestErrorDialog,
+                            requestLikeErrorDialog
+                        )
+                    }, {
+                        if (it.message == "BSE459") { // 이미 좋아요를 선택하지 않았다면
+                            refreshPostData(
+                                token,
+                                getPostId.toLong(),
+                                requestErrorDialog,
+                                requestLikeErrorDialog
+                            )
                         }
                     }
                 )
@@ -176,21 +199,21 @@ class PostDetailActivity : AppCompatActivity() {
         // 좋아요 텍스트 뷰를 클릭 시 좋아요 목록 액티비티로 이동
         binding.tvPostLikeCount.setOnClickListener {
             var intent = Intent(this, PostLikeListActivity::class.java)
-            intent.putExtra("postId",getPostId)
+            intent.putExtra("postId", getPostId)
             startActivity(intent)
         }
 
         // 게시글 구매하기 버튼 클릭 시
         binding.btnPurchase.setOnClickListener {
-            if (isMyPost){ // 내 게시물이라면 구매자 목록 요청
+            if (isMyPost) { // 내 게시물이라면 구매자 목록 요청
                 var intent = Intent(this, PostPurchaseListActivity::class.java)
-                intent.putExtra("postId",getPostId)
+                intent.putExtra("postId", getPostId)
                 startActivity(intent)
-            }else{
-                if(isPurchased){  // 내가 구매를 한 상태이면 미디어 파일 다운로드 요청
+            } else {
+                if (isPurchased) {  // 내가 구매를 한 상태이면 미디어 파일 다운로드 요청
                     /* 구현 예정 */
-                }else{
-                    if(isPurchasable && !(postType == "EXCLUSIVE" && isSold)){ // 구매 가능하다면 구매하기 요청
+                } else {
+                    if (isPurchasable && !(postType == "EXCLUSIVE" && isSold)) { // 구매 가능하다면 구매하기 요청
                         DialogUtil().MultipleDialog(
                             this,
                             "제보를 구매하시겠습니까?",
@@ -199,18 +222,23 @@ class PostDetailActivity : AppCompatActivity() {
                             {   // 제보 구매 요청 함수 시작
                                 processPurchasePost(
                                     token,
-                                    getPostId.toLong(),{
+                                    getPostId.toLong(), {
                                         // 제보 구매 요청 다이얼 로그 시작
                                         progressDialog = DialogUtil().ProgressDialog(this)
                                         progressDialog.showDialog()
-                                    },{
+                                    }, {
                                         if (progressDialog.isShowing()) // 로딩 다이얼로그 종료
                                             progressDialog.dismissDialog()
-                                        if (it){
-                                            Log.d(TAG,"게시물 구매 완료")
-                                            refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog) // 게시물 갱신
+                                        if (it) {
+                                            Log.d(TAG, "게시물 구매 완료")
+                                            refreshPostData(
+                                                token,
+                                                getPostId.toLong(),
+                                                requestErrorDialog,
+                                                requestLikeErrorDialog
+                                            ) // 게시물 갱신
                                         }
-                                    },{
+                                    }, {
                                         it.printStackTrace()
                                         requestErrorDialog.show()
                                     }
@@ -223,39 +251,57 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 댓글 등록 버튼 클릭 시
         binding.tvAddComment.setOnClickListener {
-            if (binding.etPostWrite.text.isNotEmpty()){
+            if (binding.etPostWrite.text.isNotEmpty()) {
                 // commentId가 -1인지 아닌지 체크하여, -1이 아니면 대댓글 등록 요청
-                if(requestCommentId != -1){ // -1이 아니라면 대댓글 요청
+                if (requestCommentId != -1) { // -1이 아니라면 대댓글 요청
                     processWriteNestedComment(
                         token,
                         requestCommentId.toLong(),
                         binding.etPostWrite.text.toString(),
                         Utils.getArrayHashTagWithOutSpace(binding.etPostWrite.text.toString()), // 해시태그 (없으면 빈 리스트로 전달해주는 상황)
-                        {},{
-                            if (it){
+                        {}, {
+                            if (it) {
                                 binding.etPostWrite.setText("") // 적었던 내용은 지우기
-                                Toast.makeText(applicationContext, "답글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    applicationContext,
+                                    "답글이 작성되었습니다.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 requestCommentId = -1 // 값 다시 초기화
-                                refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                                refreshPostData(
+                                    token,
+                                    getPostId.toLong(),
+                                    requestErrorDialog,
+                                    requestLikeErrorDialog
+                                )
                             }
                         }
                     )
-                }else{ // -1이면 일반 댓글 요청
+                } else { // -1이면 일반 댓글 요청
                     processWriteComment(
                         token,
                         getPostId.toLong(),
                         binding.etPostWrite.text.toString(),
                         Utils.getArrayHashTagWithOutSpace(binding.etPostWrite.text.toString()), // 해시태그 (없으면 빈 리스트로 전달해주는 상황)
-                        {},{
-                            if (it){ // 댓글 등록이 성공적으로 이루어졌다면
+                        {}, {
+                            if (it) { // 댓글 등록이 성공적으로 이루어졌다면
                                 binding.etPostWrite.setText("") // 적었던 내용은 지우기
-                                Toast.makeText(applicationContext, "댓글이 작성되었습니다.", Toast.LENGTH_SHORT).show()
-                                refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                                Toast.makeText(
+                                    applicationContext,
+                                    "댓글이 작성되었습니다.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                refreshPostData(
+                                    token,
+                                    getPostId.toLong(),
+                                    requestErrorDialog,
+                                    requestLikeErrorDialog
+                                )
                             }
                         }
                     )
                 }
-            }else{
+            } else {
                 Toast.makeText(applicationContext, "댓글을 입력해주세요!", Toast.LENGTH_SHORT).show()
             }
         }
@@ -263,10 +309,10 @@ class PostDetailActivity : AppCompatActivity() {
         /*
         최초로 댓글 리스트 가져오는 요청
          */
-        processGetCommentListModule(token, getPostId.toLong(),true, requestErrorDialog)
+        processGetCommentListModule(token, getPostId.toLong(), true, requestErrorDialog)
 
         /* 댓글 RecyclerView 스크롤 이벤트 리스너 정의 */
-        binding.rvCommentList.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+        binding.rvCommentList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
 
@@ -284,27 +330,33 @@ class PostDetailActivity : AppCompatActivity() {
                 // 댓글 리스트 요청이 더 가능하면서
                 // 로딩 중이 아니라면
                 if (lastIndex == recyclerView.adapter!!.itemCount - 1 && newState == 2 && !isObtainedAll && !isLoading) {
-                    processGetCommentList(token, getPostId.toLong(), commentList[lastIndex]!!.commentId, {
-                        adapterComment.addItem(null) // 로딩 창 아이템 추가
-                        isLoading= true // 로딩 시작 상태로 전환
-                    },{
-                        if(it.size < ValueUtil.COMMENT_SIZE){ // 정량으로 가져오는 개수보다 적다면
-                            adapterComment.removeLast() // 로딩 아이템 제거
-                            if (it.isNotEmpty()) // 리스트가 있다면
-                                adapterComment.addItems(it)
-                            isObtainedAll = true // 더 이상 받아올 댓글이 없는 상태
-                        }else{ // 더 요청할 수 있고 받아온 리스트가 있다면
-                            adapterComment.removeLast() // 로딩 아이템 제거
-                            adapterComment.addItems(it) // 받아온 리스트 추가
-                        }
-                        isLoading = false // 로딩 종료 상태로 전환
-                    },{
-                        // BSE451 에러의 경우 더 이상의 받아올 댓글 리스트가 없는 경우 발생
-                        if (it.message!!.contains("BSE451")) {
-                            isObtainedAll = true
-                            adapterComment.removeLast()
-                        }
-                    })
+                    processGetCommentList(
+                        token,
+                        getPostId.toLong(),
+                        commentList[lastIndex]!!.commentId,
+                        {
+                            adapterComment.addItem(null) // 로딩 창 아이템 추가
+                            isLoading = true // 로딩 시작 상태로 전환
+                        },
+                        {
+                            if (it.size < ValueUtil.COMMENT_SIZE) { // 정량으로 가져오는 개수보다 적다면
+                                adapterComment.removeLast() // 로딩 아이템 제거
+                                if (it.isNotEmpty()) // 리스트가 있다면
+                                    adapterComment.addItems(it)
+                                isObtainedAll = true // 더 이상 받아올 댓글이 없는 상태
+                            } else { // 더 요청할 수 있고 받아온 리스트가 있다면
+                                adapterComment.removeLast() // 로딩 아이템 제거
+                                adapterComment.addItems(it) // 받아온 리스트 추가
+                            }
+                            isLoading = false // 로딩 종료 상태로 전환
+                        },
+                        {
+                            // BSE451 에러의 경우 더 이상의 받아올 댓글 리스트가 없는 경우 발생
+                            if (it.message!!.contains("BSE451")) {
+                                isObtainedAll = true
+                                adapterComment.removeLast()
+                            }
+                        })
                 }
             }
         })
@@ -313,9 +365,15 @@ class PostDetailActivity : AppCompatActivity() {
         editPostActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == RESULT_OK) {
-                    var resultPostId = it.data?.getIntExtra("postId", -1) // 수정이 정상적으로 완료되었다면 기존 게시물과 동일한 id 받아옴
-                    if(resultPostId != -1){ // 수정이 완료되었다면 상세 뷰, 댓글 리스트, 좋아요 목록 재갱신
-                        refreshPostData(token, getPostId.toLong(), requestErrorDialog, requestLikeErrorDialog)
+                    var resultPostId =
+                        it.data?.getIntExtra("postId", -1) // 수정이 정상적으로 완료되었다면 기존 게시물과 동일한 id 받아옴
+                    if (resultPostId != -1) { // 수정이 완료되었다면 상세 뷰, 댓글 리스트, 좋아요 목록 재갱신
+                        refreshPostData(
+                            token,
+                            getPostId.toLong(),
+                            requestErrorDialog,
+                            requestLikeErrorDialog
+                        )
                     }
                 }
             }
@@ -332,7 +390,7 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        intent.putExtra("isRefreshFeed",true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
+        intent.putExtra("isRefreshFeed", true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
         setResult(RESULT_OK, intent)
         finish() // 다시 세부 조회 페이지로 이동
     }
@@ -347,20 +405,27 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-09-03
      */
-    private fun processGetCommentListModule(token: String, postId: Long, isStart:Boolean, requestErrorDialog: DialogUtil.SingleDialog){
-        processGetCommentList(token, postId,0, {
+    private fun processGetCommentListModule(
+        token: String,
+        postId: Long,
+        isStart: Boolean,
+        requestErrorDialog: DialogUtil.SingleDialog
+    ) {
+        processGetCommentList(token, postId, 0, {
             isObtainedAll = false
         }, { it ->
             commentList.addAll(it) // 어댑터에 넣어줄 댓글 리스트 데이터
             adapterComment =
                 PostCommentAdapter(this, commentList, token, getPostId.toLong(), binding) // 어댑터 정의
-            adapterComment.setItemReplyClickListener(object : PostCommentAdapter.OnItemClickListener{ // 답글 달기 클릭 리스너 등록
+            adapterComment.setItemReplyClickListener(object :
+                PostCommentAdapter.OnItemClickListener { // 답글 달기 클릭 리스너 등록
                 override fun onClick(v: View, position: Int) {
-                    Log.d(TAG,"누른 댓글 id 테스트 : ${commentList[position]?.commentId}")
-                    requestCommentId = if(v.findViewById<TextView>(R.id.tv_post_reply).text.equals("답글")) // 댓글 작성 중이 아니면
-                        -1 // 다시 초기화
-                    else
-                        commentList[position]?.commentId!!
+                    Log.d(TAG, "누른 댓글 id 테스트 : ${commentList[position]?.commentId}")
+                    requestCommentId =
+                        if (v.findViewById<TextView>(R.id.tv_post_reply).text.equals("답글")) // 댓글 작성 중이 아니면
+                            -1 // 다시 초기화
+                        else
+                            commentList[position]?.commentId!!
                     Log.d(TAG, "requestCommentId : $requestCommentId")
                 }
             })
@@ -371,7 +436,7 @@ class PostDetailActivity : AppCompatActivity() {
                 binding.tvCommentNone.visibility = View.GONE
                 binding.rvCommentList.visibility = View.VISIBLE
             }
-            if (isStart){
+            if (isStart) {
                 // 리스트의 divider 선 추가
                 binding.rvCommentList.addItemDecoration(
                     DividerItemDecoration(
@@ -381,7 +446,7 @@ class PostDetailActivity : AppCompatActivity() {
                 )
             }
             binding.rvCommentList.adapter = adapterComment // 어댑터 지정
-        },{
+        }, {
             it.printStackTrace()
             requestErrorDialog.show()
         })
@@ -397,29 +462,34 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-09-06 | 2022-09-07
      */
-    private fun refreshPostData(token: String, postId: Long, requestErrorDialog: DialogUtil.SingleDialog, requestLikeErrorDialog: DialogUtil.SingleDialog ){
+    private fun refreshPostData(
+        token: String,
+        postId: Long,
+        requestErrorDialog: DialogUtil.SingleDialog,
+        requestLikeErrorDialog: DialogUtil.SingleDialog
+    ) {
         // 좋아요 목록 갱신
         processGetPostLikeList(
             token,
             getPostId.toLong(),
-            0,{
+            0, {
                 likeList.clear()
-            },{
-                if (it.isNotEmpty()){
+            }, {
+                if (it.isNotEmpty()) {
                     likeList.addAll(it)
                 }
                 // 게시글 상세 조회
                 processPostDetail(
                     token,
                     postId, {
-                    },{
+                    }, {
                         settingPostDetailView(it) // 받아온 it을 바탕으로 view에 뿌려주기
                     }
                 )
                 // 댓글 리스트 갱신
                 commentList.clear()
-                processGetCommentListModule(token, getPostId.toLong(),false, requestErrorDialog)
-            },{
+                processGetCommentListModule(token, getPostId.toLong(), false, requestErrorDialog)
+            }, {
                 it.printStackTrace()
                 requestLikeErrorDialog.show()
             }
@@ -433,7 +503,7 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Seung gun Sin | Tae hyun Park
      * @since - 2022-08-24
      */
-    private fun setMoreMenuContent(responsePostDetail: ResponsePostDetail){
+    private fun setMoreMenuContent(responsePostDetail: ResponsePostDetail) {
         // 게시물 삭제 요청 에러 시 띄워줄 다이얼로그 정의
         val requestErrorDialog =
             DialogUtil().SingleDialog(applicationContext, "게시글 삭제에 문제가 발생하였습니다.", "확인")
@@ -449,9 +519,9 @@ class PostDetailActivity : AppCompatActivity() {
         ) // 팝업 윈도우 화면 설정
 
         binding.ibPostMore.setOnClickListener(popupWindow::showAsDropDown) // 더보기 메뉴 클릭 시, 메뉴 view 중심으로 팝업 메뉴 호출
-        if(responsePostDetail.user?.userId == ResponseExistLogin.baseUserInfo?.userId || responsePostDetail.isMyPost){ // 해당 게시글 작성자가 본인이면
+        if (responsePostDetail.user?.userId == ResponseExistLogin.baseUserInfo?.userId || responsePostDetail.isMyPost) { // 해당 게시글 작성자가 본인이면
             binding.btnPurchase.text = "구매자 목록"
-            if(responsePostDetail.soldCount > 0){ // 게시물이 판매되었다면 수정/삭제가 불가함, 판매되었는데 단독 제보였던 경우 비활성화/활성화 메뉴까지 없어져야 함.
+            if (responsePostDetail.soldCount > 0) { // 게시물이 판매되었다면 수정/삭제가 불가함, 판매되었는데 단독 제보였던 경우 비활성화/활성화 메뉴까지 없어져야 함.
                 // 채팅 메뉴 비활성화
                 popupBind.layoutHorizChat.visibility = View.GONE
                 // 차단 메뉴 비활성화
@@ -460,11 +530,11 @@ class PostDetailActivity : AppCompatActivity() {
                 popupBind.layoutHorizEdit.visibility = View.GONE
                 // 삭제 메뉴 비활성화
                 popupBind.layoutHorizDelete.visibility = View.GONE
-                if(responsePostDetail.postType == "EXCLUSIVE")
+                if (responsePostDetail.postType == "EXCLUSIVE")
                     popupBind.layoutHorizDeactivation.visibility = View.GONE
                 else
                     popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
-            }else{
+            } else {
                 // 채팅 메뉴 비활성화
                 popupBind.layoutHorizChat.visibility = View.GONE
                 // 차단 메뉴 비활성화
@@ -473,44 +543,46 @@ class PostDetailActivity : AppCompatActivity() {
                 popupBind.layoutHorizEdit.visibility = View.VISIBLE
                 // 삭제 메뉴 활성화
                 popupBind.layoutHorizDelete.visibility = View.VISIBLE
-                if(responsePostDetail.postType == "EXCLUSIVE" && responsePostDetail.isSold){ // 판매완료면 비활성화/활성화 불가능
+                if (responsePostDetail.postType == "EXCLUSIVE" && responsePostDetail.isSold) { // 판매완료면 비활성화/활성화 불가능
                     popupBind.layoutHorizDeactivation.visibility = View.GONE
-                }else{
+                } else {
                     popupBind.layoutHorizDeactivation.visibility = View.VISIBLE
                 }
             }
             popupBind.layoutHorizHide.visibility = View.VISIBLE // 숨김 메뉴 활성화
-            if (responsePostDetail.isPurchasable){
+            if (responsePostDetail.isPurchasable) {
                 popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_deactivate)
                 popupBind.tvPopupDeactivation.text = "비활성화"
-            }else{
+            } else {
                 popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_activate)
                 popupBind.tvPopupDeactivation.text = "활성화"
             }
-            Log.d(TAG,"해당 제보의 숨김 상태 : ${responsePostDetail.isHidden}")
-            if(!responsePostDetail.isHidden) { // 숨기기 off 상태면
+            Log.d(TAG, "해당 제보의 숨김 상태 : ${responsePostDetail.isHidden}")
+            if (!responsePostDetail.isHidden) { // 숨기기 off 상태면
                 popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_hide)
                 popupBind.tvPopupHide.text = "숨기기"
             } else {
                 popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_unhide)
                 popupBind.tvPopupHide.text = "보이기"
             }
-        }else{ // 다른 사람의 게시물이라면
+        } else { // 다른 사람의 게시물이라면
 
             // 내가 구매를 한 상태이면 무조건 다운로드 버튼으로 표시 (내가 구매를 한게 아니라, 판매 완료된 게시물들 말하는 듯)
-            if(responsePostDetail.isPurchased){
+            if (responsePostDetail.isPurchased) {
                 binding.btnPurchase.text = "다운로드"
-            }else{
+            } else {
                 // 구매를 하지 않았고, !isPurchasable(판매중지) 상태라면 판매 중지로
-                if(!responsePostDetail.isPurchasable){
+                if (!responsePostDetail.isPurchasable) {
                     binding.btnPurchase.text = "판매 중지"
                     binding.btnPurchase.setTextColor(Color.WHITE)
-                    binding.btnPurchase.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.breaking_gray))
-                }else if(responsePostDetail.postType == "EXCLUSIVE" && responsePostDetail.isSold){ // 판매완료면
+                    binding.btnPurchase.backgroundTintList =
+                        ColorStateList.valueOf(ContextCompat.getColor(this, R.color.breaking_gray))
+                } else if (responsePostDetail.postType == "EXCLUSIVE" && responsePostDetail.isSold) { // 판매완료면
                     binding.btnPurchase.text = "판매 완료"
                     binding.btnPurchase.setTextColor(Color.WHITE)
-                    binding.btnPurchase.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.breaking_gray))
-                }else{
+                    binding.btnPurchase.backgroundTintList =
+                        ColorStateList.valueOf(ContextCompat.getColor(this, R.color.breaking_gray))
+                } else {
                     binding.btnPurchase.text = "구매하기"
                 }
             }
@@ -529,7 +601,7 @@ class PostDetailActivity : AppCompatActivity() {
             popupBind.layoutHorizHide.visibility = View.GONE
         }
 
-        if(!responsePostDetail.isBookmarked) // 북마크 off 상태면
+        if (!responsePostDetail.isBookmarked) // 북마크 off 상태면
             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
         else
             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
@@ -546,45 +618,63 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 북마크 메뉴 클릭 시
         popupBind.layoutHorizBookmark.setOnClickListener {
-            if(!responsePostDetail.isBookmarked){ // 북마크 요청
+            if (!responsePostDetail.isBookmarked) { // 북마크 요청
                 processBookmarkPost(
                     ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
-                    getPostId.toLong(),{
-                        if (it){
-                            Log.d(TAG,"북마크 설정 완료")
+                    getPostId.toLong(), {
+                        if (it) {
+                            Log.d(TAG, "북마크 설정 완료")
                             responsePostDetail.isBookmarked = true
                             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
                         }
-                    },{
-                        if (it.message == "BSE456"){ // 이미 비활성화가 되었다면 새로고침
+                    }, {
+                        if (it.message == "BSE456") { // 이미 비활성화가 되었다면 새로고침
                             responsePostDetail.isBookmarked = true
                             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_theme_24)
                             refreshPostData(
                                 ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
                                 getPostId.toLong(),
-                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
-                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "댓글을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                ),
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "좋아요 목록을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                )
+                            )
                         }
                     }
                 )
-            }else{ // 북마크 해제 요청
+            } else { // 북마크 해제 요청
                 processUnBookmarkPost(
                     ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
-                    getPostId.toLong(),{
-                        if (it){
-                            Log.d(TAG,"북마크 해제 완료")
+                    getPostId.toLong(), {
+                        if (it) {
+                            Log.d(TAG, "북마크 해제 완료")
                             responsePostDetail.isBookmarked = false
                             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
                         }
-                    },{
-                        if (it.message == "BSE457"){ // 이미 북마크가 해제 되었다면 새로고침
+                    }, {
+                        if (it.message == "BSE457") { // 이미 북마크가 해제 되었다면 새로고침
                             responsePostDetail.isBookmarked = false
                             popupBind.imgvPopupBookmark.setBackgroundResource(R.drawable.ic_baseline_bookmark_border_theme_24)
                             refreshPostData(
                                 ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
                                 getPostId.toLong(),
-                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
-                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "댓글을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                ),
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "좋아요 목록을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                )
+                            )
                         }
                     }
                 )
@@ -593,19 +683,19 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 게시물 숨기기 클릭 시
         popupBind.layoutHorizHide.setOnClickListener {
-            if(!responsePostDetail.isHidden){ // 숨기기 요청
+            if (!responsePostDetail.isHidden) { // 숨기기 요청
                 processHidePost(
                     ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
-                    getPostId.toLong(),{
-                        if (it){
-                            Log.d(TAG,"숨기기 설정 완료")
+                    getPostId.toLong(), {
+                        if (it) {
+                            Log.d(TAG, "숨기기 설정 완료")
                             binding.tvChipHidden.visibility = View.VISIBLE
                             responsePostDetail.isHidden = true
                             popupBind.tvPopupHide.text = "보이기"
                             popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_unhide)
                         }
-                    },{
-                        if (it.message == "BSE441"){ // 이미 숨기기가 되었다면 새로고침
+                    }, {
+                        if (it.message == "BSE441") { // 이미 숨기기가 되었다면 새로고침
                             binding.tvChipHidden.visibility = View.VISIBLE
                             responsePostDetail.isHidden = true
                             popupBind.tvPopupHide.text = "보이기"
@@ -613,24 +703,33 @@ class PostDetailActivity : AppCompatActivity() {
                             refreshPostData(
                                 ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
                                 getPostId.toLong(),
-                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
-                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "댓글을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                ),
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "좋아요 목록을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                )
+                            )
                         }
                     }
                 )
-            }else{ // 숨기기 해제 요청
+            } else { // 숨기기 해제 요청
                 processUnHidePost(
                     ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
-                    getPostId.toLong(),{
-                        if (it){
-                            Log.d(TAG,"숨기기 해제 완료")
+                    getPostId.toLong(), {
+                        if (it) {
+                            Log.d(TAG, "숨기기 해제 완료")
                             binding.tvChipHidden.visibility = View.GONE
                             responsePostDetail.isHidden = false
                             popupBind.tvPopupHide.text = "숨기기"
                             popupBind.imgvPopupHide.setBackgroundResource(R.drawable.ic_post_hide)
                         }
-                    },{
-                        if (it.message == "BSE442"){ // 이미 숨기기가 해제 되었다면 새로고침
+                    }, {
+                        if (it.message == "BSE442") { // 이미 숨기기가 해제 되었다면 새로고침
                             binding.tvChipHidden.visibility = View.GONE
                             responsePostDetail.isHidden = false
                             popupBind.tvPopupHide.text = "숨기기"
@@ -638,8 +737,17 @@ class PostDetailActivity : AppCompatActivity() {
                             refreshPostData(
                                 ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
                                 getPostId.toLong(),
-                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
-                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "댓글을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                ),
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "좋아요 목록을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                )
+                            )
                         }
                     }
                 )
@@ -656,7 +764,7 @@ class PostDetailActivity : AppCompatActivity() {
             popupWindow.dismiss()
             var intent = Intent(applicationContext, EditPostActivity::class.java)
             intent.putExtra("postInfo", responsePostDetail) // 수정 전 게시글 정보 전달
-            intent.putExtra("postId",getPostId) // 수정할 게시글 id
+            intent.putExtra("postId", getPostId) // 수정할 게시글 id
             editPostActivityResult.launch(intent)
         }
 
@@ -671,19 +779,19 @@ class PostDetailActivity : AppCompatActivity() {
                     // 게시글 삭제 요청 함수 시작
                     processDeletePost(
                         ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
-                        getPostId.toLong(),{
+                        getPostId.toLong(), {
                             // 게시글 삭제 요청 다이얼 로그 시작
                             progressDialog = DialogUtil().ProgressDialog(this)
                             progressDialog.showDialog()
-                        },{
+                        }, {
                             if (progressDialog.isShowing()) // 로딩 다이얼로그 종료
                                 progressDialog.dismissDialog()
-                            if (it){
-                                intent.putExtra("isDeletePost",true)
+                            if (it) {
+                                intent.putExtra("isDeletePost", true)
                                 setResult(RESULT_OK, intent)
                                 finish() // 게시글 세부 조회 페이지 종료, 메인 피드로 화면 돌아감.
                             }
-                        },{
+                        }, {
                             it.printStackTrace()
                             requestErrorDialog.show()
                         }
@@ -694,52 +802,70 @@ class PostDetailActivity : AppCompatActivity() {
 
         // 비활성화&활성화 메뉴 클릭 시
         popupBind.layoutHorizDeactivation.setOnClickListener {
-            if(responsePostDetail.isPurchasable){ // 비활성화 요청
+            if (responsePostDetail.isPurchasable) { // 비활성화 요청
                 processDeactivatePost(
                     ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
-                    getPostId.toLong(),{
-                        if (it){
+                    getPostId.toLong(), {
+                        if (it) {
                             responsePostDetail.isPurchasable = false
                             popupBind.tvPopupDeactivation.text = "활성화"
                             popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_activate)
                             binding.tvChipSoldStop.visibility = View.VISIBLE
                             binding.tvChipUnsold.visibility = View.GONE
                         }
-                    },{
-                        if (it.message == "BSE453"){ // 이미 비활성화가 되었다면 새로고침
+                    }, {
+                        if (it.message == "BSE453") { // 이미 비활성화가 되었다면 새로고침
                             responsePostDetail.isPurchasable = false
                             popupBind.tvPopupDeactivation.text = "활성화"
                             popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_activate)
                             refreshPostData(
                                 ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
                                 getPostId.toLong(),
-                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
-                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "댓글을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                ),
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "좋아요 목록을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                )
+                            )
                         }
                     }
                 )
-            }else{ // 활성화 요청
+            } else { // 활성화 요청
                 processActivatePost(
                     ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
-                    getPostId.toLong(),{
-                        if (it){
-                            Log.d(TAG,"활성화 완료")
+                    getPostId.toLong(), {
+                        if (it) {
+                            Log.d(TAG, "활성화 완료")
                             responsePostDetail.isPurchasable = true
                             popupBind.tvPopupDeactivation.text = "비활성화"
                             popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_deactivate)
                             binding.tvChipSoldStop.visibility = View.GONE
                             binding.tvChipUnsold.visibility = View.VISIBLE
                         }
-                    },{
-                        if (it.message == "BSE454"){ // 이미 활성화가 되었다면 새로고침
+                    }, {
+                        if (it.message == "BSE454") { // 이미 활성화가 되었다면 새로고침
                             responsePostDetail.isPurchasable = true
                             popupBind.tvPopupDeactivation.text = "비활성화"
                             popupBind.imgvPopupDeactivation.setBackgroundResource(R.drawable.ic_post_deactivate)
                             refreshPostData(
                                 ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(applicationContext).getAccessTokenFromLocal(),
                                 getPostId.toLong(),
-                                DialogUtil().SingleDialog(applicationContext, "댓글을 가져오는데 문제가 발생하였습니다.", "확인"),
-                                DialogUtil().SingleDialog(applicationContext, "좋아요 목록을 가져오는데 문제가 발생하였습니다.", "확인"))
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "댓글을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                ),
+                                DialogUtil().SingleDialog(
+                                    applicationContext,
+                                    "좋아요 목록을 가져오는데 문제가 발생하였습니다.",
+                                    "확인"
+                                )
+                            )
                         }
                     }
                 )
@@ -754,15 +880,20 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-08-24
      */
-    private fun setupIndicators(count: Int){
+    private fun setupIndicators(count: Int) {
         binding.layoutIndicators.removeAllViews() // 중복 방지를 위해 뷰 비우기
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        params.setMargins(16,8,16,8)
-        for(i in 0 until count){
+        params.setMargins(16, 8, 16, 8)
+        for (i in 0 until count) {
             var indicators = ImageView(this)
-            indicators.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.bg_indicator_inactive))
+            indicators.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.bg_indicator_inactive
+                )
+            )
             indicators.layoutParams = params
             binding.layoutIndicators.addView(indicators)
         }
@@ -776,20 +907,24 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-08-24
      */
-    private fun setCurrentIndicator(position: Int){
+    private fun setCurrentIndicator(position: Int) {
         val childCount = binding.layoutIndicators.childCount
-        for(i in 0 until childCount){
+        for (i in 0 until childCount) {
             val imageView = binding.layoutIndicators.getChildAt(i) as ImageView
-            if(i == position){
-                imageView.setImageDrawable(ContextCompat.getDrawable(
-                    this,
-                    R.drawable.bg_indicator_active
-                ))
-            }else{
-                imageView.setImageDrawable(ContextCompat.getDrawable(
-                    this,
-                    R.drawable.bg_indicator_inactive
-                ))
+            if (i == position) {
+                imageView.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        this,
+                        R.drawable.bg_indicator_active
+                    )
+                )
+            } else {
+                imageView.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        this,
+                        R.drawable.bg_indicator_inactive
+                    )
+                )
             }
         }
     }
@@ -815,8 +950,10 @@ class PostDetailActivity : AppCompatActivity() {
                     token,
                     postId
                 )
-                Log.d(TAG, "요청 성공 시 받아온 게시물 제목 : ${responsePostDetail.title}\n" +
-                        "isMyPost값 : ${responsePostDetail.isMyPost}")
+                Log.d(
+                    TAG, "요청 성공 시 받아온 게시물 제목 : ${responsePostDetail.title}\n" +
+                            "isMyPost값 : ${responsePostDetail.isMyPost}"
+                )
                 last(responsePostDetail) // 후처리 함수 호출
             } catch (e: ResponseErrorException) {
                 e.printStackTrace()
@@ -846,7 +983,7 @@ class PostDetailActivity : AppCompatActivity() {
         hashTagList: ArrayList<String>?,
         init: () -> Unit,
         last: (Boolean) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -859,13 +996,23 @@ class PostDetailActivity : AppCompatActivity() {
                 )
                 if (response) last(response)
                 Log.d(TAG, "댓글 등록 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 e.printStackTrace()
                 DialogUtil().SingleDialog(
                     applicationContext,
                     "댓글 작성 요청에 문제가 발생하였습니다.",
                     "확인"
                 )
+            } catch (e: UnLoginAccessException) {
+                DialogUtil().MultipleDialog(
+                    this@PostDetailActivity,
+                    "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                    "취소",
+                    "이동",
+                    {},
+                    {
+                        startActivity(Intent(this@PostDetailActivity, SignInActivity::class.java))
+                    }).show()
             }
         }
     }
@@ -887,7 +1034,7 @@ class PostDetailActivity : AppCompatActivity() {
         hashTagList: ArrayList<String>?,
         init: () -> Unit,
         last: (Boolean) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -900,13 +1047,23 @@ class PostDetailActivity : AppCompatActivity() {
                 )
                 if (response) last(response)
                 Log.d(TAG, "대댓글 등록 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 e.printStackTrace()
                 DialogUtil().SingleDialog(
                     applicationContext,
                     "대댓글 작성 요청에 문제가 발생하였습니다.",
                     "확인"
                 )
+            } catch (e: UnLoginAccessException) {
+                DialogUtil().MultipleDialog(
+                    this@PostDetailActivity,
+                    "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                    "취소",
+                    "이동",
+                    {},
+                    {
+                        startActivity(Intent(this@PostDetailActivity, SignInActivity::class.java))
+                    }).show()
             }
         }
     }
@@ -922,12 +1079,12 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processGetCommentList(
         token: String,
-        postId : Long,
-        lastCommentId : Int,
+        postId: Long,
+        lastCommentId: Int,
         init: () -> Unit,
         last: (List<ResponseComment>) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -940,7 +1097,7 @@ class PostDetailActivity : AppCompatActivity() {
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
                 Log.d(TAG, "댓글 리스트 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -956,11 +1113,11 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processDeletePost(
         token: String,
-        postId : Long,
+        postId: Long,
         init: () -> Unit,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -970,7 +1127,7 @@ class PostDetailActivity : AppCompatActivity() {
                     postId,
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -981,15 +1138,15 @@ class PostDetailActivity : AppCompatActivity() {
      * @param - token(String) : JWT 토큰
      * @param - postId(Long) : 좋아요 할 게시물 id
      * @return - None
-     * @author - Tae hyun Park
-     * @since - 2022-09-06
+     * @author - Tae hyun Park | Seunggun Sin
+     * @since - 2022-09-06 | 2022-09-14
      */
     private fun processPostLike(
         token: String,
         postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -999,8 +1156,18 @@ class PostDetailActivity : AppCompatActivity() {
                 )
                 if (response) last(response)
                 Log.d(TAG, "좋아요 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
+            } catch (e: UnLoginAccessException) {
+                DialogUtil().MultipleDialog(
+                    this@PostDetailActivity,
+                    "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                    "취소",
+                    "이동",
+                    {},
+                    {
+                        startActivity(Intent(this@PostDetailActivity, SignInActivity::class.java))
+                    }).show()
             }
         }
     }
@@ -1010,15 +1177,15 @@ class PostDetailActivity : AppCompatActivity() {
      * @param - token(String) : JWT 토큰
      * @param - postId(Long) : 좋아요 할 게시물 id
      * @return - None
-     * @author - Tae hyun Park
-     * @since - 2022-09-06
+     * @author - Tae hyun Park | Seunggun Sin
+     * @since - 2022-09-06 | 2022-09-14
      */
     private fun processCancelPostLike(
         token: String,
         postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -1028,8 +1195,18 @@ class PostDetailActivity : AppCompatActivity() {
                 )
                 if (response) last(response)
                 Log.d(TAG, "좋아요 취소 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
+            } catch (e: UnLoginAccessException) {
+                DialogUtil().MultipleDialog(
+                    this@PostDetailActivity,
+                    "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                    "취소",
+                    "이동",
+                    {},
+                    {
+                        startActivity(Intent(this@PostDetailActivity, SignInActivity::class.java))
+                    }).show()
             }
         }
     }
@@ -1045,12 +1222,12 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processGetPostLikeList(
         token: String,
-        postId : Long,
-        lastUserId : Int,
+        postId: Long,
+        lastUserId: Int,
         init: () -> Unit,
         last: (List<FollowData>) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -1063,7 +1240,7 @@ class PostDetailActivity : AppCompatActivity() {
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
                 Log.d(TAG, "좋아요 리스트 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -1074,16 +1251,16 @@ class PostDetailActivity : AppCompatActivity() {
      * @param - token(String) : JWT 토큰
      * @param - postId(Long) : 구매를 요청할 게시물 id
      * @return - None
-     * @author - Tae hyun Park
-     * @since - 2022-09-07
+     * @author - Tae hyun Park | Seunggun Sin
+     * @since - 2022-09-07 | 2022-09-14
      */
     private fun processPurchasePost(
         token: String,
-        postId : Long,
+        postId: Long,
         init: () -> Unit,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -1093,8 +1270,20 @@ class PostDetailActivity : AppCompatActivity() {
                     postId,
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
+            } catch (e: UnLoginAccessException) {
+                DialogUtil().MultipleDialog(
+                    this@PostDetailActivity,
+                    "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                    "취소",
+                    "이동",
+                    {},
+                    {
+                        startActivity(Intent(this@PostDetailActivity, SignInActivity::class.java))
+                    }).show()
+                if (progressDialog.isShowing()) // 로딩 다이얼로그 종료
+                    progressDialog.dismissDialog()
             }
         }
     }
@@ -1109,10 +1298,10 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processDeactivatePost(
         token: String,
-        postId : Long,
+        postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -1121,7 +1310,7 @@ class PostDetailActivity : AppCompatActivity() {
                     postId,
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -1137,10 +1326,10 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processActivatePost(
         token: String,
-        postId : Long,
+        postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -1149,7 +1338,7 @@ class PostDetailActivity : AppCompatActivity() {
                     postId,
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -1160,15 +1349,15 @@ class PostDetailActivity : AppCompatActivity() {
      * @param - token(String) : JWT 토큰
      * @param - postId(Long) : 북마크를 요청할 게시물 id
      * @return - None
-     * @author - Tae hyun Park
-     * @since - 2022-09-08
+     * @author - Tae hyun Park | Seunggun Sin
+     * @since - 2022-09-08 | 2022-09-14
      */
     private fun processBookmarkPost(
         token: String,
-        postId : Long,
+        postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -1177,8 +1366,18 @@ class PostDetailActivity : AppCompatActivity() {
                     token
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
+            } catch (e: UnLoginAccessException) {
+                DialogUtil().MultipleDialog(
+                    this@PostDetailActivity,
+                    "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                    "취소",
+                    "이동",
+                    {},
+                    {
+                        startActivity(Intent(this@PostDetailActivity, SignInActivity::class.java))
+                    }).show()
             }
         }
     }
@@ -1188,15 +1387,15 @@ class PostDetailActivity : AppCompatActivity() {
      * @param - token(String) : JWT 토큰
      * @param - postId(Long) : 북마크 해제를 요청할 게시물 id
      * @return - None
-     * @author - Tae hyun Park
-     * @since - 2022-09-08
+     * @author - Tae hyun Park | Seunggun Sin
+     * @since - 2022-09-08 | 2022-09-14
      */
     private fun processUnBookmarkPost(
         token: String,
-        postId : Long,
+        postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -1205,8 +1404,18 @@ class PostDetailActivity : AppCompatActivity() {
                     token
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
+            } catch (e: UnLoginAccessException) {
+                DialogUtil().MultipleDialog(
+                    this@PostDetailActivity,
+                    "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                    "취소",
+                    "이동",
+                    {},
+                    {
+                        startActivity(Intent(this@PostDetailActivity, SignInActivity::class.java))
+                    }).show()
             }
         }
     }
@@ -1221,10 +1430,10 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processHidePost(
         token: String,
-        postId : Long,
+        postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -1233,7 +1442,7 @@ class PostDetailActivity : AppCompatActivity() {
                     postId,
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -1249,10 +1458,10 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processUnHidePost(
         token: String,
-        postId : Long,
+        postId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -1261,7 +1470,7 @@ class PostDetailActivity : AppCompatActivity() {
                     postId,
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -1275,7 +1484,7 @@ class PostDetailActivity : AppCompatActivity() {
      * @since - 2022-08-18 | 2022-08-25
      */
     @SuppressLint("ResourceAsColor")
-    private fun settingPostDetailView(responsePostDetail: ResponsePostDetail){
+    private fun settingPostDetailView(responsePostDetail: ResponsePostDetail) {
         userId = responsePostDetail.user?.userId!!.toInt() // 유저 id저장
         isPurchased = responsePostDetail.isPurchased // 뷰 갱신마다 내가 구매했는지 여부 가져옴
         isPurchasable = responsePostDetail.isPurchasable // 뷰 갱신마다 내가 구매할 수 있는 지의 여부를 가져옴
@@ -1298,8 +1507,8 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-08-25
      */
-    private fun setViewNickNameProfile(responsePostDetail: ResponsePostDetail){
-        if (responsePostDetail.isAnonymous){ // 익명이면 기본 default 프로필 이미지와 닉네임을 익명으로 표시
+    private fun setViewNickNameProfile(responsePostDetail: ResponsePostDetail) {
+        if (responsePostDetail.isAnonymous) { // 익명이면 기본 default 프로필 이미지와 닉네임을 익명으로 표시
             // 게시글 작성자의 프로필 이미지
             Glide.with(applicationContext)
                 .load(R.drawable.ic_default_profile_image)
@@ -1309,7 +1518,7 @@ class PostDetailActivity : AppCompatActivity() {
                 .into(binding.ivProfileWriter)
             // 유저 닉네임
             binding.tvUserNickName.text = "익명"
-        }else{ // 익명이 아니면 게시글 작성자의 프로필 이미지로 보여주기
+        } else { // 익명이 아니면 게시글 작성자의 프로필 이미지로 보여주기
             // 게시글 작성자의 프로필 이미지
             Glide.with(applicationContext)
                 .load(ValueUtil.IMAGE_BASE_URL + responsePostDetail.user?.profileImgUrl)
@@ -1323,6 +1532,8 @@ class PostDetailActivity : AppCompatActivity() {
         // 댓글 프로필은 현재 로그인한 내 프로필을 보여줌
         Glide.with(applicationContext)
             .load(ValueUtil.IMAGE_BASE_URL + ResponseExistLogin.baseUserInfo?.profileImgUrl)
+            .placeholder(R.drawable.ic_default_profile_image)
+            .error(R.drawable.ic_default_profile_image)
             .circleCrop()
             .into(binding.ivCommentWriterProfile)
     }
@@ -1334,28 +1545,28 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-08-25
      */
-    private fun setViewPostTypeSold(responsePostDetail: ResponsePostDetail){
+    private fun setViewPostTypeSold(responsePostDetail: ResponsePostDetail) {
         // 게시글 타입 (단독, 판매완료, 판매중)
-        if(responsePostDetail.postType != "EXCLUSIVE") // 단독 제보가 아니라면
+        if (responsePostDetail.postType != "EXCLUSIVE") // 단독 제보가 아니라면
             binding.tvChipExclusive.visibility = View.GONE // 단독 제보 비활성화
         else
             binding.tvChipExclusive.visibility = View.VISIBLE // 단독 제보 다시 활성화
 
-        if(responsePostDetail.isSold && responsePostDetail.postType == "EXCLUSIVE"){ // 단독 제보이고, 적어도 하나가 팔렸다면 판매 완료로 간주
+        if (responsePostDetail.isSold && responsePostDetail.postType == "EXCLUSIVE") { // 단독 제보이고, 적어도 하나가 팔렸다면 판매 완료로 간주
             binding.tvChipExclusive.visibility = View.VISIBLE // 단독 제보 활성화
             binding.tvChipSold.visibility = View.VISIBLE // 판매 완료 다시 활성화
             binding.tvChipUnsold.visibility = View.GONE // 판매 중 비활성화
-        }else{
+        } else {
             binding.tvChipSold.visibility = View.GONE // 판매 완료 다시 비활성화
-            if (!responsePostDetail.isPurchasable){ // 판매 중지라면
+            if (!responsePostDetail.isPurchasable) { // 판매 중지라면
                 binding.tvChipSoldStop.visibility = View.VISIBLE // 판매 중지 활성화
                 binding.tvChipUnsold.visibility = View.GONE // 판매 중 비활성화
-            }else{ // 판매 중
+            } else { // 판매 중
                 binding.tvChipSoldStop.visibility = View.GONE // 판매 중지 비활성화
                 binding.tvChipUnsold.visibility = View.VISIBLE // 판매 중 다시 활성화
             }
         }
-        if(responsePostDetail.isHidden) // 숨김 처리된 게시물이면 숨김 태그 표시
+        if (responsePostDetail.isHidden) // 숨김 처리된 게시물이면 숨김 태그 표시
             binding.tvChipHidden.visibility = View.VISIBLE
         else
             binding.tvChipHidden.visibility = View.GONE
@@ -1368,7 +1579,7 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-08-25
      */
-    private fun setViewPostContents(responsePostDetail: ResponsePostDetail){
+    private fun setViewPostContents(responsePostDetail: ResponsePostDetail) {
         // 게시글 제보 위치
         binding.tvPostLocation.text = responsePostDetail.location.region_2depth_name
         // 게시글 제목
@@ -1376,9 +1587,9 @@ class PostDetailActivity : AppCompatActivity() {
         // 게시글 작성 내용
         binding.tvPostContent.text = responsePostDetail.content
         // 게시글 가격
-        if(responsePostDetail.price.toInt() == 0){ // 0원이면 무료라고 표시
+        if (responsePostDetail.price.toInt() == 0) { // 0원이면 무료라고 표시
             binding.tvPostPrice.text = "무료"
-        }else{ // 무료가 아니면 포맷 맞춰서 표시
+        } else { // 무료가 아니면 포맷 맞춰서 표시
             val dec = DecimalFormat("#,###")
             binding.tvPostPrice.text = dec.format(responsePostDetail.price) + "원"
         }
@@ -1386,27 +1597,30 @@ class PostDetailActivity : AppCompatActivity() {
         var postTimeList = responsePostDetail.eventDate.split("T").toTypedArray()
         var postFirstList = postTimeList[0].split("-").toTypedArray()
         var postSecondList = postTimeList[1].split(":").toTypedArray()
-        binding.tvPostEventTime.text = "발생시간 ${postFirstList[0]}.${postFirstList[1]}.${postFirstList[2]}. ${postSecondList[0]}:${postSecondList[1]}"
+        binding.tvPostEventTime.text =
+            "발생시간 ${postFirstList[0]}.${postFirstList[1]}.${postFirstList[2]}. ${postSecondList[0]}:${postSecondList[1]}"
 
         // 게시글 작성 시간
         postTimeList = responsePostDetail.createdDate.split("T").toTypedArray()
         postFirstList = postTimeList[0].split("-").toTypedArray()
         postSecondList = postTimeList[1].split(":").toTypedArray()
-        binding.tvPostCreateTime.text = "작성시간 ${postFirstList[0]}.${postFirstList[1]}.${postFirstList[2]}. ${postSecondList[0]}:${postSecondList[1]}"
+        binding.tvPostCreateTime.text =
+            "작성시간 ${postFirstList[0]}.${postFirstList[1]}.${postFirstList[2]}. ${postSecondList[0]}:${postSecondList[1]}"
 
         // 누적 판매량
         binding.tvPostSoldCount.text = "누적 판매 ${responsePostDetail.soldCount}"
         // 좋아요 수
         if (responsePostDetail.isLiked) // 내가 좋아요를 했다면
-            binding.ibPostLike.background = ContextCompat.getDrawable(this,R.drawable.ic_post_like_after)
+            binding.ibPostLike.background =
+                ContextCompat.getDrawable(this, R.drawable.ic_post_like_after)
         else
-            binding.ibPostLike.background = ContextCompat.getDrawable(this,R.drawable.ic_post_like)
+            binding.ibPostLike.background = ContextCompat.getDrawable(this, R.drawable.ic_post_like)
 
         // 1개면 누가 좋아하는지 표시,  2개 이상이면 ~님 외 1명으로 텍스트 표시
         if (likeList.size == 1)
             binding.tvPostLikeCount.text = "${likeList[0]?.nickname}님이 좋아합니다."
-        else if(likeList.size > 1)
-            binding.tvPostLikeCount.text = "${likeList[0]?.nickname}님 외 ${likeList.size-1}명"
+        else if (likeList.size > 1)
+            binding.tvPostLikeCount.text = "${likeList[0]?.nickname}님 외 ${likeList.size - 1}명"
         else
             binding.tvPostLikeCount.text = "좋아요를 눌러보세요."
 
@@ -1423,17 +1637,22 @@ class PostDetailActivity : AppCompatActivity() {
      * @since - 2022-08-25
      * @return - None
      */
-    private fun setViewHashTag(responsePostDetail: ResponsePostDetail){
+    private fun setViewHashTag(responsePostDetail: ResponsePostDetail) {
         // 해시 태그 리스트 색상 표시
         Log.d(TAG, "해당 게시물의 해시 태그 리스트 : ${responsePostDetail.hashtagList}")
         Log.d(TAG, "해당 게시물의 전체 컨텐츠 : ${responsePostDetail.content}")
-        var spannableString = SpannableString(responsePostDetail.content) // 텍스트 뷰의 특정 문자열 처리를 위한 spannableString 객체 생성
+        var spannableString =
+            SpannableString(responsePostDetail.content) // 텍스트 뷰의 특정 문자열 처리를 위한 spannableString 객체 생성
         var startList = ArrayList<Int>()
-        for(hashString in responsePostDetail.hashtagList){
-            var start = responsePostDetail.content.indexOf("#$hashString") // 전체 문자열에서 해당 해시태그 문자열과 일치하는 첫 인덱스를 찾아낸다
-            for(listIndex in startList){
-                if(start == listIndex)// 중복된 태그가 이미 있다면
-                    start = responsePostDetail.content.indexOf("#$hashString",start+1) // 중복이므로 그 다음 인덱스부터 다시 찾는다
+        for (hashString in responsePostDetail.hashtagList) {
+            var start =
+                responsePostDetail.content.indexOf("#$hashString") // 전체 문자열에서 해당 해시태그 문자열과 일치하는 첫 인덱스를 찾아낸다
+            for (listIndex in startList) {
+                if (start == listIndex)// 중복된 태그가 이미 있다면
+                    start = responsePostDetail.content.indexOf(
+                        "#$hashString",
+                        start + 1
+                    ) // 중복이므로 그 다음 인덱스부터 다시 찾는다
             }
             startList.add(start) // 인덱스들을 저장
             var end = start + hashString.length // 해당 해시태그 문자열의 끝 인덱스
@@ -1441,7 +1660,8 @@ class PostDetailActivity : AppCompatActivity() {
                 ForegroundColorSpan(Color.parseColor("#014D91")),
                 start,
                 end + 1,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) // spannable 속성 지정
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            ) // spannable 속성 지정
         }
         startList.clear()
         binding.tvPostContent.text = spannableString
@@ -1454,11 +1674,11 @@ class PostDetailActivity : AppCompatActivity() {
      * @author - Tae hyun Park
      * @since - 2022-08-25 | 2022-09-09
      */
-    private fun setViewMediaList(responsePostDetail: ResponsePostDetail){
+    private fun setViewMediaList(responsePostDetail: ResponsePostDetail) {
         // 받아온 mediaList 처리
-        if(responsePostDetail.mediaList.size == 0){ // 게시물의 이미지가 없다면
+        if (responsePostDetail.mediaList.size == 0) { // 게시물의 이미지가 없다면
             binding.ivPostDetailDefault.visibility = View.VISIBLE // default 이미지 보여주기
-        }else{ // 게시물의 이미지/영상이 하나 이상 있다면
+        } else { // 게시물의 이미지/영상이 하나 이상 있다면
             binding.ivPostDetailDefault.visibility = View.GONE // default 이미지 없애기
             mediaList = responsePostDetail.mediaList // 미디어 가져오기
             adapterViewpager.addItems(mediaList) // 어댑터에 미디어 리스트 추가
@@ -1485,7 +1705,7 @@ class PostDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> { // 툴 바의 뒤로가기 키가 눌렸을 때 동작
-                intent.putExtra("isRefreshFeed",true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
+                intent.putExtra("isRefreshFeed", true) // 세부 조회 페이지로 이동, true 는 메인 피드를 재갱신하라는 의미
                 setResult(RESULT_OK, intent)
                 finish() // 다시 세부 조회 페이지로 이동
                 true
