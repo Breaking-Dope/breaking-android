@@ -55,6 +55,12 @@ class FeedSearchActivity : AppCompatActivity() {
         binding = ActivityFeedSearchBinding.inflate(layoutInflater)
 
         feedAdapter = FeedAdapter(this, feedList) // 피드 어댑터
+        // 피드 아이템 클릭 이벤트
+        feedAdapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
+            override fun onClick(v: View, position: Int) {
+                moveToPostDetailPage(position) // 세부 조회 페이지로 이동
+            }
+        })
         userAdapter = UserSearchAdapter(this, userList) // 유저 검색 어댑터
 
         // 리사이클러뷰 divider 지정
@@ -615,8 +621,8 @@ class FeedSearchActivity : AppCompatActivity() {
     /**
      * 어댑터에서 아이템 리스트를 클릭했을 때, 해당 postId를 받아와 세부 조회 액티비티로 넘겨주는 함수
      * @param position(Int): 현재 리스트의 인덱스
-     * @author Tae hyun Park | Seunggun Sin
-     * @since 2022-08-18 | 2022-08-25
+     * @author Seunggun Sin
+     * @since 2022-09-12
      */
     private fun moveToPostDetailPage(position: Int) {
         val intent = Intent(this, PostDetailActivity::class.java)

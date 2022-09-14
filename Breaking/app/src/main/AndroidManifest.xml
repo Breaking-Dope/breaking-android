@@ -15,8 +15,6 @@
     <application
         android:name=".GlobalApplication"
         android:allowBackup="false"
-        android:hardwareAccelerated="false"
-        android:largeHeap="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:requestLegacyExternalStorage="true"
         android:fullBackupContent="false"
@@ -36,7 +34,9 @@
             android:exported="false" />
         <activity
             android:name=".EditPostActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"
+            />
         <activity
             android:name=".FinanceActivity"
             android:exported="false"
@@ -115,7 +115,9 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".SignUpActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"
+            />
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"
