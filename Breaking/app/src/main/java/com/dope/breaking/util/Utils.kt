@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -17,7 +18,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dope.breaking.databinding.ActivitySignUpBinding
-import java.io.File
+import okhttp3.ResponseBody
+import java.io.*
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -26,6 +28,48 @@ import java.util.regex.Pattern
 
 
 object Utils { // 컴패니언 객체 (Static)
+
+    /**
+     * 받아온 미디어 바이트 스트림에 대해서 inputStream 과 outputStream 을 이용해 다운로드 폴더로 쓰기(Write) 진행하는 메소드
+     * @param body(ResponseBody) : 응답으로 받아온 미디어 byte 가 들어있는 body
+     * @return Boolean : 다운로드 성공 여부를 반환
+     * @author Tae hyun Park
+     * @since 2022-09-14
+     */
+    internal fun writeResponseBodyToDisk(body: ResponseBody?, postId: Long): Boolean {
+        return try {
+            val futureStudioIconFile =
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + File.separator + "download${postId}"+ ".zip")
+            var inputStream: InputStream? = null
+            var outputStream: OutputStream? = null
+            try {
+                val fileReader = ByteArray(4096)
+                val fileSize = body?.contentLength()
+                var fileSizeDownloaded: Long = 0
+                inputStream = body?.byteStream()
+                outputStream = FileOutputStream(futureStudioIconFile)
+                while (true) {
+                    val read: Int = inputStream!!.read(fileReader)
+                    if (read == -1) {
+                        break
+                    }
+                    outputStream.write(fileReader, 0, read)
+                    fileSizeDownloaded += read.toLong()
+                }
+                outputStream.flush()
+                true
+            } catch (e: IOException) {
+                false
+            } finally {
+                if (inputStream != null)
+                    inputStream.close();
+                if (outputStream != null)
+                    outputStream.close();
+            }
+        } catch (e: IOException) {
+            false
+        }
+    }
 
     /**
      * @description - 해시 태그가 포함된 문자열에서 태그 내용만 추출하여 ArrayList<String>으로 받아오는 함수(띄어쓰기를 해야 인식하므로 Deprecated.)

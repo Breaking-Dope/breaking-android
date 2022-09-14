@@ -6,6 +6,7 @@ import com.dope.breaking.model.response.*
 import com.google.gson.JsonElement
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.*
@@ -351,6 +352,19 @@ interface RetrofitService {
         @Header("authorization") token: String,
         @Path("commentId") commentId: Long,
     ): Response<Unit>
+
+    /**
+     * 제보 게시물의 미디어 다운로드를 요청하는 메소드
+     * @param - token(String) : jwt 토큰
+     * @Path - postId(Long) : 다운로드 요청할 제보 게시글 id
+     * @author - Tae hyun Park
+     */
+    @GET("post/{postId}/download/all-media")
+    suspend fun requestMediaDownload(
+        @Header("authorization") token: String,
+        @Path("postId") postId: Long,
+    ): Response<ResponseBody>
+
 
     /**
      * 구글 로그인 토큰 검증 요청 메소드

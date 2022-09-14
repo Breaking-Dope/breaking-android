@@ -1,7 +1,11 @@
 package com.dope.breaking.post
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.model.FollowData
@@ -11,6 +15,7 @@ import com.dope.breaking.model.request.RequestPostDataModify
 import com.dope.breaking.model.response.*
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
+import com.dope.breaking.util.Utils
 import com.dope.breaking.util.ValueUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.JsonObject
@@ -18,10 +23,10 @@ import com.google.gson.JsonParser
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Response
-import java.io.ByteArrayOutputStream
-import java.io.File
-import kotlin.Throws
+import okhttp3.ResponseBody
+import java.io.*
+import kotlin.coroutines.coroutineContext
+
 
 class PostManager {
     private val TAG = "PostManager.kt"
@@ -778,6 +783,39 @@ class PostManager {
         if (response.isSuccessful) {
             Log.d(TAG,"요청 성공")
             return response.code() in 200..299
+        } else {
+            Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
+            throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * 게시물 미디어 다운로드 요청을 보내기 위한 메소드
+     * @param token(String) : jwt token 값
+     * @param postId(Long) : 다운로드 하고자 하는 게시글 id
+     * @author Tae hyun Park
+     * @since 2022-09-13 | 2022-09-14
+     */
+    @Throws(ResponseErrorException::class)
+    suspend fun startMediaDownload(
+        token: String,
+        postId: Long,
+    ): Boolean {
+        // Retrofit 서비스 객체 생성
+        val service = RetrofitManager.retrofit.create(RetrofitService::class.java)
+
+        // 게시글 미디어 다운로드 요청
+        val response = service.requestMediaDownload(
+            token,
+            postId
+        )
+        // 요청이 성공적이라면
+        if (response.isSuccessful) {
+            Log.d(TAG,"미디어 다운로드 요청 성공")
+            val writtenToDisk: Boolean = Utils.writeResponseBodyToDisk(response.body(), postId)
+            if(writtenToDisk)
+                return true
+            return false
         } else {
             Log.d(TAG, "요청 실패 : ${response.errorBody()?.string()}")
             throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
