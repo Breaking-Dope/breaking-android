@@ -363,6 +363,11 @@ class FeedSearchActivity : AppCompatActivity() {
                         if (append) { // 덧붙이는 것이라면
                             feedAdapter.addItems(it) // 그대로 리스트에 추가
                         } else { // 새로 요청 받는 것이라면
+                            feedAdapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
+                                override fun onClick(v: View, position: Int) {
+                                    moveToPostDetailPage(position)
+                                }
+                            })
                             binding.rcvSearchList.adapter = feedAdapter // 어댑터 초기화
                             feedAdapter.replaceAll(it) // 아이템 대체
                             binding.progressSearch.visibility = View.GONE
@@ -403,6 +408,11 @@ class FeedSearchActivity : AppCompatActivity() {
                         if (append) { // 덧붙이는 것이라면
                             feedAdapter.addItems(it) // 리스트에 추가
                         } else { // 새로 요청하는 것이라면
+                            feedAdapter.setItemListClickListener(object : FeedAdapter.OnItemClickListener {
+                                override fun onClick(v: View, position: Int) {
+                                    moveToPostDetailPage(position)
+                                }
+                            })
                             binding.rcvSearchList.adapter = feedAdapter // 어댑터 초기화
                             feedAdapter.replaceAll(it) // 아이템 대체
                             binding.progressSearch.visibility = View.GONE

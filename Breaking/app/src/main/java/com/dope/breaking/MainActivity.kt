@@ -82,9 +82,6 @@ class MainActivity : AppCompatActivity() {
                     R.id.menu_breaking_home -> { // 브레이킹 메인 화면 버튼을 누르면
                         NaviHomeFragment()
                     }
-                    R.id.menu_breaking_chat -> { // 브레이킹 채팅 버튼을 누르면
-                        NaviChatFragment()
-                    }
                     else -> { // 그 외는 유저 버튼을 누른 것으로 간주
                         // 로그인이 안되어있을 경우
                         if (ResponseExistLogin.baseUserInfo == null) {
