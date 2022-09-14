@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-private const val DURATION: Long = 1500
+private const val DURATION: Long = 600
 
 class SplashActivity : AppCompatActivity() {
     private val TAG = "SplashActivity.kt"
@@ -51,18 +51,18 @@ class SplashActivity : AppCompatActivity() {
                                     // 유저 정보 요청
                                     moveToMainPage(userData) // 메인 페이지로 이동
                                 } catch (e: ResponseErrorException) {
-                                    moveToLoginPage() // 자동로그인 실패시, 로그인 페이지로 이동
+                                    moveToMainPageWithoutLogin() // 자동로그인 실패시, 로그인 페이지로 이동
                                 }
                             } else {
-                                moveToLoginPage() // 재발급 실패 시 로그인 페이지로 이동
+                                moveToMainPageWithoutLogin() // 재발급 실패 시 로그인 페이지로 이동
                             }
                         } else { // 나머지 에러의 경우
-                            moveToLoginPage() // 로그인 페이지로 이동
+                            moveToMainPageWithoutLogin() // 로그인 페이지로 이동
                         }
                     }
                 } else { // 로컬에 토큰이 저장되어 있지않다면
                     // 로그인 페이지로 이동
-                    moveToLoginPage()
+                    moveToMainPageWithoutLogin()
                 }
             }
         }, DURATION)
@@ -78,6 +78,20 @@ class SplashActivity : AppCompatActivity() {
         // 메인 페이지로 유저 데이터와 함께 이동
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.putExtra("userInfo", userData)
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        startActivity(intent)
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+    }
+
+    /**
+     * 메인 페이지로 이동하는 함수
+     * @author Seunggun Sin
+     * @since 2022-09-14
+     */
+    private fun moveToMainPageWithoutLogin() {
+        // 메인 페이지로 유저 데이터와 함께 이동
+        val intent = Intent(applicationContext, MainActivity::class.java)
         intent.flags =
             Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)

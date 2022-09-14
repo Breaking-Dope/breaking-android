@@ -120,7 +120,7 @@ class UserPageActivity : AppCompatActivity() {
      * @param isFollowing(Boolean): 팔로우했는지 안했는지 여부
      * @param userId(Long): 프로필 페이지 대상 Id
      * @author Seunggun Sin
-     * @since 2022-07-29 | 2022-07-31
+     * @since 2022-07-29 | 2022-09-14
      */
     private fun setFollowButton(isFollowing: Boolean, userId: Long) {
         val followButton = findViewById<Button>(R.id.btn_follow)
@@ -162,12 +162,20 @@ class UserPageActivity : AppCompatActivity() {
                         ).show()
                     }
                 } catch (e: ResponseErrorException) {
+                    progressDialog.dismissDialog()
                     DialogUtil().SingleDialog(this@UserPageActivity, "요청에 문제가 발생하였습니다.", "확인")
                         .show()
                 } catch (e: UnLoginAccessException) {
-                    DialogUtil().SingleDialog(this@UserPageActivity, "로그인이 필요합니다.", "로그인 하기") {
-                        // 로그인 페이지 이동
-                    }.show()
+                    progressDialog.dismissDialog()
+                    DialogUtil().MultipleDialog(
+                        this@UserPageActivity,
+                        "로그인이 필요합니다. 로그인 하러 가시겠습니까?",
+                        "취소",
+                        "이동",
+                        {},
+                        {
+                            startActivity(Intent(this@UserPageActivity, SignInActivity::class.java))
+                        }).show()
                 }
             }
         }

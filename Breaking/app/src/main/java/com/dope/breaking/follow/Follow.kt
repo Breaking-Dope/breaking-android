@@ -9,6 +9,8 @@ import com.dope.breaking.model.FollowData
 import com.dope.breaking.retrofit.RetrofitManager
 import com.dope.breaking.retrofit.RetrofitService
 import com.dope.breaking.util.ValueUtil
+import com.google.gson.JsonObject
+import org.json.JSONObject
 
 /**
  * 팔로우 관련 처리를 하는 클래스
@@ -86,7 +88,7 @@ class Follow {
      * @throws ResponseErrorException: 서버 에러 코드(5xx) 응답 시 예외 발생
      * @throws UnLoginAccessException: 비로그인 상태로 팔로우 시도 시 예외 발생(로그인 필수)
      * @author Seunggun Sin
-     * @since 2022-07-30 | 2022-07-31
+     * @since 2022-07-30 | 2022-09-14
      */
     @Throws(ResponseErrorException::class, UnLoginAccessException::class)
     suspend fun startFollowRequest(token: String, userId: Long): Boolean {
@@ -100,7 +102,13 @@ class Follow {
         if (response.isSuccessful) {
             return response.code() in 200..299
         } else {
-            throw ResponseErrorException("응답 에러 ${response.errorBody()?.string()}")
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
@@ -112,7 +120,7 @@ class Follow {
      * @throws ResponseErrorException: 서버 에러 코드(5xx) 응답 시 예외 발생
      * @throws UnLoginAccessException: 비로그인 상태로 팔로우 시도 시 예외 발생(로그인 필수)
      * @author Seunggun Sin
-     * @since 2022-07-30 | 2022-07-31
+     * @since 2022-07-30 | 2022-09-14
      */
     @Throws(ResponseErrorException::class, UnLoginAccessException::class)
     suspend fun startUnFollowRequest(token: String, userId: Long): Boolean {
@@ -126,7 +134,13 @@ class Follow {
         if (response.isSuccessful) {
             return response.code() in 200..299
         } else {
-            throw ResponseErrorException("응답 에러 ${response.errorBody()?.string()}")
+            val errorString = response.errorBody()?.string()!!
+            val errorJson = JSONObject(errorString)
+            if (errorJson.get("code").toString() == "BSE401" || errorJson.get("code")
+                    .toString() == "BSE000"
+            )
+                throw UnLoginAccessException(errorJson.toString())
+            throw ResponseErrorException(errorString)
         }
     }
 
