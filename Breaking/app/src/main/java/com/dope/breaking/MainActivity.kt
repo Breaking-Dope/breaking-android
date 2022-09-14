@@ -104,54 +104,11 @@ class MainActivity : AppCompatActivity() {
                     R.id.menu_breaking_home -> { // 브레이킹 메인 화면 버튼을 누르면
                         NaviHomeFragment()
                     }
-                    R.id.menu_breaking_chat -> { // 브레이킹 채팅 버튼을 누르면
-                        NaviChatFragment()
-                    }
                     else -> { // 그 외는 유저 버튼을 누른 것으로 간주
                         LoadingFragment()
                     }
                 }
             )
-            true
-        }
-    }
-
-    /**
-    @description - 네비게이션 드로어 내 아이템 클릭 이벤트 메소드
-    @param - None
-    @return - None
-    @author - Tae hyun Park
-    @since - 2022-07-19
-     */
-    private fun NavigationDrawerClicked() {
-        binding.viewNavigationDrawer.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.menu_drawer_point -> { // 브레이킹 포인트 버튼을 누르면
-                    val intent = Intent(this, NaviPointActivity::class.java)
-                    startActivity(intent)
-                    Toast.makeText(this, "Pressed Point Screen", Toast.LENGTH_SHORT).show()
-                }
-                R.id.menu_drawer_bookmark -> { // 브레이킹 북마크 버튼을 누르면
-                    val intent = Intent(this, NaviBookActivity::class.java)
-                    startActivity(intent)
-                    Toast.makeText(this, "Pressed Bookmark Screen", Toast.LENGTH_SHORT).show()
-                }
-                R.id.menu_drawer_cart -> { // 브레이킹 구매한 제보 버튼을 누르면
-                    val intent = Intent(this, NaviPurchaseActivity::class.java)
-                    startActivity(intent)
-                    Toast.makeText(this, "Pressed Cart Screen", Toast.LENGTH_SHORT).show()
-                }
-                R.id.menu_drawer_pencil -> { // 브레이킹 프로필 편집 버튼을 누르면
-                    val intent = Intent(this, NaviProfileActivity::class.java)
-                    startActivity(intent)
-                    Toast.makeText(this, "Pressed Profile Screen", Toast.LENGTH_SHORT).show()
-                }
-                else -> { // 그 외는 설정 버튼을 누른 것으로 간주
-                    val intent = Intent(this, SettingActivity::class.java)
-                    startActivity(intent)
-                    Toast.makeText(this, "Pressed Setting Screen", Toast.LENGTH_SHORT).show()
-                }
-            }
             true
         }
     }
