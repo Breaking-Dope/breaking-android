@@ -29,9 +29,11 @@
             android:id="@+id/bnv_main"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:itemBackground="@color/breaking_color"
+            app:itemBackground="@color/white"
             app:itemIconTint="@drawable/bottom_icon_color"
-            app:itemTextColor="@color/white"
+            app:itemIconSize="21dp"
+            app:itemTextColor="@drawable/bottom_icon_color"
+            android:elevation="4dp"
             app:labelVisibilityMode="labeled"
             app:layout_constraintTop_toBottomOf="@id/fl_board"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -40,19 +42,5 @@
             app:menu="@menu/navi_menu" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/view_navigation_drawer"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:itemIconPadding="40dp"
-        app:itemIconSize="25dp"
-        app:itemIconTint="@drawable/bottom_icon_color"
-        app:itemTextColor="@color/white"
-        app:menu="@menu/navi_drawer_menu"
-        android:alpha="0.93"
-        android:backgroundTint="@color/breaking_drawer_color" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
