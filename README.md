@@ -20,23 +20,21 @@
 
 |             메인 페이지             |             로그인 페이지             |             회원가입 페이지             |
 | :--------------------------------: | :----------------------------------: | :------------------------------------: |
-| <img src="https://user-images.githubusercontent.com/23312485/190064274-0f9afe77-f848-48e9-9fbd-887ea1ed3971.png" width=80% /> | <img src="https://user-images.githubusercontent.com/23312485/190065332-50013c6d-f57b-43d7-aaac-2be12189d0c2.png" width=80% /> |  <img src="https://user-images.githubusercontent.com/23312485/190065284-cf7142ba-b5a9-4a35-b1c7-0fd3de3a2b9d.png" width=80% /> |
-
+| <img src="https://user-images.githubusercontent.com/31824443/190646366-aa578e23-38e8-4bb2-bf45-485aca28e446.png" width=300px /> | <img src="https://user-images.githubusercontent.com/31824443/190646768-96e008f7-568d-4b02-b8cb-405556c98a43.png" width=300px /> |  <img src="https://user-images.githubusercontent.com/31824443/190641921-dd01b048-e181-42e6-9822-959dbb2fe4fe.png" width="300px" /> |
 
 |             업로드 페이지             |             게시글 페이지             |             프로필 페이지             |
 | :------------------------------------: | :----------------------------------: | :----------------------------------: |
-| <img src="https://user-images.githubusercontent.com/23312485/190063538-4a9db6fb-ddd0-4c2f-8c30-bbeab8f455a4.png" width=80% /> | <img src="https://user-images.githubusercontent.com/23312485/190064049-66171788-b838-4ab3-8759-29cc297e74be.png" width=80% /> | <img src="https://user-images.githubusercontent.com/23312485/190066718-645b2bb4-a4cf-4f4d-af7a-8b6ed59ea1b4.png" width=80% /> |
+| <img src="https://user-images.githubusercontent.com/31824443/190646929-2a1fd7d3-0d29-455f-b69f-080463389340.png" width=250px /> | <img src="https://user-images.githubusercontent.com/31824443/190647012-4c8ec725-de7c-4368-8a3b-6490e0ec98cd.png" width=250px /> | <img src="https://user-images.githubusercontent.com/31824443/190647053-b5096d45-aeb3-4fa2-83d8-15534edc656c.png" width=300px /> |
 
-|             검색             |             공유             |             팔로우/팔로잉             |
-| :--------------------------: | :-------------------------: | :----------------------------------: |
-| <img src="https://user-images.githubusercontent.com/23312485/190065489-e191c399-ae99-4ada-ab23-e173e022a42c.png" width=80% /> | <img src="https://user-images.githubusercontent.com/23312485/190065509-9d9e4059-bf44-49cc-93e3-a0311e87be25.png" width=80% /> | <img src="https://user-images.githubusercontent.com/23312485/190067647-4a71da61-c987-421d-b077-8962c3d17648.png" width=80% /> |
-
+|             검색             |             팔로우/팔로잉             |
+| :--------------------------: | :-------------------------: |
+| <img src="https://user-images.githubusercontent.com/31824443/190647236-a6f6ad1d-5935-48ab-b331-8056ae1fc409.png" width=300px /> | <img src="https://user-images.githubusercontent.com/31824443/190647421-4a6df745-3997-418e-9603-cf5f44826af0.png" width=300px />
 
 <h3>2. 제보 구매/판매 기능</h3>
 
 |             제보 구매완료            |             입출금 페이지             |             제보 구매/판매로 인한 소득             |
 | :---------------------------------: | :----------------------------------: | :----------------------------------------------: |
-| <img src="https://user-images.githubusercontent.com/23312485/190064596-996fdb45-387c-40a0-bf7e-ec442d20aefa.png" width=80% /> | <img src="https://user-images.githubusercontent.com/23312485/190066275-9e921564-2956-4e2c-b5e4-42d78d6832db.png" width=80% /> | <img src="https://user-images.githubusercontent.com/23312485/190064634-bbbfb184-34a4-478b-9c08-c1e569a384e5.png" width=80% /> |
+| <img src="https://user-images.githubusercontent.com/31824443/190648851-11c9046f-2d2b-4b9b-9b32-5422a527a9e8.png" width=550px />| <img src="https://user-images.githubusercontent.com/31824443/190648941-5cdeb625-57ce-45a6-83bc-1faf976ccfa0.png" width=300px /> | <img src="https://user-images.githubusercontent.com/31824443/190649014-e549ff05-d54f-4dc2-b2cc-08a71eb31a22.png" width=300px /> |
 
 ## Members
 
