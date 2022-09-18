@@ -3,23 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.dope.breaking">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
-
     <application
         android:name=".GlobalApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:requestLegacyExternalStorage="true"
         android:fullBackupContent="false"
         android:icon="@drawable/ic_breaking_logo2"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/ic_breaking_logo2"
         android:supportsRtl="true"
         android:theme="@style/Theme.Breaking"
@@ -35,8 +26,7 @@
         <activity
             android:name=".EditPostActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"
-            />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".FinanceActivity"
             android:exported="false"
@@ -70,18 +60,7 @@
         <activity
             android:name=".SettingActivity"
             android:exported="false" />
-        <activity
-            android:name=".NaviProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".NaviPurchaseActivity"
-            android:exported="false" />
-        <activity
-            android:name=".NaviBookActivity"
-            android:exported="false" />
-        <activity
-            android:name=".NaviPointActivity"
-            android:exported="false" /> <!-- 이미지 가져올 때, 보안상의 이유로 fileProvider 를 사용해 가져와야 함. -->
+        <!-- 이미지 가져올 때, 보안상의 이유로 fileProvider 를 사용해 가져와야 함. -->
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true">
@@ -116,8 +95,7 @@
         <activity
             android:name=".SignUpActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"
-            />
+            android:windowSoftInputMode="adjustPan" />
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"
@@ -133,5 +111,14 @@
                 android:resource="@xml/provider_paths" />
         </provider>
     </application>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

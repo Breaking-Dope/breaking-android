@@ -9,13 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dope.breaking.R
 import com.dope.breaking.model.LocationList
 
-class MapListAdapter(val itemList: ArrayList<LocationList>): RecyclerView.Adapter<MapListAdapter.ViewHolder>() {
-    
-    private lateinit var itemListClickListener : OnItemClickListener // 아이템 리스트 클릭 리스너
-    private lateinit var itemButtonClickListener : OnItemClickListener // 아이템 리스트 버튼 클릭 리스너
-    
+class MapListAdapter(private val itemList: ArrayList<LocationList>) :
+    RecyclerView.Adapter<MapListAdapter.ViewHolder>() {
+
+    private lateinit var itemListClickListener: OnItemClickListener // 아이템 리스트 클릭 리스너
+    private lateinit var itemButtonClickListener: OnItemClickListener // 아이템 리스트 버튼 클릭 리스너
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_location_list, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_location_list, parent, false)
         return ViewHolder(view)
     }
 
@@ -33,7 +35,7 @@ class MapListAdapter(val itemList: ArrayList<LocationList>): RecyclerView.Adapte
         }
     }
 
-    class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.tv_list_name)
         val road: TextView = itemView.findViewById(R.id.tv_list_road)
         val address: TextView = itemView.findViewById(R.id.tv_list_address)
@@ -58,5 +60,5 @@ class MapListAdapter(val itemList: ArrayList<LocationList>): RecyclerView.Adapte
     fun setItemButtonClickListener(onItemClickListener: OnItemClickListener) {
         this.itemButtonClickListener = onItemClickListener // 액티비티에서 구현한 인터페이스 정보를 할당
     }
-    
+
 }

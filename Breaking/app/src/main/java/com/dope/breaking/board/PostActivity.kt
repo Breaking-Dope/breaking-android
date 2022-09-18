@@ -339,7 +339,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         binding.btnPostRegisterBtn.setOnClickListener {
             // 해시 태그 값이 있는지 확인, 태그가 없다면 기본 값으로 다시 초기화
             if (binding.etContent.text.toString().indexOf('#') !== -1) {
-                hashTagList = Utils.getArrayHashTagWithOutSpace(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
+                hashTagList =
+                    Utils.getArrayHashTagWithOutSpace(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
             } else {
                 hashTagList.clear() // 해시 태그 값이 없으면 리스트 재 초기화
             }
@@ -404,8 +405,8 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         imageData: ArrayList<Bitmap>,
         imageName: ArrayList<String>,
         token: String,
-        fileList : ArrayList<File>,
-        uriList : ArrayList<Uri>
+        fileList: ArrayList<File>,
+        uriList: ArrayList<Uri>
     ) {
         val postManager = PostManager() // 커스텀 게시글 객체 생성
         try {
@@ -431,6 +432,7 @@ class PostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
             )
         }
     }
+
     /**
      * @description - 제보 페이지에서 기본값으로 현재 자신의 위치를 설정하는 함수, 위도 경도와 주소를 받아오고, locationData 에 할당하는 함수
      * @param - None

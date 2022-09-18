@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 class RetrofitManager {
     // 레트로핏 컴패니언 객체 선언
 
-    companion object{
+    companion object {
         // 영상 처리의 경우 서버와 통신이 오래 걸리므로 소켓 timeOutException 을 방지하고자 가능한 최대 통신 소요 시간을 늘리도록 정의.
         var okHttpClient: OkHttpClient? = OkHttpClient.Builder()
             .connectTimeout(100, TimeUnit.MINUTES)
