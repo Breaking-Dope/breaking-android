@@ -39,7 +39,7 @@ object Utils { // 컴패니언 객체 (Static)
     internal fun writeResponseBodyToDisk(body: ResponseBody?, postId: Long): Boolean {
         return try {
             val futureStudioIconFile =
-                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + File.separator + "download${postId}"+ ".zip")
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + File.separator + "download${postId}" + ".zip")
             var inputStream: InputStream? = null
             var outputStream: OutputStream? = null
             try {
@@ -81,22 +81,22 @@ object Utils { // 컴패니언 객체 (Static)
     internal fun getArrayHashTag(hashTag: String): ArrayList<String> {
         var hashTagList = ArrayList<String>()
         var contentStringEnter = hashTag.split("\n") // 엔터를 기준으로 나눔
-        if(contentStringEnter.isNotEmpty()){ // 엔터를 한 번 이상 눌렀다면
-            for(i in contentStringEnter.indices){
-               var splitString = contentStringEnter[i].split(" ") // 한 줄 한 줄 공백을 기준으로 나눔
-               for (i in splitString.indices){
-                   if(splitString[i].indexOf("#") == 0){ // #이 있고 인덱스가 0이라면
-                       if(splitString[i].length > 1 && splitString[i].count{c -> c == '#'} == 1) // #을 포함하는 단어가 있어야 하고, #은 처음 한 번만 오도록
-                            hashTagList.add(splitString[i].replace("#","")) // 해당 해시태그 문자열을 추출하여 저장
-                   }
-               }
+        if (contentStringEnter.isNotEmpty()) { // 엔터를 한 번 이상 눌렀다면
+            for (i in contentStringEnter.indices) {
+                var splitString = contentStringEnter[i].split(" ") // 한 줄 한 줄 공백을 기준으로 나눔
+                for (i in splitString.indices) {
+                    if (splitString[i].indexOf("#") == 0) { // #이 있고 인덱스가 0이라면
+                        if (splitString[i].length > 1 && splitString[i].count { c -> c == '#' } == 1) // #을 포함하는 단어가 있어야 하고, #은 처음 한 번만 오도록
+                            hashTagList.add(splitString[i].replace("#", "")) // 해당 해시태그 문자열을 추출하여 저장
+                    }
+                }
             }
-        }else{ // 엔터키를 누르지 않았다면
+        } else { // 엔터키를 누르지 않았다면
             var contentString = hashTag.split(" ") // 한 줄을 기준으로 공백을 기준으로 나눔
-            for (i in contentString.indices){
-                if(contentString[i].indexOf("#") == 0){ // #이 있고 인덱스가 0이라면
-                    if(contentString[i].length > 1 && contentString[i].count{c -> c == '#'} == 1) // #을 포함하는 단어가 있어야 하고, #은 처음 한 번만 오도록
-                        hashTagList.add(contentString[i].replace("#","")) // 해당 해시태그 문자열을 추출하여 저장
+            for (i in contentString.indices) {
+                if (contentString[i].indexOf("#") == 0) { // #이 있고 인덱스가 0이라면
+                    if (contentString[i].length > 1 && contentString[i].count { c -> c == '#' } == 1) // #을 포함하는 단어가 있어야 하고, #은 처음 한 번만 오도록
+                        hashTagList.add(contentString[i].replace("#", "")) // 해당 해시태그 문자열을 추출하여 저장
                 }
             }
         }
@@ -113,16 +113,16 @@ object Utils { // 컴패니언 객체 (Static)
     internal fun getArrayHashTagWithOutSpace(hashTag: String): ArrayList<String> {
         var hashTagList = ArrayList<String>()
         var contentStringEnter = hashTag.split("\n") // 가장 먼저, 엔터 즉 줄바꿈을 기준으로 나눔
-        if(contentStringEnter.isNotEmpty()){
-            for(i in contentStringEnter.indices){ // 리스트가 비어 있지 않으면서, 한 줄이라면 1개의 리스트가 들어가고, 그 이상이라면 여러 개가 들어감.
+        if (contentStringEnter.isNotEmpty()) {
+            for (i in contentStringEnter.indices) { // 리스트가 비어 있지 않으면서, 한 줄이라면 1개의 리스트가 들어가고, 그 이상이라면 여러 개가 들어감.
                 var splitStringTag = contentStringEnter[i].split("#") // 한 줄 한 줄 샵(#)을 기준으로 나눔
-                if(splitStringTag.size > 1) { // #이 하나라도 있다면 전처리 시작
-                    for (i in splitStringTag.indices){
-                        if (i > 0){ // #을 기준으로 나눠지는 앞에 오는 첫 번째 리스트는 해시태그에 포함되지 않으므로 제외
+                if (splitStringTag.size > 1) { // #이 하나라도 있다면 전처리 시작
+                    for (i in splitStringTag.indices) {
+                        if (i > 0) { // #을 기준으로 나눠지는 앞에 오는 첫 번째 리스트는 해시태그에 포함되지 않으므로 제외
                             var splitStringSpace = splitStringTag[i].split(" ") // 각각에 대해 공백으로 나눈다.
-                            for (j in splitStringSpace.indices){ // 리스트의 첫 번째 인덱스 값을 다시 해시 태그 값으로 취한다.
-                                if(j == 0 && splitStringSpace[j].isNotEmpty()){
-                                    Log.d("Utils.kt","해시 태그 값 : ${splitStringSpace[j]}")
+                            for (j in splitStringSpace.indices) { // 리스트의 첫 번째 인덱스 값을 다시 해시 태그 값으로 취한다.
+                                if (j == 0 && splitStringSpace[j].isNotEmpty()) {
+                                    Log.d("Utils.kt", "해시 태그 값 : ${splitStringSpace[j]}")
                                     hashTagList.add(splitStringSpace[j])
                                 }
                             }
@@ -141,12 +141,13 @@ object Utils { // 컴패니언 객체 (Static)
      * @author - Tae hyun Park
      * @since - 2022-08-22
      */
-    internal fun checkDate(checkDate: String): Boolean{
+    internal fun checkDate(checkDate: String): Boolean {
         return try {
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS") // exception이 난다면 SSSSS 형식으로 맞춰주면 됨.
+            val formatter =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS") // exception이 난다면 SSSSS 형식으로 맞춰주면 됨.
             val localStartDateTime = LocalDateTime.parse(checkDate, formatter)
             true
-        }catch (e : Exception){
+        } catch (e: Exception) {
             false
         }
     }
@@ -158,10 +159,10 @@ object Utils { // 컴패니언 객체 (Static)
      * @author - Tae hyun Park
      * @since - 2022-07-29 | 2022-08-11
      */
-    internal fun getCurrentTime(flag: Boolean) : String{
+    internal fun getCurrentTime(flag: Boolean): String {
         var now = System.currentTimeMillis()
         var date = Date(now)
-        var simpleFormat : SimpleDateFormat = if(flag)
+        var simpleFormat: SimpleDateFormat = if (flag)
             SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
         else
             SimpleDateFormat("yyyy년 MM월 dd일 hh시 mm분 ss초")
@@ -175,7 +176,11 @@ object Utils { // 컴패니언 객체 (Static)
      * @author - Tae hyun Park
      * @since - 2022-07-08
      **/
-    internal fun regularExpressionNickname(form : String, length : Int, context : Context) : Array<InputFilter>{
+    internal fun regularExpressionNickname(
+        form: String,
+        length: Int,
+        context: Context
+    ): Array<InputFilter> {
         return arrayOf(InputFilter { source, _, _, _, _, _ ->
             val ps: Pattern =
                 Pattern.compile(form) // 한글, 숫자, 영문만 가능하도록 설정
@@ -194,12 +199,18 @@ object Utils { // 컴패니언 객체 (Static)
      * @author - Tae hyun Park
      * @since - 2022-07-11
      */
-    internal fun setImageWithGlide(context: Context, uri: Uri?, binding: ActivitySignUpBinding, width: Int, height: Int){
+    internal fun setImageWithGlide(
+        context: Context,
+        uri: Uri?,
+        binding: ActivitySignUpBinding,
+        width: Int,
+        height: Int
+    ) {
         Glide.with(context)
             .asBitmap()
             .load(uri)
             .circleCrop()
-            .override(width,height)
+            .override(width, height)
             .into(binding.imgBtnProfileImage)
     }
 
@@ -210,11 +221,11 @@ object Utils { // 컴패니언 객체 (Static)
      * @author - Tae hyun Park
      * @since - 2022-07-11
      */
-    internal fun getBitmapWithGlide(context: Context, uri: Uri?, handler: Handler){
+    internal fun getBitmapWithGlide(context: Context, uri: Uri?, handler: Handler) {
         Glide.with(context)
             .asBitmap()
             .load(uri)
-            .into(object : CustomTarget<Bitmap>(){
+            .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(
                     resource: Bitmap,
                     transition: Transition<in Bitmap>?
@@ -223,7 +234,7 @@ object Utils { // 컴패니언 객체 (Static)
                     val message = handler.obtainMessage()
                     val bundle: Bundle = Bundle()
 
-                    bundle.putParcelable("Bitmap",resource)
+                    bundle.putParcelable("Bitmap", resource)
                     message.data = bundle
                     handler.sendMessage(message)
                 }
@@ -241,7 +252,10 @@ object Utils { // 컴패니언 객체 (Static)
      * @author - Tae hyun Park
      * @since - 2022-07-09 | 2022-07-13
      */
-    internal fun getFileNameFromURI(uri: Uri, contentResolver: ContentResolver): String? { // 추가적인 모듈화 가능할듯?
+    internal fun getFileNameFromURI(
+        uri: Uri,
+        contentResolver: ContentResolver
+    ): String? { // 추가적인 모듈화 가능할듯?
         var buildName = Build.MANUFACTURER
         if (buildName.equals("Xiaomi")) {
             return uri.path

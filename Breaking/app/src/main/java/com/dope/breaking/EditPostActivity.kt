@@ -46,7 +46,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class EditPostActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
-TimePickerDialog.OnTimeSetListener {
+    TimePickerDialog.OnTimeSetListener {
 
     private val TAG = "EditPostActivity.kt" // Tag Log
     private var mbinding: ActivityPostBinding? = null
@@ -73,7 +73,7 @@ TimePickerDialog.OnTimeSetListener {
 
     private var getPostId = -1 // 수정 할 게시글 id
 
-    private lateinit var progressDialog : DialogUtil.ProgressDialog // 요청 로딩 다이얼로그
+    private lateinit var progressDialog: DialogUtil.ProgressDialog // 요청 로딩 다이얼로그
 
     /* 데이터 피커와 타임 피커에 필요한 전역 변수들로, 년, 월, 일, 시, 분, 초를 포함한다. */
     private var day = 0
@@ -136,22 +136,39 @@ TimePickerDialog.OnTimeSetListener {
         val constraintLayout = binding.viewRoot
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)
-        constraintSet.connect(binding.divider1.id, ConstraintSet.TOP, binding.tvRecyclerImage.id, ConstraintSet.BOTTOM)
-        constraintSet.connect(binding.divider1.id, ConstraintSet.LEFT, binding.tvRecyclerImage.id, ConstraintSet.LEFT)
-        constraintSet.connect(binding.divider1.id, ConstraintSet.RIGHT, binding.tvRecyclerImage.id, ConstraintSet.RIGHT)
+        constraintSet.connect(
+            binding.divider1.id,
+            ConstraintSet.TOP,
+            binding.tvRecyclerImage.id,
+            ConstraintSet.BOTTOM
+        )
+        constraintSet.connect(
+            binding.divider1.id,
+            ConstraintSet.LEFT,
+            binding.tvRecyclerImage.id,
+            ConstraintSet.LEFT
+        )
+        constraintSet.connect(
+            binding.divider1.id,
+            ConstraintSet.RIGHT,
+            binding.tvRecyclerImage.id,
+            ConstraintSet.RIGHT
+        )
         constraintSet.applyTo(constraintLayout)
 
         // 받아온 인텐트 값을 바탕으로 뷰에 데이터 뿌려주기
-        if(intent != null){
+        if (intent != null) {
             getPostInfo = intent.getSerializableExtra("postInfo") as ResponsePostDetail
-            getPostId = intent.getIntExtra("postId",-1)
+            getPostId = intent.getIntExtra("postId", -1)
 
             // 제보 발생 시간 기본 할당
             var postTimeList = getPostInfo.eventDate.split("T").toTypedArray()
             var postFirstList = postTimeList[0].split("-").toTypedArray()
             var postSecondList = postTimeList[1].split(":").toTypedArray()
-            binding.tvEventTimeClicked.text = "${postFirstList[0]}년 ${postFirstList[1]}월 ${postFirstList[2]}일 ${postSecondList[0]}시 ${postSecondList[1]}분"
-            eventTime = "${postFirstList[0]}-${postFirstList[1]}-${postFirstList[2]} ${postSecondList[0]}:${postSecondList[1]}:00"
+            binding.tvEventTimeClicked.text =
+                "${postFirstList[0]}년 ${postFirstList[1]}월 ${postFirstList[2]}일 ${postSecondList[0]}시 ${postSecondList[1]}분"
+            eventTime =
+                "${postFirstList[0]}-${postFirstList[1]}-${postFirstList[2]} ${postSecondList[0]}:${postSecondList[1]}:00"
 
             // 위치 주소 보여주기
             binding.tvLocationShow.text = getPostInfo.location.address
@@ -160,19 +177,21 @@ TimePickerDialog.OnTimeSetListener {
             // 제보 내용
             binding.etContent.setText(getPostInfo.content)
             // 제보 방식
-            when(getPostInfo.postType){
+            when (getPostInfo.postType) {
                 "CHARGED" -> {
                     isPostTypeSelected = "charged"
                     binding.btnPostTypeCharged.setBackgroundResource(R.drawable.sign_up_user_type_selected) // 유료 제보 색상 활성화
                     binding.btnPostTypeFree.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 무료 제보 색상 비활성화
                     binding.btnPostTypeExclusive.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 단독 제보
-                }"FREE" -> {
+                }
+                "FREE" -> {
                     isPostTypeSelected = "free"
                     binding.btnPostTypeFree.setBackgroundResource(R.drawable.sign_up_user_type_selected) // 무료 제보 색상 활성화
                     binding.btnPostTypeCharged.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 유료 제보 색상 비활성화
                     binding.btnPostTypeExclusive.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 단독 제보 색상 비활성화
                     binding.etPostPrice.isEnabled = false // 사용자로부터 가격 설정 불가능하도록 설정
-                }"EXCLUSIVE" -> {
+                }
+                "EXCLUSIVE" -> {
                     isPostTypeSelected = "exclusive"
                     binding.btnPostTypeExclusive.setBackgroundResource(R.drawable.sign_up_user_type_selected) // 단독 제보 색상 활성화
                     binding.btnPostTypeFree.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 무료 제보 색상 비활성화
@@ -182,12 +201,13 @@ TimePickerDialog.OnTimeSetListener {
             // 제보 가격
             binding.etPostPrice.setText(getPostInfo.price.toString())
             // 프로필 공개 여부
-            when(getPostInfo.isAnonymous){
+            when (getPostInfo.isAnonymous) {
                 true -> {
                     isAnonymousSelected = true
                     binding.btnPostProfileTypeSecret.setBackgroundResource(R.drawable.sign_up_user_type_selected) // 익명 버튼 색상 활성화
                     binding.btnPostProfileTypePublic.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 공개 버튼 색상 비활성화
-                }false -> {
+                }
+                false -> {
                     isAnonymousSelected = false
                     binding.btnPostProfileTypePublic.setBackgroundResource(R.drawable.sign_up_user_type_selected) // 공개 버튼 색상 활성화
                     binding.btnPostProfileTypeSecret.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 익명 버튼 색상 비활성화
@@ -276,7 +296,8 @@ TimePickerDialog.OnTimeSetListener {
         binding.btnPostRegisterBtn.setOnClickListener {
             // 해시 태그 값이 있는지 확인, 태그가 없다면 기본 값으로 다시 초기화
             if (binding.etContent.text.toString().indexOf('#') !== -1)
-                hashTagList = Utils.getArrayHashTagWithOutSpace(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
+                hashTagList =
+                    Utils.getArrayHashTagWithOutSpace(binding.etContent.text.toString()) // 해시 태그 처리하여 태그 문자열 추출
             else
                 hashTagList.clear() // 해시 태그 값이 없으면 리스트 재 초기화
 
@@ -305,18 +326,18 @@ TimePickerDialog.OnTimeSetListener {
                 processPostEdit(
                     token,
                     getPostId.toLong(),
-                    requestPostEditData,{
+                    requestPostEditData, {
                         // 게시글 작성 요청 다이얼 로그 시작
                         progressDialog = DialogUtil().ProgressDialog(this)
                         progressDialog.showDialog()
-                    },{
+                    }, {
                         if (progressDialog.isShowing()) { // 로딩 다이얼로그 종료
                             progressDialog.dismissDialog()
                         }
-                        intent.putExtra("postId",it.postId.toInt()) // 세부 조회 페이지로 수정 완료된 postId 전달
+                        intent.putExtra("postId", it.postId.toInt()) // 세부 조회 페이지로 수정 완료된 postId 전달
                         setResult(RESULT_OK, intent)
                         finish() // 다시 세부 조회 페이지로 이동
-                    },{
+                    }, {
                         it.printStackTrace()
                         requestErrorDialog.show()
                     }
@@ -341,7 +362,7 @@ TimePickerDialog.OnTimeSetListener {
         init: () -> Unit,
         last: (ResponsePostUpload) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         init()
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager()
@@ -352,7 +373,7 @@ TimePickerDialog.OnTimeSetListener {
                     postInfo
                 )
                 last(response)
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }

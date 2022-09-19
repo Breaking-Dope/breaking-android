@@ -29,11 +29,11 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.dope.breaking.EditPostActivity
 import com.dope.breaking.R
+import com.dope.breaking.SignInActivity
 import com.dope.breaking.databinding.ActivityPostDetailBinding
 import com.dope.breaking.databinding.CustomPostDetailContentPopupBinding
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.exception.UnLoginAccessException
-import com.dope.breaking.fragment.NaviHomeFragment
 import com.dope.breaking.model.FollowData
 import com.dope.breaking.model.response.ResponseComment
 import com.dope.breaking.model.response.ResponseExistLogin
@@ -97,8 +97,8 @@ class PostDetailActivity : AppCompatActivity() {
         val builder = VmPolicy.Builder()
         StrictMode.setVmPolicy(builder.build())
 
-        getPostId = intent.getIntExtra("postId",-1)
-        Log.d(TAG,"받아온 postId 값 : $getPostId")
+        getPostId = intent.getIntExtra("postId", -1)
+        Log.d(TAG, "받아온 postId 값 : $getPostId")
 
         mbinding = ActivityPostDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -222,43 +222,50 @@ class PostDetailActivity : AppCompatActivity() {
                 var intent = Intent(this, PostPurchaseListActivity::class.java)
                 intent.putExtra("postId", getPostId)
                 startActivity(intent)
-            }else{
-                if(isPurchased){  // 내가 구매를 한 상태이면 미디어 파일 다운로드 요청
+            } else {
+                if (isPurchased) {  // 내가 구매를 한 상태이면 미디어 파일 다운로드 요청
                     // file exist error 방지
                     if (Environment.isExternalStorageManager()) {
                         var internal = File("/sdcard")
                         var internalContents = internal.listFiles()
                     } else {
-                        val permissionIntent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                        val permissionIntent =
+                            Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
                         startActivity(permissionIntent)
                     }
                     processPostMediaDownload(
                         token,
-                        getPostId.toLong(),{
-                            Toast.makeText(applicationContext,"미디어 다운로드 시작",Toast.LENGTH_SHORT).show()
-                        },{
-                            if (it){
-                                Toast.makeText(applicationContext,"다운로드 완료",Toast.LENGTH_SHORT).show()
+                        getPostId.toLong(), {
+                            Toast.makeText(applicationContext, "미디어 다운로드 시작", Toast.LENGTH_SHORT)
+                                .show()
+                        }, {
+                            if (it) {
+                                Toast.makeText(applicationContext, "다운로드 완료", Toast.LENGTH_SHORT)
+                                    .show()
                                 var file =
-                                    File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + File.separator + "download${getPostId}"+ ".zip")
+                                    File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + File.separator + "download${getPostId}" + ".zip")
                                 try { // 유저에게 다운로드 받은 파일 압축 화면 보여주기
                                     var intent = Intent(Intent.ACTION_VIEW)
                                     intent.setDataAndType(Uri.fromFile(file), "application/zip")
                                     intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
                                     startActivity(intent)
-                                }catch (e: ActivityNotFoundException){
+                                } catch (e: ActivityNotFoundException) {
                                     Log.d(TAG, e.message.toString())
                                 }
-                            }else{
-                                Toast.makeText(applicationContext,"권한을 허용해주세요!",Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(
+                                    applicationContext,
+                                    "권한을 허용해주세요!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                        },{
+                        }, {
                             it.printStackTrace()
                             DialogUtil().SingleDialog(applicationContext, "다운로드에 문제가 발생했습니다.", "확인")
                         }
                     )
-                }else{
-                    if(isPurchasable && !(postType == "EXCLUSIVE" && isSold)){ // 구매 가능하다면 구매하기 요청
+                } else {
+                    if (isPurchasable && !(postType == "EXCLUSIVE" && isSold)) { // 구매 가능하다면 구매하기 요청
                         DialogUtil().MultipleDialog(
                             this,
                             "제보를 구매하시겠습니까?",
@@ -1531,11 +1538,11 @@ class PostDetailActivity : AppCompatActivity() {
      */
     private fun processPostMediaDownload(
         token: String,
-        postId : Long,
+        postId: Long,
         init: () -> Unit,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init()
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -1545,7 +1552,7 @@ class PostDetailActivity : AppCompatActivity() {
                     postId,
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -1559,7 +1566,7 @@ class PostDetailActivity : AppCompatActivity() {
      * @since - 2022-08-18 | 2022-08-25
      */
     @SuppressLint("ResourceAsColor")
-    private fun settingPostDetailView(responsePostDetail: ResponsePostDetail){
+    private fun settingPostDetailView(responsePostDetail: ResponsePostDetail) {
         if (responsePostDetail.user?.userId != null)
             userId = responsePostDetail.user?.userId!!.toInt() // 유저 id저장
         isPurchased = responsePostDetail.isPurchased // 뷰 갱신마다 내가 구매했는지 여부 가져옴

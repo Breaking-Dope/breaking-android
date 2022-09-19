@@ -1,11 +1,7 @@
 package com.dope.breaking.post
 
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import com.dope.breaking.exception.ResponseErrorException
 import com.dope.breaking.exception.UnLoginAccessException
@@ -24,11 +20,7 @@ import com.google.gson.JsonParser
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.ResponseBody
-import java.io.*
-import kotlin.coroutines.coroutineContext
 import org.json.JSONObject
-import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.Throws
@@ -839,9 +831,9 @@ class PostManager {
         )
         // 요청이 성공적이라면
         if (response.isSuccessful) {
-            Log.d(TAG,"미디어 다운로드 요청 성공")
+            Log.d(TAG, "미디어 다운로드 요청 성공")
             val writtenToDisk: Boolean = Utils.writeResponseBodyToDisk(response.body(), postId)
-            if(writtenToDisk)
+            if (writtenToDisk)
                 return true
             return false
         } else {

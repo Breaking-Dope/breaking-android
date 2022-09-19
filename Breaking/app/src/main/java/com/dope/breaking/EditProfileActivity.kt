@@ -16,7 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.dope.breaking.databinding.ActivitySignUpBinding
 import com.dope.breaking.model.request.RequestUpdateUser
 import com.dope.breaking.model.response.DetailUser

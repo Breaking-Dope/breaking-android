@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class PostPurchaseListActivity : AppCompatActivity() {
     private val TAG = "PostPurchaseListActivity.kt"
-    private var mbinding : ActivityFollowBinding? = null
+    private var mbinding: ActivityFollowBinding? = null
     private val binding get() = mbinding!!
     private var purchaseList = mutableListOf<FollowData?>() // 구매 목록 저장하는 리스트
     private var isLoading = false // 로딩 중 판단
@@ -47,7 +47,7 @@ class PostPurchaseListActivity : AppCompatActivity() {
         val token =
             ValueUtil.JWT_REQUEST_PREFIX + JwtTokenUtil(this).getAccessTokenFromLocal()
 
-        postId = intent.getIntExtra("postId",-1) // postId 가져오기
+        postId = intent.getIntExtra("postId", -1) // postId 가져오기
 
         progressBar = findViewById(R.id.progressbar_loading)
         recyclerView = findViewById(R.id.rcv_following)
@@ -64,7 +64,7 @@ class PostPurchaseListActivity : AppCompatActivity() {
             0, {
                 showSkeletonView() // 스켈레톤 UI 시작
                 isLoading = true
-            },{
+            }, {
                 adapterPurchaseList.addItems(it)
 
                 if (purchaseList.size == 0) { // 목록 없을 때
@@ -129,7 +129,7 @@ class PostPurchaseListActivity : AppCompatActivity() {
                 })
                 dismissSkeletonView() // 스켈레톤 UI 종료
                 isLoading = false // 로딩 종료
-            },{
+            }, {
                 DialogUtil().SingleDialog(
                     this@PostPurchaseListActivity,
                     "요청에 문제가 발생하였습니다.",
@@ -149,12 +149,12 @@ class PostPurchaseListActivity : AppCompatActivity() {
      */
     private fun processGetPurchaseList(
         token: String,
-        postId : Long,
-        lastUserId : Int,
+        postId: Long,
+        lastUserId: Int,
         init: () -> Unit,
         last: (List<FollowData>) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -167,7 +167,7 @@ class PostPurchaseListActivity : AppCompatActivity() {
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
                 Log.d(TAG, "구매 리스트 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }

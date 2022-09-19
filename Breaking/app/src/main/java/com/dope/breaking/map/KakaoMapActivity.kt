@@ -37,7 +37,7 @@ class KakaoMapActivity : AppCompatActivity() {
 
     private val TAG = "KakaoMapActivity.kt"
 
-    private var mbinding : ActivityKakaoMapBinding? = null
+    private var mbinding: ActivityKakaoMapBinding? = null
 
     private val binding get() = mbinding!!
 
@@ -49,9 +49,9 @@ class KakaoMapActivity : AppCompatActivity() {
 
     private var address: List<Address>? = null // 현재 위치를 담을 Address 타입의 List
 
-    private var uLatitude:Double = 0.0 // 현재 위치의 위도
+    private var uLatitude: Double = 0.0 // 현재 위치의 위도
 
-    private var uLongitude:Double = 0.0 // 현재 위치의 경도
+    private var uLongitude: Double = 0.0 // 현재 위치의 경도
 
     private var pageNumber = 1      // 검색 페이지 번호
 
@@ -65,7 +65,8 @@ class KakaoMapActivity : AppCompatActivity() {
         binding.ibPrevPage.isEnabled = false   // 이전 페이지 버튼 비활성화
 
         // 리사이클러 뷰
-        binding.rvList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.rvList.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvList.adapter = listAdapter
 
         requestPermission() // 유저에게 위치 권한 요청
@@ -81,16 +82,17 @@ class KakaoMapActivity : AppCompatActivity() {
      */
     private fun clickMapPageButtons() {
         // 리스트 아이템 클릭 시 해당 위치로 이동
-        listAdapter.setItemListClickListener(object: MapListAdapter.OnItemClickListener {
+        listAdapter.setItemListClickListener(object : MapListAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
                 closeFloatingButton() // 플로팅 버튼 닫기 & 현재 위치 추적 중지
-                val mapPoint = MapPoint.mapPointWithGeoCoord(listItems[position].y, listItems[position].x)
+                val mapPoint =
+                    MapPoint.mapPointWithGeoCoord(listItems[position].y, listItems[position].x)
                 binding.viewMap.setMapCenterPointAndZoomLevel(mapPoint, 1, true) // 해당 위치로 이동
             }
         })
 
         // 리스트 아이템 선택 버튼 클릭 시 제보하기 페이지로 데이터 전달
-        listAdapter.setItemButtonClickListener(object : MapListAdapter.OnItemClickListener{
+        listAdapter.setItemButtonClickListener(object : MapListAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
                 var bundle = Bundle()
                 bundle.putSerializable("locationData", listItems[position])
@@ -125,7 +127,7 @@ class KakaoMapActivity : AppCompatActivity() {
         }
 
         // 현재 위치 추적 버튼
-        binding.fabMyLocation.setOnClickListener{
+        binding.fabMyLocation.setOnClickListener {
             startTracking() // 위치 추적 시작
             toggleFab()     // 플로팅 액션 버튼
         }
@@ -135,13 +137,13 @@ class KakaoMapActivity : AppCompatActivity() {
             // 좌표를 바탕으로 현재 위치 불러오기 (Geocoder)
             address = Geocoder(applicationContext).getFromLocation(uLatitude, uLongitude, 10)
             try {
-                if(address!=null){
-                    if(address.isNullOrEmpty()) // 현재 위치 불러오기에 실패했다면
+                if (address != null) {
+                    if (address.isNullOrEmpty()) // 현재 위치 불러오기에 실패했다면
                         throw FailedGetLocationException("현재 위치를 불러오는데 실패하였습니다.")
                     else
                         Log.d("찾은 주소 : ", (address as MutableList<Address>)[0].toString())
                 }
-            }catch (e: FailedGetLocationException){
+            } catch (e: FailedGetLocationException) {
                 e.printStackTrace()
                 DialogUtil().SingleDialog(
                     applicationContext,
@@ -152,19 +154,24 @@ class KakaoMapActivity : AppCompatActivity() {
             // 사용자에게 현재 위치로 선택할 것인지 물어보기
             DialogUtil().MultipleDialog(
                 this,
-                "현재 위치는\n ${(address as MutableList<Address>)[0].getAddressLine(0).substring(5)}입니다.\n선택하시겠습니까?",
+                "현재 위치는\n ${
+                    (address as MutableList<Address>)[0].getAddressLine(0).substring(5)
+                }입니다.\n선택하시겠습니까?",
                 "예",
                 "아니오",
                 {
                     // 현재 위치 정보 제보 페이지로 전달, 현재 위치의 경우 장소 이름과 도로명은 정보가 없으므로 ""로 전달.
                     val bundle = Bundle()
-                    bundle.putSerializable("locationData", LocationList(
-                        "", // 장소 이름
-                        "", // 도로명
-                        (address as MutableList<Address>)[0].getAddressLine(0).substring(5), // 전체 주소
-                        uLongitude,
-                        uLatitude
-                    ))
+                    bundle.putSerializable(
+                        "locationData", LocationList(
+                            "", // 장소 이름
+                            "", // 도로명
+                            (address as MutableList<Address>)[0].getAddressLine(0)
+                                .substring(5), // 전체 주소
+                            uLongitude,
+                            uLatitude
+                        )
+                    )
                     intent.putExtras(bundle)
                     setResult(RESULT_OK, intent)
                     finish()
@@ -189,28 +196,36 @@ class KakaoMapActivity : AppCompatActivity() {
         val service = RetrofitManager.retrofitKakao.create(RetrofitService::class.java)
 
         // API 서버에 요청
-        service.getSearchKeyword(BuildConfig.kakaoRestApiKey, keyword, page).enqueue(object: Callback<ResponseLocationSearch> {
-            override fun onResponse(call: Call<ResponseLocationSearch>, response: Response<ResponseLocationSearch>) {
-                try {
-                    if(response.isSuccessful)
-                        addItemsAndMarkers(response.body())
-                    else
-                        throw ResponseErrorException("요청에 실패하였습니다. error: ${response.errorBody()?.string()}")
-                }catch (e: ResponseErrorException){
-                    e.printStackTrace()
-                    DialogUtil().SingleDialog(
-                        applicationContext,
-                        "위치 검색에 문제가 발생하였습니다.",
-                        "확인"
-                    )
+        service.getSearchKeyword(BuildConfig.kakaoRestApiKey, keyword, page)
+            .enqueue(object : Callback<ResponseLocationSearch> {
+                override fun onResponse(
+                    call: Call<ResponseLocationSearch>,
+                    response: Response<ResponseLocationSearch>
+                ) {
+                    try {
+                        if (response.isSuccessful)
+                            addItemsAndMarkers(response.body())
+                        else
+                            throw ResponseErrorException(
+                                "요청에 실패하였습니다. error: ${
+                                    response.errorBody()?.string()
+                                }"
+                            )
+                    } catch (e: ResponseErrorException) {
+                        e.printStackTrace()
+                        DialogUtil().SingleDialog(
+                            applicationContext,
+                            "위치 검색에 문제가 발생하였습니다.",
+                            "확인"
+                        )
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<ResponseLocationSearch>, t: Throwable) {
-                // 통신 실패
-                Log.d(TAG, "통신 실패: ${t.message}")
-            }
-        })
+                override fun onFailure(call: Call<ResponseLocationSearch>, t: Throwable) {
+                    // 통신 실패
+                    Log.d(TAG, "통신 실패: ${t.message}")
+                }
+            })
     }
 
     /**
@@ -227,19 +242,23 @@ class KakaoMapActivity : AppCompatActivity() {
             binding.viewMap.removeAllPOIItems() // 지도의 마커 모두 제거
             for (document in searchResult!!.documents) {
                 // 결과를 리사이클러 뷰에 추가
-                val item = LocationList(document.placeName, // 장소 이름
+                val item = LocationList(
+                    document.placeName, // 장소 이름
                     document.roadAddressName,      // 도로명
                     document.addressName,     // 지번
                     document.x.toDouble(),     // 경도
-                    document.y.toDouble())      // 위도
+                    document.y.toDouble()
+                )      // 위도
                 listItems.add(item)
 
                 // 지도에 마커 추가
                 val marker = MapPOIItem()
                 marker.apply { // marker 객체의 멤버 변수 할당
                     itemName = document.addressName // 마커를 눌렀을 때 보여줄 아이템 이름
-                    mapPoint = MapPoint.mapPointWithGeoCoord(document.y.toDouble(), // 마커 위치(위도, 경도)
-                        document.x.toDouble())
+                    mapPoint = MapPoint.mapPointWithGeoCoord(
+                        document.y.toDouble(), // 마커 위치(위도, 경도)
+                        document.x.toDouble()
+                    )
                     markerType = MapPOIItem.MarkerType.BluePin // 마커 색상
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin // 선택 시 마커 색상
                 }
@@ -252,12 +271,12 @@ class KakaoMapActivity : AppCompatActivity() {
             binding.tvPageNumber.text = pageNumber.toString()
 
             // 이전, 다음 페이지 이미지 버튼
-            if(!binding.ibPrevPage.isEnabled) // 사용 불가하면
+            if (!binding.ibPrevPage.isEnabled) // 사용 불가하면
                 binding.ibPrevPage.setColorFilter(R.color.page_number_enable_false_color) // 비활성화 색상으로 변경
             else
                 binding.ibPrevPage.setColorFilter(Color.BLACK) // 활성화 색상으로 변경
 
-            if(!binding.ibNextPage.isEnabled) // 사용 불가하면
+            if (!binding.ibNextPage.isEnabled) // 사용 불가하면
                 binding.ibNextPage.setColorFilter(R.color.page_number_enable_false_color) // 비활성화 색상으로 변경
             else
                 binding.ibNextPage.setColorFilter(Color.BLACK) // 활성화 색상으로 변경
@@ -278,7 +297,7 @@ class KakaoMapActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission") // 권한 재확인 안하기 위한 코드로, 코드 검사에서 제외할 부분을 미리 정의하는 것이라고 보면 됨.
     private fun startTracking() {
         val myLocationPOI = binding.viewMap.findPOIItemByTag(1)
-        if(myLocationPOI != null) // 현재 위치를 표시하는 마커가 이미 있다면
+        if (myLocationPOI != null) // 현재 위치를 표시하는 마커가 이미 있다면
             binding.viewMap.removePOIItem(myLocationPOI) // 마커 지우기
 
         binding.viewMap.currentLocationTrackingMode =
@@ -310,7 +329,8 @@ class KakaoMapActivity : AppCompatActivity() {
      * @since - 2022-08-09
      */
     private fun stopTracking() {
-        binding.viewMap.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
+        binding.viewMap.currentLocationTrackingMode =
+            MapView.CurrentLocationTrackingMode.TrackingModeOff
     }
 
     /**
@@ -320,8 +340,9 @@ class KakaoMapActivity : AppCompatActivity() {
      * @author - Tae Hyun Park
      * @since - 2022-08-10
      */
-    private fun closeFloatingButton(){
-        ObjectAnimator.ofFloat(binding.fabSelectMyLocation, "translationY", 0f).apply { start() } // 플로팅 액션 버튼 닫히기
+    private fun closeFloatingButton() {
+        ObjectAnimator.ofFloat(binding.fabSelectMyLocation, "translationY", 0f)
+            .apply { start() } // 플로팅 액션 버튼 닫히기
         binding.fabMyLocation.setColorFilter(Color.BLACK) // 플로팅 버튼 색상 원상복귀
         stopTracking() // 위치 추적 기능 off
         isFabOpen = false
@@ -336,13 +357,14 @@ class KakaoMapActivity : AppCompatActivity() {
      */
     private fun toggleFab() {
         // 플로팅 액션 버튼 닫기
-        if (isFabOpen){
-            ObjectAnimator.ofFloat(binding.fabSelectMyLocation, "translationY", 0f).apply { start() }
+        if (isFabOpen) {
+            ObjectAnimator.ofFloat(binding.fabSelectMyLocation, "translationY", 0f)
+                .apply { start() }
             binding.fabMyLocation.setColorFilter(Color.BLACK)
             stopTracking() // 위치 추적도 중지
-        }
-        else{  // 플로팅 액션 버튼 열기
-            ObjectAnimator.ofFloat(binding.fabSelectMyLocation, "translationY", -200f).apply { start() }
+        } else {  // 플로팅 액션 버튼 열기
+            ObjectAnimator.ofFloat(binding.fabSelectMyLocation, "translationY", -200f)
+                .apply { start() }
             binding.fabMyLocation.setColorFilter(Color.RED)
             binding.fabSelectMyLocation.visibility = View.VISIBLE // 액션 버튼 겹침 문제 해결
         }
@@ -356,10 +378,17 @@ class KakaoMapActivity : AppCompatActivity() {
      * @author - Tae Hyun Park
      * @since - 2022-08-09
      */
-    private fun requestPermission(){
+    private fun requestPermission() {
         // 권한 체크하고 없다면 권한 요청
-        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            || ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+            || ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             var permissions = arrayOf(
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION

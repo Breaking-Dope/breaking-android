@@ -17,19 +17,21 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
 
-class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String?>) : RecyclerView.Adapter<ImageSliderAdapter.ViewHolder>() {
+class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String?>) :
+    RecyclerView.Adapter<ImageSliderAdapter.ViewHolder>() {
 
-    private var simpleExoPlayer :SimpleExoPlayer? = null // Exoplayer2 변수
-    private var simpleExoPlayerList = ArrayList<SimpleExoPlayer>() // Exoplayer2 영상 자원(들)을 멈추고, 관리하기 위해 모아두는 리스트
+    private var simpleExoPlayer: SimpleExoPlayer? = null // Exoplayer2 변수
+    private var simpleExoPlayerList =
+        ArrayList<SimpleExoPlayer>() // Exoplayer2 영상 자원(들)을 멈추고, 관리하기 위해 모아두는 리스트
 
-    inner class ViewHolder(view: View?) : RecyclerView.ViewHolder(view!!){
+    inner class ViewHolder(view: View?) : RecyclerView.ViewHolder(view!!) {
         val mImageView = view?.findViewById<ImageView>(R.id.image_slider)
         var videoView = view?.findViewById<PlayerView>(R.id.video_player_view)
 
-        fun bindSlider(mediaURL: String?, context: Context){
-            Log.d("ImageSliderAdapter.kt", "받아온 미디어 URL : "+ValueUtil.IMAGE_BASE_URL + mediaURL)
+        fun bindSlider(mediaURL: String?, context: Context) {
+            Log.d("ImageSliderAdapter.kt", "받아온 미디어 URL : " + ValueUtil.IMAGE_BASE_URL + mediaURL)
 
-            if (mediaURL!!.split(".")[1] == "mp4"){ // 영상이면
+            if (mediaURL!!.split(".")[1] == "mp4") { // 영상이면
                 videoView?.visibility = View.VISIBLE // 비디오뷰 나타내기
                 mImageView?.visibility = View.GONE // 이미지 숨기기
 
@@ -40,7 +42,7 @@ class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String
                 simpleExoPlayer!!.addMediaItem(MediaItem.fromUri(Uri.parse(ValueUtil.IMAGE_BASE_URL + mediaURL)))
                 simpleExoPlayer!!.prepare()
                 simpleExoPlayer!!.playWhenReady = false // 자동 재생은 false
-            }else{ // 이미지면
+            } else { // 이미지면
                 videoView?.visibility = View.GONE // 비디오뷰 숨기기
                 mImageView?.visibility = View.VISIBLE // 이미지 나타나기
                 Glide.with(context)
@@ -53,7 +55,8 @@ class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_slider, parent, false) // 바인딩 할 Item XML 파일명 지정
+        val view = LayoutInflater.from(context)
+            .inflate(R.layout.item_slider, parent, false) // 바인딩 할 Item XML 파일명 지정
         return ViewHolder(view)
     }
 
@@ -84,7 +87,7 @@ class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String
      * @since - 2022-09-09
      */
     fun onDetach() {
-        for (i in 0 until simpleExoPlayerList.size){
+        for (i in 0 until simpleExoPlayerList.size) {
             simpleExoPlayerList[i].release()
         }
     }
@@ -96,8 +99,8 @@ class ImageSliderAdapter(val context: Context, var sliderMedia: ArrayList<String
      * @author - Tae hyun Park
      * @since - 2022-09-09
      */
-    fun onPause(){
-        for (i in 0 until simpleExoPlayerList.size){
+    fun onPause() {
+        for (i in 0 until simpleExoPlayerList.size) {
             simpleExoPlayerList[i].pause()
         }
     }

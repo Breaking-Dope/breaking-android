@@ -32,17 +32,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PostNestedCommentAdapter (
+class PostNestedCommentAdapter(
     private val context: Context,
     var token: String,
     var data: MutableList<ResponseComment?>,
     var commentId: Long,
-    var binding : ActivityPostDetailBinding
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+    var binding: ActivityPostDetailBinding
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == ValueUtil.VIEW_TYPE_ITEM) {
-            val view = LayoutInflater.from(context).inflate(R.layout.item_nested_comment_list, parent, false)
+            val view = LayoutInflater.from(context)
+                .inflate(R.layout.item_nested_comment_list, parent, false)
             ItemViewHolder(view)
         } else {
             val view = LayoutInflater.from(context).inflate(R.layout.item_loading, parent, false)
@@ -66,30 +67,32 @@ class PostNestedCommentAdapter (
         return data.size
     }
 
-    inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view){
+    inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val commentProfile = itemView.findViewById<ImageView>(R.id.iv_comment_profile_nested)
         val commentNickname = itemView.findViewById<TextView>(R.id.tv_comment_nickname_nested)
         private val commentContent = itemView.findViewById<TextView>(R.id.tv_comment_content_nested)
         private val commentButtonLike = itemView.findViewById<ImageButton>(R.id.ib_post_like_nested)
-        private val commentCountLike = itemView.findViewById<TextView>(R.id.tv_post_like_count_nested)
+        private val commentCountLike =
+            itemView.findViewById<TextView>(R.id.tv_post_like_count_nested)
         private val commentDate = itemView.findViewById<TextView>(R.id.tv_post_time_nested)
 
         private val moreMenu = itemView.findViewById<ImageButton>(R.id.ib_post_more_nested)
         private val commentInput = itemView.findViewById<EditText>(R.id.et_comment_content_nested)
         private val commentCancel = itemView.findViewById<TextView>(R.id.tv_cancel_nested)
         private val commentRegister = itemView.findViewById<TextView>(R.id.tv_register_nested)
-        private val constraintSet = itemView.findViewById<ConstraintLayout>(R.id.constraint_view_nested)
+        private val constraintSet =
+            itemView.findViewById<ConstraintLayout>(R.id.constraint_view_nested)
 
-        fun bind(item: ResponseComment, position: Int){
+        fun bind(item: ResponseComment, position: Int) {
             var isContentButtonPressed = false // 댓글 본문이 눌렸는지 안 눌렸는지
 
-            if(item.user.profileImgUrl == null){
+            if (item.user.profileImgUrl == null) {
                 Glide.with(itemView)
                     .load(R.drawable.ic_default_profile_image)
                     .circleCrop()
                     .fitCenter()
                     .into(commentProfile)
-            }else{
+            } else {
                 Glide.with(itemView)
                     .load(ValueUtil.IMAGE_BASE_URL + item.user.profileImgUrl)
                     .placeholder(R.drawable.ic_default_profile_image)
@@ -112,12 +115,12 @@ class PostNestedCommentAdapter (
 
             moreMenu.setOnClickListener(popupWindow::showAsDropDown) // 더보기 메뉴 클릭 시, 메뉴 view 중심으로 팝업 메뉴 호출
 
-            if (item.user.userId == ResponseExistLogin.baseUserInfo?.userId){ // 내 대댓글이면 수정, 삭제 메뉴가 보이게
+            if (item.user.userId == ResponseExistLogin.baseUserInfo?.userId) { // 내 대댓글이면 수정, 삭제 메뉴가 보이게
                 popupBind.layoutHorizEditComment.visibility = View.VISIBLE
                 popupBind.layoutHorizDeleteComment.visibility = View.VISIBLE
                 popupBind.layoutHorizChatComment.visibility = View.GONE
                 popupBind.layoutHorizBanComment.visibility = View.GONE
-            }else{ // 타 유저 대댓글이면 채팅, 차단 메뉴가 보이게
+            } else { // 타 유저 대댓글이면 채팅, 차단 메뉴가 보이게
                 popupBind.layoutHorizEditComment.visibility = View.GONE
                 popupBind.layoutHorizDeleteComment.visibility = View.GONE
                 popupBind.layoutHorizChatComment.visibility = View.VISIBLE
@@ -147,24 +150,30 @@ class PostNestedCommentAdapter (
                         // 답글 삭제 요청 함수 시작
                         processPostCommentDelete(
                             token,
-                            item.commentId.toLong(),{
-                                if(it){
-                                    Toast.makeText(context,"삭제되었습니다.",Toast.LENGTH_SHORT).show()
+                            item.commentId.toLong(), {
+                                if (it) {
+                                    Toast.makeText(context, "삭제되었습니다.", Toast.LENGTH_SHORT).show()
                                     // 대댓글 갱신
                                     processGetNestedCommentList(
                                         token,
                                         commentId,
-                                        0,{
-                                        },{
-                                            binding.tvPostCommentCount.text = (binding.tvPostCommentCount.text.toString().toInt()-data.size + it.size).toString()
+                                        0, {
+                                        }, {
+                                            binding.tvPostCommentCount.text =
+                                                (binding.tvPostCommentCount.text.toString()
+                                                    .toInt() - data.size + it.size).toString()
                                             replaceAll(it)
-                                          },{
+                                        }, {
                                             it.printStackTrace()
-                                            DialogUtil().SingleDialog(context, "답글 갱신에 문제가 발생하였습니다.", "확인")
+                                            DialogUtil().SingleDialog(
+                                                context,
+                                                "답글 갱신에 문제가 발생하였습니다.",
+                                                "확인"
+                                            )
                                         }
                                     )
                                 }
-                            },{
+                            }, {
                                 it.printStackTrace()
                                 DialogUtil().SingleDialog(context, "댓글 삭제에 문제가 발생하였습니다.", "확인")
                             }
@@ -185,81 +194,93 @@ class PostNestedCommentAdapter (
 
             // 등록 버튼 누르면 수정 요청
             commentRegister.setOnClickListener {
-                if(commentInput.text.toString().isNotEmpty()){
+                if (commentInput.text.toString().isNotEmpty()) {
                     processPostCommentEdit(
                         token,
                         item.commentId.toLong(),
                         RequestComment(
                             commentInput.text.toString(),
                             Utils.getArrayHashTagWithOutSpace(commentInput.text.toString())
-                        ),{ it ->
-                            if (it){
-                                Toast.makeText(context,"수정이 완료되었습니다.",Toast.LENGTH_SHORT).show()
+                        ), { it ->
+                            if (it) {
+                                Toast.makeText(context, "수정이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                                 changeViewCommentModifyBefore() // 원래 댓글 화면으로 뷰 변화 주기
                                 // 대댓글 갱신
                                 processGetNestedCommentList(
                                     token,
                                     commentId,
-                                    0,{
-                                    },{
-                                        binding.tvPostCommentCount.text = (binding.tvPostCommentCount.text.toString().toInt()-data.size + it.size).toString()
+                                    0, {
+                                    }, {
+                                        binding.tvPostCommentCount.text =
+                                            (binding.tvPostCommentCount.text.toString()
+                                                .toInt() - data.size + it.size).toString()
                                         replaceAll(it)
-                                    },{
+                                    }, {
                                         it.printStackTrace()
-                                        DialogUtil().SingleDialog(context, "답글 갱신에 문제가 발생하였습니다.", "확인")
+                                        DialogUtil().SingleDialog(
+                                            context,
+                                            "답글 갱신에 문제가 발생하였습니다.",
+                                            "확인"
+                                        )
                                     }
                                 )
                             }
-                        },{
+                        }, {
                             it.printStackTrace()
                             DialogUtil().SingleDialog(context, "답글 수정 요청에 문제가 발생하였습니다.", "확인")
                         }
                     )
-                }else{
-                    Toast.makeText(context,"수정할 내용을 입력해주세요!",Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "수정할 내용을 입력해주세요!", Toast.LENGTH_SHORT).show()
                 }
             }
 
             commentNickname.text = item.user.nickname
             commentContent.text = item.content
-            if(item.isLiked) // 내가 좋아요가 누른 상태면
-                commentButtonLike.background = ContextCompat.getDrawable(context,R.drawable.ic_post_like_after)
+            if (item.isLiked) // 내가 좋아요가 누른 상태면
+                commentButtonLike.background =
+                    ContextCompat.getDrawable(context, R.drawable.ic_post_like_after)
             else // 아니라면
-                commentButtonLike.background = ContextCompat.getDrawable(context,R.drawable.ic_post_like)
+                commentButtonLike.background =
+                    ContextCompat.getDrawable(context, R.drawable.ic_post_like)
             commentCountLike.text = item.likeCount.toString()
             commentDate.text = DateUtil().getTimeDiff(item.createdDate)
             setViewHashTag(commentContent, commentContent.text.toString()) // 대댓글 해시태그 강조
 
             /* 대댓글 좋아요 구현  */
             commentButtonLike.setOnClickListener {
-                if (!item.isLiked){ // 좋아요가 안 눌렸다면 좋아요 요청
+                if (!item.isLiked) { // 좋아요가 안 눌렸다면 좋아요 요청
                     processPostCommentLike(
                         token,
-                        item.commentId.toLong(),{
-                            if(it){
-                                Log.d("PostNestedCommentAdapter.kt","좋아요 성공")
-                                commentButtonLike.background = ContextCompat.getDrawable(context,R.drawable.ic_post_like_after)
+                        item.commentId.toLong(), {
+                            if (it) {
+                                Log.d("PostNestedCommentAdapter.kt", "좋아요 성공")
+                                commentButtonLike.background = ContextCompat.getDrawable(
+                                    context,
+                                    R.drawable.ic_post_like_after
+                                )
                                 commentCountLike.text = (item.likeCount + 1).toString()
                                 item.isLiked = true
                                 item.likeCount = item.likeCount + 1
                             }
-                        },{
+                        }, {
                             it.printStackTrace()
                             DialogUtil().SingleDialog(context, "좋아요 요청에 문제가 발생하였습니다.", "확인")
                         }
                     )
-                }else{ // 좋아요가 눌렸다면 좋아요 취소 요청
+                } else { // 좋아요가 눌렸다면 좋아요 취소 요청
                     processPostCommentUnLike(
                         token,
-                        item.commentId.toLong(),{
-                            if(it){
-                                Log.d("PostNestedCommentAdapter.kt","좋아요 취소 성공")
-                                commentButtonLike.background = ContextCompat.getDrawable(context,R.drawable.ic_post_like)
+                        item.commentId.toLong(), {
+                            if (it) {
+                                Log.d("PostNestedCommentAdapter.kt", "좋아요 취소 성공")
+                                commentButtonLike.background =
+                                    ContextCompat.getDrawable(context, R.drawable.ic_post_like)
                                 commentCountLike.text = (item.likeCount - 1).toString()
                                 item.isLiked = false
                                 item.likeCount = item.likeCount - 1
                             }
-                        },{
+                        }, {
                             it.printStackTrace()
                             DialogUtil().SingleDialog(context, "좋아요 취소 요청에 문제가 발생하였습니다.", "확인")
                         }
@@ -269,10 +290,10 @@ class PostNestedCommentAdapter (
 
             /* 더보기 메뉴 구현 */
             commentContent.setOnClickListener { // 클릭 시
-                if (!isContentButtonPressed){
+                if (!isContentButtonPressed) {
                     commentContent.maxLines = 10 // 다 보이게 (10줄로 기본 설정)
                     isContentButtonPressed = true
-                } else{
+                } else {
                     commentContent.maxLines = 2 // 다시 2줄로 설정
                     isContentButtonPressed = false
                 }
@@ -285,7 +306,7 @@ class PostNestedCommentAdapter (
          * @author - Tae hyun Park
          * @since - 2022-09-10
          */
-        private fun changeViewCommentModifyBefore(){
+        private fun changeViewCommentModifyBefore() {
             // 기존 뷰 VISIBLE
             commentNickname.visibility = View.VISIBLE
             commentContent.visibility = View.VISIBLE
@@ -305,7 +326,7 @@ class PostNestedCommentAdapter (
          * @author - Tae hyun Park
          * @since - 2022-09-10
          */
-        private fun changeViewCommentModifyAfter(popupWindow: PopupWindow){
+        private fun changeViewCommentModifyAfter(popupWindow: PopupWindow) {
             // 수정 뷰를 띄우기 위해 기존 뷰 GONE
             commentNickname.visibility = View.GONE
             commentContent.visibility = View.GONE
@@ -338,12 +359,12 @@ class PostNestedCommentAdapter (
      */
     private fun processGetNestedCommentList(
         token: String,
-        commentId : Long,
-        lastCommentId : Int,
+        commentId: Long,
+        lastCommentId: Int,
         init: () -> Unit,
         last: (List<ResponseComment>) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             init() // 초기화 함수 호출
             val postManager = PostManager() // 커스텀 게시글 객체 생성
@@ -356,7 +377,7 @@ class PostNestedCommentAdapter (
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
                 Log.d("PostCommentAdapter.kt", "대댓글 리스트 요청 결과 : $response")
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -374,7 +395,7 @@ class PostNestedCommentAdapter (
         commentId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -383,7 +404,7 @@ class PostNestedCommentAdapter (
                     commentId
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -401,7 +422,7 @@ class PostNestedCommentAdapter (
         commentId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -410,7 +431,7 @@ class PostNestedCommentAdapter (
                     commentId
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -430,7 +451,7 @@ class PostNestedCommentAdapter (
         commentInfo: RequestComment,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -440,7 +461,7 @@ class PostNestedCommentAdapter (
                     commentInfo
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -458,7 +479,7 @@ class PostNestedCommentAdapter (
         commentId: Long,
         last: (Boolean) -> Unit,
         error: (ResponseErrorException) -> Unit
-    ){
+    ) {
         CoroutineScope(Dispatchers.Main).launch {
             val postManager = PostManager() // 커스텀 게시글 객체 생성
             try {
@@ -467,7 +488,7 @@ class PostNestedCommentAdapter (
                     commentId
                 )
                 last(response) // 받아온 리스트를 바탕으로 후처리 함수 호출
-            }catch (e: ResponseErrorException){
+            } catch (e: ResponseErrorException) {
                 error(e)
             }
         }
@@ -540,16 +561,16 @@ class PostNestedCommentAdapter (
      * @author - Tae hyun Park
      * @since - 2022-08-25 | 2022-09-03
      */
-    private fun setViewHashTag(commentContent: TextView, content: String){
+    private fun setViewHashTag(commentContent: TextView, content: String) {
         // 해시 태그 리스트 색상 표시
         var hashTagList = Utils.getArrayHashTagWithOutSpace(content)
         var spannableString = SpannableString(content) // 텍스트 뷰의 특정 문자열 처리를 위한 spannableString 객체 생성
         var startList = ArrayList<Int>()
-        for(hashString in hashTagList){
+        for (hashString in hashTagList) {
             var start = content.indexOf("#$hashString") // 전체 문자열에서 해당 해시태그 문자열과 일치하는 첫 인덱스를 찾아낸다
-            for(listIndex in startList){
-                if(start == listIndex)// 중복된 태그가 이미 있다면
-                    start = content.indexOf("#$hashString",start+1) // 중복이므로 그 다음 인덱스부터 다시 찾는다
+            for (listIndex in startList) {
+                if (start == listIndex)// 중복된 태그가 이미 있다면
+                    start = content.indexOf("#$hashString", start + 1) // 중복이므로 그 다음 인덱스부터 다시 찾는다
             }
             startList.add(start) // 인덱스들을 저장
             var end = start + hashString.length // 해당 해시태그 문자열의 끝 인덱스
@@ -557,7 +578,8 @@ class PostNestedCommentAdapter (
                 ForegroundColorSpan(Color.parseColor("#014D91")),
                 start,
                 end + 1,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) // spannable 속성 지정
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            ) // spannable 속성 지정
         }
         startList.clear()
         commentContent.text = spannableString

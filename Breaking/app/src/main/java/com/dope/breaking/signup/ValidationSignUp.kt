@@ -17,7 +17,7 @@ class ValidationSignUp {
 
     /**
      * @description - 회원가입 요청 전에 닉네임, 전화번호, 이메일의 유효성의 검증을 요청하는 동기적 함수이다. 추가적으로 이름 필드가 빈 문자열인지도 검사한다.
-      응답 에러 케이스의 경우 에러 코드가 아직 미구현이므로 String 으로 판별하였음.
+    응답 에러 케이스의 경우 에러 코드가 아직 미구현이므로 String 으로 판별하였음.
      * @param - String, String, String, ActivitySignUpBinding
      * @return - Boolean
      * @author - Tae hyun Park
