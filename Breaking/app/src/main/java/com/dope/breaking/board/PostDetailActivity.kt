@@ -68,6 +68,7 @@ class PostDetailActivity : AppCompatActivity() {
     private var isSold = false // 해당 게시물이 1개 이상 팔렸는지
     private var isContentButtonPressed = false // 게시물
     private var isMyPost = false // 해당 게시물의 작성자가 나인지
+    private var isAnonymous = false // 해당 게시글 작성자가 익명인지
     private var postType = "" // 해당 게시물의 타입
     private var isLoading = false  // 로딩 중 판단
     private var requestCommentId = -1 // 대댓글 요청 시에 보낼 댓글 id (기본값은 임의로 -1로 설정)
@@ -139,12 +140,12 @@ class PostDetailActivity : AppCompatActivity() {
         })
 
         binding.ivProfileWriter.setOnClickListener { // 프로필 이미지 클릭 시 유저 프로필로 이동
-            if (userId != -1)
+            if (userId != -1 && !isAnonymous)
                 UserProfile(this).moveToUserPage(userId.toLong())
         }
 
         binding.tvUserNickName.setOnClickListener { // 프로필 닉네임 클릭 시 유저 프로필로 이동
-            if (userId != -1)
+            if (userId != -1 && !isAnonymous)
                 UserProfile(this).moveToUserPage(userId.toLong())
         }
 
@@ -937,7 +938,7 @@ class PostDetailActivity : AppCompatActivity() {
         val params = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        params.setMargins(16, 8, 16, 8)
+        params.setMargins(14, 6, 14, 6)
         for (i in 0 until count) {
             var indicators = ImageView(this)
             indicators.setImageDrawable(
@@ -1562,8 +1563,8 @@ class PostDetailActivity : AppCompatActivity() {
      * @description - 받아온 상세 조회 정보를 바탕으로 뷰에 보여주기
      * @param - None
      * @return - None
-     * @author - Tae hyun Park
-     * @since - 2022-08-18 | 2022-08-25
+     * @author - Tae hyun Park | Seunggun Sin
+     * @since - 2022-08-18 | 2022-09-20
      */
     @SuppressLint("ResourceAsColor")
     private fun settingPostDetailView(responsePostDetail: ResponsePostDetail) {
@@ -1575,6 +1576,7 @@ class PostDetailActivity : AppCompatActivity() {
         isMyPost = responsePostDetail.isMyPost // 뷰 갱신마다 내 게시물인지 확인
         postType = responsePostDetail.postType // 뷰 갱신마다 게시물 타입 가져옴
         flagLike = responsePostDetail.isLiked // 뷰 갱신마다 좋아요 여부를 가져옴
+        isAnonymous = responsePostDetail.isAnonymous // 익명 여부를 가져옴
         setViewNickNameProfile(responsePostDetail) // 작성자의 닉네임과 프로필 이미지, 댓글 프로필 이미지
         setViewPostTypeSold(responsePostDetail) // 게시글 타입 (단독, 판매 중, 판매완료)
         setViewPostContents(responsePostDetail) // 게시글의 주요 컨텐츠 (제목, 위치, 시간, 가격, 내용)
