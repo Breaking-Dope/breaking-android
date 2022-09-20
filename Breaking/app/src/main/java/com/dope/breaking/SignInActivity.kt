@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -155,9 +154,9 @@ class SignInActivity : AppCompatActivity() {
         }
 
         // 카카오 로그인 버튼 클릭 이벤트
-        binding.btnSignInKakao.setOnClickListener(View.OnClickListener {
+        binding.btnSignInKakao.setOnClickListener {
             startKakaoLogin()
-        })
+        }
     }
 
     /**
@@ -180,7 +179,7 @@ class SignInActivity : AppCompatActivity() {
     @author - Tae hyun Park
     @since - 2022-07-05 | 2022-07-21
      **/
-    fun startKakaoLogin(): Unit {
+    private fun startKakaoLogin() {
         // 카카오계정 로그인 공통 callback
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
@@ -389,18 +388,5 @@ class SignInActivity : AppCompatActivity() {
      */
     private fun showToast(message: String) {
         Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        val account = GoogleSignIn.getLastSignedInAccount(this) // 이전에 구글 로그인을 했던 계정 가져오기
-        if (account != null) { // 계정이 있다면
-            Log.d("already", account.email ?: "")
-            Log.d("already2", account.idToken ?: "")
-            Log.d("already3", account.givenName ?: "")
-            Log.d("already4", account.familyName ?: "")
-            Log.d("already5", account.displayName ?: "")
-            Log.d("already5", account.serverAuthCode ?: "")
-        }
     }
 }

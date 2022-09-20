@@ -17,7 +17,6 @@ import org.json.JSONObject
 private const val DURATION: Long = 600
 
 class SplashActivity : AppCompatActivity() {
-    private val TAG = "SplashActivity.kt"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

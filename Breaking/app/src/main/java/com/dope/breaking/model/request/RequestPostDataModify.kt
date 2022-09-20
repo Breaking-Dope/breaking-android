@@ -14,4 +14,4 @@ data class RequestPostDataModify(
     @get:JsonProperty("isAnonymous")
     val isAnonymous: Boolean,
     val eventDate: String,
-): Serializable
+) : Serializable
