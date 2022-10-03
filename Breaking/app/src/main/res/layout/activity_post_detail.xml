@@ -17,18 +17,6 @@
         app:title="@string/post_detail_tool_bar"
         app:titleTextColor="@color/black">
 
-        <!--
-        <TextView
-            android:id="@+id/post_detail_btn_modify"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/post_detail_tool_bar_modify"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:layout_gravity="right"
-            android:visibility="gone"
-            android:layout_marginRight="10dp"/>
-        -->
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.core.widget.NestedScrollView
@@ -101,11 +89,11 @@
                     android:adjustViewBounds="true"
                     android:scaleType="centerCrop"
                     app:layout_constraintBottom_toTopOf="@+id/divider1"
-                    app:layout_constraintHorizontal_bias="0.048"
+                    app:layout_constraintHorizontal_bias="0.045"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/view_pager"
-                    app:layout_constraintVertical_bias="0.285"
+                    app:layout_constraintVertical_bias="0.22"
                     app:layout_constraintWidth_percent="0.18"
                     tools:srcCompat="@tools:sample/avatars" />
 
@@ -116,7 +104,7 @@
                     app:layout_constraintVertical_bias="0.1"
                     android:gravity="center"
                     android:text=""
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
                     app:layout_constraintLeft_toLeftOf="@+id/iv_profile_writer"
@@ -247,6 +235,7 @@
                 <TextView
                     android:id="@+id/tv_title"
                     android:layout_width="0dp"
+                    app:layout_constraintWidth_percent="0.65"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="25dp"
@@ -254,7 +243,7 @@
                     android:text=""
                     android:textColor="@color/black"
                     android:textSize="15.5sp"
-                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_bias="0.2"
                     app:layout_constraintLeft_toRightOf="@+id/iv_profile_writer"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/divider_post_type" />
@@ -298,11 +287,11 @@
                     android:id="@+id/tv_post_event_time"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:ellipsize="end"
                     android:text=""
                     android:textSize="11sp"
-                    app:layout_constraintVertical_bias="0.1"
+                    app:layout_constraintVertical_bias="0.08"
                     app:layout_constraintBottom_toTopOf="@+id/divider1"
                     app:layout_constraintLeft_toLeftOf="@+id/iv_location_icon"
                     app:layout_constraintTop_toBottomOf="@+id/iv_location_icon" />
@@ -330,7 +319,7 @@
                     android:text="@string/post_detail_btn_purchase"
                     android:textSize="12sp"
                     android:textColor="@color/sign_up_user_type_text_color"
-                    app:layout_constraintHorizontal_bias="0.9"
+                    app:layout_constraintHorizontal_bias="0.85"
                     app:layout_constraintVertical_bias="0.3"
                     app:layout_constraintTop_toBottomOf="@id/tv_post_price"
                     app:layout_constraintBottom_toTopOf="@id/divider1"
@@ -405,7 +394,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintHorizontal_bias="0"
                     android:textColor="@color/black"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     app:layout_constraintTop_toTopOf="@+id/ib_post_like"
                     app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
                     app:layout_constraintLeft_toLeftOf="@id/tv_post_comment_count"
@@ -428,7 +417,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     app:layout_constraintHorizontal_bias="0.01"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     app:layout_constraintTop_toTopOf="@+id/ib_post_comment"
                     app:layout_constraintBottom_toBottomOf="@+id/ib_post_comment"
                     app:layout_constraintLeft_toRightOf="@id/ib_post_comment"
@@ -439,7 +428,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/ic_baseline_more_horiz_24"
-                    app:layout_constraintHorizontal_bias="0.92"
+                    app:layout_constraintHorizontal_bias="0.95"
                     app:layout_constraintTop_toTopOf="@+id/ib_post_like"
                     app:layout_constraintBottom_toBottomOf="@+id/ib_post_like"
                     app:layout_constraintLeft_toRightOf="@id/ib_post_comment"
@@ -473,7 +462,7 @@
                     android:id="@+id/rv_comment_list"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="3dp"
                     android:orientation="vertical"
                     android:overScrollMode="never"
                     android:backgroundTint="@color/white"
@@ -487,32 +476,36 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:id="@+id/linear_comment"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="3dp">
-
+        android:background="@color/white"
+        android:padding="2dp"
+        >
         <ImageView
             android:id="@+id/iv_comment_writer_profile"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_weight="0.65"
+            app:layout_constraintRight_toLeftOf="@id/et_post_write"
+            app:layout_constraintHorizontal_bias="0.08"
+            app:layout_constraintWidth_percent="0.12"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="0dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             tools:srcCompat="@tools:sample/avatars" />
 
         <EditText
+            app:layout_constraintRight_toLeftOf="@id/tv_add_comment"
+            app:layout_constraintLeft_toRightOf="@id/iv_comment_writer_profile"
+            app:layout_constraintTop_toTopOf="@id/iv_comment_writer_profile"
+            app:layout_constraintBottom_toBottomOf="@id/iv_comment_writer_profile"
             android:id="@+id/et_post_write"
             android:layout_width="0dp"
+            app:layout_constraintWidth_percent="0.6"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_weight="2.5"
             android:background="@null"
             android:hint="@string/post_detail_add_comment_hint"
             android:lines="3"
@@ -521,13 +514,15 @@
             android:textSize="14sp" />
 
         <TextView
+            app:layout_constraintTop_toTopOf="@id/iv_comment_writer_profile"
+            app:layout_constraintBottom_toBottomOf="@id/iv_comment_writer_profile"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/et_post_write"
             android:id="@+id/tv_add_comment"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_weight="1"
             android:text="@string/post_detail_add_comment"
             android:textColor="@color/breaking_color"
             android:textSize="14sp" />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

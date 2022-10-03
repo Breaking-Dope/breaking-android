@@ -69,6 +69,11 @@ class NaviHomeFragment : Fragment() {
             startActivity(Intent(requireContext(), FeedSearchActivity::class.java)) // 검색 페이ㅣㅈ로 이동
         }
 
+        // 메인 로고 클릭 시 피드 맨 위로 이동
+        binding.imgvMainLogo.setOnClickListener {
+            binding.rcvMainFeed.layoutManager?.smoothScrollToPosition(binding.rcvMainFeed, null, 0)
+        }
+
         // 피드 요청 에러 시 띄워줄 다이얼로그 정의
         val requestErrorDialog =
             DialogUtil().SingleDialog(requireContext(), "피드를 가져오는데 문제가 발생하였습니다.", "확인")

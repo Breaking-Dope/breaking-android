@@ -33,8 +33,6 @@ import com.dope.breaking.util.DialogUtil
 import com.dope.breaking.util.ValueUtil
 
 class SignUpActivity : AppCompatActivity() {
-    private val TAG = "SignUpActivity.kt" // Log Tag
-
     private var mbinding: ActivitySignUpBinding? = null // 전역 변수로 바인딩 객체 선언
 
     private val binding get() = mbinding!!  // 매번 null 체크할 필요 없이 바인딩 변수 재 선언
@@ -210,31 +208,31 @@ class SignUpActivity : AppCompatActivity() {
      **/
     private fun clickSignUpButtons() {
         // 프로필 이미지 버튼 클릭 시
-        binding.imgBtnProfileImage.setOnClickListener(View.OnClickListener {
+        binding.imgBtnProfileImage.setOnClickListener {
             selectGalleryIntent()
-        })
+        }
 
         // 프로필 추가 텍스트뷰 클릭 시
-        binding.tvAddProfile.setOnClickListener(View.OnClickListener {
+        binding.tvAddProfile.setOnClickListener {
             selectGalleryIntent()
-        })
+        }
 
         // 회원 유형으로 일반인을 클릭한다면
-        binding.btnUserTypeDefault.setOnClickListener(View.OnClickListener {
+        binding.btnUserTypeDefault.setOnClickListener {
             isRoleButtonSelected = true
             binding.btnUserTypeOther.setBackgroundResource(R.drawable.sign_up_user_type_unselected) // 언론인 선택 색상 비활성화
             binding.btnUserTypeDefault.setBackgroundResource(R.drawable.sign_up_user_type_selected) // 일반인 선택 색상 활성화
-        })
+        }
 
         // 회원 유형으로 언론인을 클릭한다면
-        binding.btnUserTypeOther.setOnClickListener(View.OnClickListener {
+        binding.btnUserTypeOther.setOnClickListener {
             isRoleButtonSelected = false
             binding.btnUserTypeOther.setBackgroundResource(R.drawable.sign_up_user_type_selected)    // 언론인 선택 색상 활성화
             binding.btnUserTypeDefault.setBackgroundResource(R.drawable.sign_up_user_type_unselected)// 일반인 선택 색상 비활성화
-        })
+        }
 
         // 최종적으로 회원가입 버튼을 클릭한다면
-        binding.btnUserRegister.setOnClickListener(View.OnClickListener {
+        binding.btnUserRegister.setOnClickListener {
             // 회원가입의 입력 필드 값 모두 가져오기
             val realName = binding.etName.text.toString()     // 이름
             val nickName = binding.etNickname.text.toString() // 닉네임
@@ -242,15 +240,6 @@ class SignUpActivity : AppCompatActivity() {
             val email = binding.etEmail.text.toString()             // 이메일
             val stateMessage = binding.etStateMessage.text.toString() // 상태 메시지
             val role = isRoleButtonSelected              // 회원 유형 (Default 값은 true)
-
-            Log.d(
-                TAG, "\n이름 : " + realName
-                        + "\n닉네임 : " + nickName
-                        + "\n전화번호 : " + phoneNumber +
-                        "\n이메일 : " + email +
-                        "\n상태 메시지 : " + stateMessage +
-                        "\n회원 유형 : " + role
-            )
 
             // 닉네임, 전화번호, 이메일의 유효성 검증 요청
             val progressDialog = DialogUtil().ProgressDialog(this)
@@ -266,7 +255,6 @@ class SignUpActivity : AppCompatActivity() {
                         binding,
                         ""
                     )
-                Log.d(TAG, "3가지 검증 요청 결과 : " + validationResult.toString())
 
                 // 유효성 검증에 성공했다면 최종 회원가입 요청을 보냄.
 
@@ -286,7 +274,6 @@ class SignUpActivity : AppCompatActivity() {
                         imageData = profileImgBitmap,
                         imageName = filename ?: "default.png"
                     )
-                    Log.d(TAG, "filename test : " + filename)
 
                     if (progressDialog.isShowing()) { // 로딩 progress 종료
                         progressDialog.dismissDialog()
@@ -297,7 +284,7 @@ class SignUpActivity : AppCompatActivity() {
                     }
                 }
             }
-        })
+        }
     }
 
     /**

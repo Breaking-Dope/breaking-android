@@ -141,9 +141,9 @@
         android:id="@+id/tv_chip_sold_stop_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/chip_post_sold_background"
-        android:layout_marginBottom="5dp"
         android:layout_marginEnd="6dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/chip_post_sold_background"
         android:gravity="center"
         android:paddingStart="8dp"
         android:paddingTop="2dp"
@@ -165,9 +165,9 @@
         android:id="@+id/tv_chip_hidden_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/chip_post_hidden_background"
-        android:layout_marginBottom="5dp"
         android:layout_marginEnd="6dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/chip_post_hidden_background"
         android:gravity="center"
         android:paddingStart="8dp"
         android:paddingTop="2dp"
@@ -295,5 +295,5 @@
         app:layout_constraintLeft_toLeftOf="@id/tv_post_title"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_post_nickname"
-        app:layout_constraintVertical_bias="0.15" />
+        app:layout_constraintVertical_bias="0.1" />
 </androidx.constraintlayout.widget.ConstraintLayout>
